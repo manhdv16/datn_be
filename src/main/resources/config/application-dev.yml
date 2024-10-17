@@ -33,6 +33,8 @@ spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:mysql://office-nest-db-do-user-17991215-0.i.db.ondigitalocean.com:25060/defaultdb?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true
+    #    username: root
+    #    password: dvm123
     username: manhdv
     password: 12345678
     hikari:
