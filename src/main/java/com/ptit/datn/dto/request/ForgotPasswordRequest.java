@@ -1,10 +1,10 @@
 package com.ptit.datn.dto.request;
 
-import com.vn.customs.gov.auth.constants.Constants;
+import com.ptit.datn.constants.Constants;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import java.util.Date;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
