@@ -2,6 +2,7 @@ package com.ptit.datn.web.rest;
 
 import com.ptit.datn.config.Constants;
 import com.ptit.datn.domain.User;
+import com.ptit.datn.dto.response.ApiResponse;
 import com.ptit.datn.repository.UserRepository;
 import com.ptit.datn.security.AuthoritiesConstants;
 import com.ptit.datn.service.MailService;
@@ -95,7 +96,7 @@ public class UserResource {
 
     @PostMapping("/users")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<User> createUser(@Valid @RequestBody AdminUserDTO userDTO) throws URISyntaxException {
+    public ApiResponse<User> createUser(@Valid @RequestBody AdminUserDTO userDTO) throws URISyntaxException {
         log.debug("REST request to save User : {}", userDTO);
 
         if (userDTO.getId() != null) {
@@ -108,15 +109,13 @@ public class UserResource {
         } else {
             User newUser = userService.createUser(userDTO);
             //            mailService.sendCreationEmail(newUser);
-            return ResponseEntity.created(new URI("/api/admin/users/" + newUser.getLogin()))
-                .headers(HeaderUtil.createAlert(applicationName, "userManagement.created", newUser.getLogin()))
-                .body(newUser);
+            return ApiResponse.<User>builder().message("User created").result(newUser).build();
         }
     }
 
     @PutMapping({ "/users", "/users/{login}" })
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<AdminUserDTO> updateUser(
+    public ApiResponse<AdminUserDTO> updateUser(
         @PathVariable(name = "login", required = false) @Pattern(regexp = Constants.LOGIN_REGEX) String login,
         @Valid @RequestBody AdminUserDTO userDTO
     ) {
@@ -131,10 +130,7 @@ public class UserResource {
         }
         Optional<AdminUserDTO> updatedUser = userService.updateUser(userDTO);
 
-        return ResponseUtil.wrapOrNotFound(
-            updatedUser,
-            HeaderUtil.createAlert(applicationName, "userManagement.updated", userDTO.getLogin())
-        );
+        return ApiResponse.<AdminUserDTO>builder().message("User updated").result(updatedUser.orElse(null)).build();
     }
 
     @GetMapping("/users")
