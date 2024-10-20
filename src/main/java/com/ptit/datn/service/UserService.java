@@ -3,21 +3,35 @@ package com.ptit.datn.service;
 import com.ptit.datn.config.Constants;
 import com.ptit.datn.domain.Authority;
 import com.ptit.datn.domain.User;
+import com.ptit.datn.exception.AppException;
+import com.ptit.datn.exception.ErrorCode;
 import com.ptit.datn.repository.AuthorityRepository;
 import com.ptit.datn.repository.UserRepository;
 import com.ptit.datn.security.AuthoritiesConstants;
 import com.ptit.datn.security.SecurityUtils;
+import com.ptit.datn.security.jwt.TokenProvider;
 import com.ptit.datn.service.dto.AdminUserDTO;
 import com.ptit.datn.service.dto.UserDTO;
+import com.ptit.datn.web.rest.vm.LoginVM;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,21 +42,17 @@ import tech.jhipster.security.RandomUtil;
  */
 @Service
 @Transactional
+@RequiredArgsConstructor
+@FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 public class UserService {
 
-    private static final Logger log = LoggerFactory.getLogger(UserService.class);
+    static Logger log = LoggerFactory.getLogger(UserService.class);
 
-    private final UserRepository userRepository;
-
-    private final PasswordEncoder passwordEncoder;
-
-    private final AuthorityRepository authorityRepository;
-
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthorityRepository authorityRepository) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.authorityRepository = authorityRepository;
-    }
+    UserRepository userRepository;
+    PasswordEncoder passwordEncoder;
+    TokenProvider tokenProvider;
+    AuthorityRepository authorityRepository;
+    AuthenticationManagerBuilder authenticationManagerBuilder;
 
     public Optional<User> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
@@ -71,6 +81,8 @@ public class UserService {
     }
 
     public Optional<User> requestPasswordReset(String mail) {
+        User u = userRepository.findOneByEmailIgnoreCase(mail).orElse(null);
+
         return userRepository
             .findOneByEmailIgnoreCase(mail)
             .filter(User::isActivated)
@@ -242,7 +254,7 @@ public class UserService {
             .ifPresent(user -> {
                 String currentEncryptedPassword = user.getPassword();
                 if (!passwordEncoder.matches(currentClearTextPassword, currentEncryptedPassword)) {
-                    throw new InvalidPasswordException();
+                    throw new AppException(ErrorCode.OLD_PASSWORD_NOT_MATCH);
                 }
                 String encryptedPassword = passwordEncoder.encode(newPassword);
                 user.setPassword(encryptedPassword);
@@ -287,10 +299,26 @@ public class UserService {
 
     /**
      * Gets a list of all the authorities.
+     *
      * @return a list of all the authorities.
      */
     @Transactional(readOnly = true)
     public List<String> getAuthorities() {
         return authorityRepository.findAll().stream().map(Authority::getName).toList();
+    }
+
+    public String authenticate(LoginVM request) {
+        try {
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                request.getUsername(),
+                request.getPassword()
+            );
+            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            return tokenProvider.createToken(authentication);
+        } catch (BadCredentialsException e) {
+            return null;
+        }
     }
 }
