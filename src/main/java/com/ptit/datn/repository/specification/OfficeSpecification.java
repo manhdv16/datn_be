@@ -3,32 +3,64 @@ package com.ptit.datn.repository.specification;
 import com.ptit.datn.domain.Office;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.math.BigInteger;
+
 public class OfficeSpecification {
-    public static Specification<Office> search(String search) {
+
+    public static Specification<Office> search(String keyword) {
         return (Root<Office> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) -> {
-            Predicate p1 = criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + search.toLowerCase() + "%");
-            Predicate p2 = criteriaBuilder.like(criteriaBuilder.lower(root.get("address")), "%" + search.toLowerCase() + "%");
-            return criteriaBuilder.or(p1, p2);
+            if (keyword == null || keyword.isEmpty())
+                return criteriaBuilder.conjunction();
+
+            return criteriaBuilder.or(
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("building").get("name")), "%" + keyword.toLowerCase() + "%"),
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("building").get("address")), "%" + keyword.toLowerCase() + "%")
+            );
         };
     }
 
-    public static Specification<Office> hasAreaBetween(Double minArea, Double maxArea) {
+    public static Specification<Office> hasWardId(Long wardId) {
         return (Root<Office> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) -> {
-            Predicate p1 = criteriaBuilder.greaterThanOrEqualTo(root.get("area"), minArea);
-            Predicate p2 = criteriaBuilder.lessThanOrEqualTo(root.get("area"), maxArea);
-            return criteriaBuilder.and(p1, p2);
+            return criteriaBuilder.equal(root.get("building").get("ward").get("id"), wardId);
         };
     }
 
-    public static Specification<Office> hasPriceBetween(Double minPrice, Double maxPrice) {
+    public static Specification<Office> hasDistrictId(Long districtId) {
         return (Root<Office> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) -> {
-            Predicate p1 = criteriaBuilder.greaterThanOrEqualTo(root.get("price"), minPrice);
-            Predicate p2 = criteriaBuilder.lessThanOrEqualTo(root.get("price"), maxPrice);
-            return criteriaBuilder.and(p1, p2);
+            return criteriaBuilder.equal(root.get("building").get("ward").get("district").get("id"), districtId);
+        };
+    }
+
+    public static Specification<Office> hasProvinceId(Long provinceId) {
+        return (Root<Office> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) -> {
+            return criteriaBuilder.equal(root.get("building").get("ward").get("district").get("province").get("id"), provinceId);
+        };
+    }
+
+    public static Specification<Office> hasAreaGreaterOrEqual(Double area) {
+        return (Root<Office> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) -> {
+            return criteriaBuilder.greaterThanOrEqualTo(root.get("area"), area);
+        };
+    }
+
+    public static Specification<Office> hasAreaLessOrEqual(Double area) {
+        return (Root<Office> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) -> {
+            return criteriaBuilder.lessThanOrEqualTo(root.get("area"), area);
+        };
+    }
+
+    public static Specification<Office> hasPriceGreaterOrEqual(BigInteger price) {
+        return (Root<Office> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) -> {
+            return criteriaBuilder.greaterThanOrEqualTo(root.get("price"), price);
+        };
+    }
+
+    public static Specification<Office> hasPriceLessOrEqual(BigInteger price) {
+        return (Root<Office> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) -> {
+            return criteriaBuilder.lessThanOrEqualTo(root.get("price"), price);
         };
     }
 
