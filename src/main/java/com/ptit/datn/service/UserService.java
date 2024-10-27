@@ -81,8 +81,9 @@ public class UserService {
     }
 
     public Optional<User> requestPasswordReset(String mail) {
-        User u = userRepository.findOneByEmailIgnoreCase(mail).orElse(null);
-
+        User u = userRepository.findOneByEmailIgnoreCase(mail).orElseThrow(
+            ()-> new AppException(ErrorCode.USER_NOT_EXISTED)
+            );
         return userRepository
             .findOneByEmailIgnoreCase(mail)
             .filter(User::isActivated)

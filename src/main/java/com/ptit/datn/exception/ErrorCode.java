@@ -25,7 +25,11 @@ public enum ErrorCode {
     LOGIN_FAILED(1013, Translator.toLocale("login.failed"), HttpStatus.BAD_REQUEST),
     USERNAME_IS_NOT_BLANK(1014, Translator.toLocale("USERNAME_IS_NOT_BLANK"), HttpStatus.BAD_REQUEST),
     NEW_PASSWORD_IS_NOT_BLANK(1015, Translator.toLocale("NEW_PASSWORD_IS_NOT_BLANK"), HttpStatus.BAD_REQUEST),
-    NEW_CONFIRM_PASSWORD_IS_NOT_BLANK(1016, Translator.toLocale("NEW_CONFIRM_PASSWORD_IS_NOT_BLANK"), HttpStatus.BAD_REQUEST);
+    URL_NOT_FOUND(1016, Translator.toLocale("URL_NOT_FOUND"), HttpStatus.BAD_REQUEST),
+    EMAIL_INVALID(1016, Translator.toLocale("EMAIL_INVALID"), HttpStatus.BAD_REQUEST),
+
+    NEW_CONFIRM_PASSWORD_IS_NOT_BLANK(1016, Translator.toLocale("NEW_CONFIRM_PASSWORD_IS_NOT_BLANK"),
+        HttpStatus.BAD_REQUEST);
 
     ErrorCode(int code, String message, HttpStatus statusCode) {
         this.code = code;

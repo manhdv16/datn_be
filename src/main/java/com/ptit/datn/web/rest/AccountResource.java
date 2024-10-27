@@ -1,6 +1,7 @@
 package com.ptit.datn.web.rest;
 
 import com.ptit.datn.domain.User;
+import com.ptit.datn.dto.request.ForgotPasswordRequest;
 import com.ptit.datn.dto.response.ApiResponse;
 import com.ptit.datn.repository.UserRepository;
 import com.ptit.datn.security.SecurityUtils;
@@ -97,17 +98,15 @@ public class AccountResource {
     }
 
     @PostMapping(path = "/account/reset-password/init")
-    public void requestPasswordReset(@RequestBody String mail) {
-        Optional<User> user = userService.requestPasswordReset(mail);
-        if (user.isPresent()) {
-            mailService.sendPasswordResetMail(user.orElseThrow());
-        } else {
-            log.warn("Password reset requested for non existing mail");
-        }
+    public ApiResponse requestPasswordReset(@RequestBody @Valid ForgotPasswordRequest request) {
+        Optional<User> user = userService.requestPasswordReset(request.getMail());
+        mailService.sendPasswordResetMail(user.orElseThrow());
+        return ApiResponse.builder().message("The key to reset your password has been sent to your email.").build();
+
     }
 
     @PostMapping(path = "/account/reset-password/finish")
-    public void finishPasswordReset(@RequestBody KeyAndPasswordVM keyAndPassword) {
+    public ApiResponse finishPasswordReset(@RequestBody KeyAndPasswordVM keyAndPassword) {
         if (isPasswordLengthInvalid(keyAndPassword.getNewPassword())) {
             throw new InvalidPasswordException();
         }
@@ -116,6 +115,7 @@ public class AccountResource {
         if (!user.isPresent()) {
             throw new AccountResourceException("No user was found for this reset key");
         }
+        return ApiResponse.builder().message("Password reset successfully").build();
     }
 
     // not use

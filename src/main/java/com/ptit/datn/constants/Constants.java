@@ -18,6 +18,9 @@ public final class Constants {
     public static final String SEMICOLON = ";";
     public static final String SPECIAL_CHARACTER = "\"";
     public static final Integer INDEX_OF_MESSAGE = 1;
+    public static final String REGEX_EMAIL = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
+    public static final String REGEX_PASSWORD = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\W_]).{8,50}$";
+    public static final String EMAIL_SENDER = "ROMS OFFICIAL";
 
     public static final class REQUEST_HEADER {
 
