@@ -24,13 +24,13 @@ public class Office extends AbstractAuditingEntity<Long> {
         @Column(name = "floor")
         private Integer floor;
 
-        @Column(name = "rental_price")
-        private BigInteger rentalPrice;
-
-        @Column(name = "building_id")
-        private Long buildingId;
+        @Column(name = "price")
+        private BigInteger price;
 
         @Column(name = "note")
         private String note;
 
+        @ManyToOne(fetch = FetchType.LAZY)
+        @JoinColumn(name = "building_id", nullable = false, referencedColumnName = "id", updatable = false)
+        private Building building;
 }

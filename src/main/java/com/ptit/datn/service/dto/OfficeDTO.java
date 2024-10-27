@@ -9,24 +9,29 @@ import java.math.BigInteger;
 @Getter
 @Setter
 public class OfficeDTO {
+
     private Long id;
     private Double area;
     private Integer floor;
-    private BigInteger rentalPrice;
-    private Long buildingId;
+    private BigInteger price;
     private String note;
 
+    private Long buildingId;
+    private BuildingDTO building;
+
     public OfficeDTO() {
-        // Empty constructor needed for Jackson.
+
     }
 
     public OfficeDTO(Office office) {
         this.id = office.getId();
         this.area = office.getArea();
         this.floor = office.getFloor();
-        this.rentalPrice = office.getRentalPrice();
-        this.buildingId = office.getBuildingId();
+        this.price = office.getPrice();
         this.note = office.getNote();
+        if (office.getBuilding() != null) {
+            this.buildingId = office.getBuilding().getId();
+            this.building = new BuildingDTO(office.getBuilding());
+        }
     }
-
 }

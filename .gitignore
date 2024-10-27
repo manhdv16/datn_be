@@ -151,3 +151,7 @@ Desktop.ini
 ######################
 /coverage/
 /.nyc_output/
+src/main/resources/config/application-test.yml
+src/main/resources/config/application-dev.yml
+src/main/resources/config/application-dev.yml
+src/main/java/com/ptit/datn/config/SecurityConfiguration.java
