@@ -71,7 +71,7 @@ jhipster:
   # CORS is only enabled by default with the "dev" profile
   cors:
     # Allow Ionic for JHipster by default (* no longer allowed in Spring Boot 2.4+)
-    allowed-origins: '*'
+#    allowed-origins: '*'
     # Enable CORS when running in GitHub Codespaces
     allowed-origin-patterns: '*'
     allowed-methods: '*'
