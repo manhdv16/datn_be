@@ -1,6 +1,5 @@
 package com.ptit.datn.web.rest;
 
-import com.ptit.datn.domain.Office;
 import com.ptit.datn.service.OfficeService;
 import com.ptit.datn.service.dto.OfficeDTO;
 import org.slf4j.Logger;
@@ -11,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigInteger;
 
 @RestController
 @RequestMapping("/api/offices")
@@ -25,13 +26,21 @@ public class OfficeResource {
     }
 
     @GetMapping
-    public ResponseEntity<Page<OfficeDTO>> getOffices(@RequestParam(defaultValue = "0",
-                                                                    required = false) Integer page,
-                                                      @RequestParam(defaultValue = "20",
-                                                          required = false) Integer size) {
+    public ResponseEntity<Page<OfficeDTO>> getOffices(@RequestParam(defaultValue = "0") Integer page,
+                                                      @RequestParam(defaultValue = "20") Integer size,
+                                                      @RequestParam(required = false) String search,
+                                                      @RequestParam(required = false) Long wardId,
+                                                      @RequestParam(required = false) Long districtId,
+                                                      @RequestParam(required = false) Long provinceId,
+                                                      @RequestParam(required = false) BigInteger minPrice,
+                                                      @RequestParam(required = false) BigInteger maxPrice,
+                                                      @RequestParam(required = false) Double minArea,
+                                                      @RequestParam(required = false) Double maxArea
+                                                      ) {
         log.info("REST request to get a page of offices");
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate"));
-        Page<OfficeDTO> list = officeService.getOffices(pageable);
+        Page<OfficeDTO> list = officeService.getOffices(pageable, search, wardId, districtId, provinceId,
+            minPrice, maxPrice, minArea, maxArea);
         return ResponseEntity.ok().body(list);
     }
 
@@ -43,17 +52,17 @@ public class OfficeResource {
     }
 
     @PostMapping
-    public ResponseEntity<Office> createOffice(@RequestBody OfficeDTO officeDTO) {
+    public ResponseEntity<OfficeDTO> createOffice(@RequestBody OfficeDTO officeDTO) {
         log.info("REST request to save office : {}", officeDTO);
-        Office result = officeService.createOffice(officeDTO);
+        OfficeDTO result = officeService.createOffice(officeDTO);
         return ResponseEntity.created(null).body(result);
     }
 
     @PutMapping
-    public ResponseEntity<Office> updateOffice(@RequestBody OfficeDTO officeDTO) {
+    public ResponseEntity<OfficeDTO> updateOffice(@RequestBody OfficeDTO officeDTO) {
         log.info("REST request to update office : {}", officeDTO);
-        Office result = officeService.updateOffice(officeDTO);
-        return ResponseEntity.noContent().build();
+        OfficeDTO result = officeService.updateOffice(officeDTO);
+        return ResponseEntity.ok(result);
     }
 
     @DeleteMapping("/{id}")

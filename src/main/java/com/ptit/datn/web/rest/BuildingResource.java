@@ -1,6 +1,5 @@
 package com.ptit.datn.web.rest;
 
-import com.ptit.datn.domain.Building;
 import com.ptit.datn.service.BuildingService;
 import com.ptit.datn.service.dto.BuildingDTO;
 import org.slf4j.Logger;
@@ -8,9 +7,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigInteger;
 
 @RestController
 @RequestMapping("/api/buildings")
@@ -25,13 +25,16 @@ public class BuildingResource {
     }
 
     @GetMapping
-    public ResponseEntity<Page<BuildingDTO>> getBuildings(@RequestParam(defaultValue = "0",
-        required = false) Integer page,
-                                                          @RequestParam(defaultValue = "20",
-                                             required = false) Integer size) {
+    public ResponseEntity<Page<BuildingDTO>> getBuildings(@RequestParam(defaultValue = "0") Integer page,
+                                                          @RequestParam(defaultValue = "20") Integer size,
+                                                          @RequestParam(required = false) String search,
+                                                          @RequestParam(required = false) BigInteger minPrice,
+                                                          @RequestParam(required = false) BigInteger maxPrice,
+                                                          @RequestParam(required = false) Double minArea,
+                                                          @RequestParam(required = false) Double maxArea) {
         log.info("Get buildings");
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate"));
-        return ResponseEntity.ok().body(buildingService.getBuildings(pageable));
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok().body(buildingService.getBuildings(pageable, search));
     }
 
     @GetMapping("/{id}")
@@ -45,15 +48,15 @@ public class BuildingResource {
     }
 
     @PostMapping
-    public ResponseEntity<Building> createBuilding(@RequestBody BuildingDTO buildingDTO) {
+    public ResponseEntity<BuildingDTO> createBuilding(@RequestBody BuildingDTO buildingDTO) {
         log.info("Create building");
         return ResponseEntity.created(null).body(buildingService.createBuilding(buildingDTO));
     }
 
     @PutMapping
-    public ResponseEntity<Building> updateBuilding(@RequestBody BuildingDTO buildingDTO) {
+    public ResponseEntity<BuildingDTO> updateBuilding(@RequestBody BuildingDTO buildingDTO) {
         log.info("Update building");
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(buildingService.updateBuilding(buildingDTO));
     }
 
     @DeleteMapping("/{id}")

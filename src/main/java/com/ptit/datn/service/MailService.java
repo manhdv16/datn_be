@@ -1,8 +1,11 @@
 package com.ptit.datn.service;
 
+import com.ptit.datn.constants.Constants;
 import com.ptit.datn.domain.User;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import org.slf4j.Logger;
@@ -71,12 +74,12 @@ public class MailService {
         try {
             MimeMessageHelper message = new MimeMessageHelper(mimeMessage, isMultipart, StandardCharsets.UTF_8.name());
             message.setTo(to);
-            message.setFrom(jHipsterProperties.getMail().getFrom());
+            message.setFrom(jHipsterProperties.getMail().getFrom(), Constants.EMAIL_SENDER);
             message.setSubject(subject);
             message.setText(content, isHtml);
             javaMailSender.send(mimeMessage);
             log.debug("Sent email to User '{}'", to);
-        } catch (MailException | MessagingException e) {
+        } catch (MailException | MessagingException | UnsupportedEncodingException e) {
             log.warn("Email could not be sent to user '{}'", to, e);
         }
     }
@@ -112,7 +115,7 @@ public class MailService {
         this.sendEmailFromTemplateSync(user, "mail/creationEmail", "email.activation.title");
     }
 
-    @Async
+//    @Async
     public void sendPasswordResetMail(User user) {
         log.debug("Sending password reset email to '{}'", user.getEmail());
         this.sendEmailFromTemplateSync(user, "mail/passwordResetEmail", "email.reset.title");
