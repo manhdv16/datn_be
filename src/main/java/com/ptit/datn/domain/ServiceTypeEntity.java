@@ -25,7 +25,7 @@ public class ServiceTypeEntity extends AbstractAuditingEntity<Integer> {
     private Integer category;
     @Basic
     @Column(name = "is_active")
-    private Boolean isActive;
+    private Boolean isActive = true;
 
     public Integer getId() {
         return id;

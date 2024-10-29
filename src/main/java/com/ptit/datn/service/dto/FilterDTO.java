@@ -13,7 +13,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
-public class FilterDTO {
+public class FilterDTO<T> {
     private static final int IS_NULL = -1;
     private String operator;
     private String key;
@@ -23,7 +23,7 @@ public class FilterDTO {
 
     public Condition getCondition(Map<String, ColumnPropertyEntity> columnMap){
         ColumnPropertyEntity columnPropertyEntity = columnMap.get(key);
-        if(columnPropertyEntity != null) return DSL.noCondition();
+        if(columnPropertyEntity == null) return DSL.noCondition();
         key = Utils.camelToSnake(columnPropertyEntity.getKeyNameSearch());
         try {
             switch (columnPropertyEntity.getDataType()){
