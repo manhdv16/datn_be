@@ -33,4 +33,7 @@ public class Office extends AbstractAuditingEntity<Long> {
         @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "building_id", nullable = false, referencedColumnName = "id", updatable = false)
         private Building building;
+
+        @Column(name = "status", nullable = false)
+        private Integer status; // 0: available, 1: rented, 2: not available
 }
