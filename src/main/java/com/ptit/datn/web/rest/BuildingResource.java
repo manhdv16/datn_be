@@ -27,14 +27,18 @@ public class BuildingResource {
     @GetMapping
     public ResponseEntity<Page<BuildingDTO>> getBuildings(@RequestParam(defaultValue = "0") Integer page,
                                                           @RequestParam(defaultValue = "20") Integer size,
-                                                          @RequestParam(required = false) String search,
+                                                          @RequestParam(required = false) String keyword,
+                                                          @RequestParam(required = false) Long wardId,
+                                                          @RequestParam(required = false) Long districtId,
+                                                          @RequestParam(required = false) Long provinceId,
                                                           @RequestParam(required = false) BigInteger minPrice,
                                                           @RequestParam(required = false) BigInteger maxPrice,
                                                           @RequestParam(required = false) Double minArea,
                                                           @RequestParam(required = false) Double maxArea) {
         log.info("Get buildings");
         Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok().body(buildingService.getBuildings(pageable, search));
+        return ResponseEntity.ok().body(buildingService.getBuildings(pageable, keyword, wardId, districtId,
+            provinceId, minPrice, maxPrice, minArea, maxArea));
     }
 
     @GetMapping("/{id}")
