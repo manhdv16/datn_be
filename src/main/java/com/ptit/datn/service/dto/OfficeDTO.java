@@ -15,11 +15,9 @@ public class OfficeDTO {
     private Integer floor;
     private BigInteger price;
     private String note;
-    private Integer status;
+
     private Long buildingId;
     private BuildingDTO building;
-
-
 
     public OfficeDTO() {
 
@@ -31,7 +29,6 @@ public class OfficeDTO {
         this.floor = office.getFloor();
         this.price = office.getPrice();
         this.note = office.getNote();
-        this.status = office.getStatus();
         if (office.getBuilding() != null) {
             this.buildingId = office.getBuilding().getId();
             this.building = new BuildingDTO(office.getBuilding());
