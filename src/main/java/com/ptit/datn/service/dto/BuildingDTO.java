@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigInteger;
-import java.util.Set;
+import java.util.List;
 
 @Getter
 @Setter
@@ -26,7 +26,11 @@ public class BuildingDTO {
     private Double floorArea;
     private String facilities;
     private String note;
-    private Set<OfficeDTO> officeDTOS;
+    private BigInteger carParkingFee;
+    private BigInteger motorbikeParkingFee;
+    private BigInteger securityFee;
+    private BigInteger cleaningFee;
+    private List<OfficeDTO> officeDTOS;
 
     public BuildingDTO() {
 
@@ -46,6 +50,10 @@ public class BuildingDTO {
         this.floorHeight = building.getFloorHeight();
         this.floorArea = building.getFloorArea();
         this.facilities = building.getFacilities();
+        this.carParkingFee = building.getCarParkingFee();
+        this.motorbikeParkingFee = building.getMotorbikeParkingFee();
+        this.securityFee = building.getSecurityFee();
+        this.cleaningFee = building.getCleaningFee();
         this.note = building.getNote();
     }
 }
