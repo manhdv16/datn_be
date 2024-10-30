@@ -1,6 +1,6 @@
 package com.ptit.datn.service;
 
-import com.ptit.datn.domain.Building;
+import com.ptit.datn.constants.OfficeStatus;
 import com.ptit.datn.domain.Office;
 import com.ptit.datn.repository.BuildingRepository;
 import com.ptit.datn.repository.OfficeRepository;
@@ -70,6 +70,7 @@ public class OfficeService {
         office.setFloor(officeDTO.getFloor());
         office.setPrice(officeDTO.getPrice());
         office.setBuilding(buildingRepository.findById(officeDTO.getBuildingId()).orElseThrow());
+        office.setStatus(OfficeStatus.AVAILABLE);
         office.setNote(officeDTO.getNote());
         return new OfficeDTO(officeRepository.save(office));
     }
@@ -80,6 +81,7 @@ public class OfficeService {
         office.setArea(officeDTO.getArea());
         office.setFloor(officeDTO.getFloor());
         office.setPrice(officeDTO.getPrice());
+        office.setStatus(officeDTO.getStatus());
         office.setBuilding(buildingRepository.findById(officeDTO.getBuildingId()).orElseThrow());
         office.setNote(officeDTO.getNote());
         return new OfficeDTO(officeRepository.save(office));

@@ -47,6 +47,18 @@ public class Building extends AbstractAuditingEntity<Long> {
     @Column(name = "facilities")
     private String facilities;
 
+    @Column(name = "car_parking_fee")
+    private BigInteger carParkingFee;
+
+    @Column(name = "motorbike_parking_fee")
+    private BigInteger motorbikeParkingFee;
+
+    @Column(name = "security_fee")
+    private BigInteger securityFee;
+
+    @Column(name = "cleaning_fee")
+    private BigInteger cleaningFee;
+
     @Column(name = "note")
     private String note;
 
