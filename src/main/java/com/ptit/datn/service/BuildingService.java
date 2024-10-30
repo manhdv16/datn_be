@@ -42,7 +42,7 @@ public class BuildingService {
         Building building = new Building();
         building.setName(buildingDTO.getName());
         building.setAddress(buildingDTO.getAddress());
-        building.setWard(wardRepository.findById(buildingDTO.getWardId()).orElseThrow());
+        building.setWard(wardRepository.findById(buildingDTO.getWardId()).get());
         building.setNumberOfFloor(buildingDTO.getNumberOfFloor());
         building.setNumberOfBasement(buildingDTO.getNumberOfBasement());
         building.setPricePerM2(buildingDTO.getPricePerM2());
