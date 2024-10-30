@@ -99,7 +99,7 @@ public class BuildingService {
         if (buildingOptional.isEmpty()) {
             return null;
         }
-        BuildingDTO buildingDTO = new BuildingDTO(buildingOptional.get());
+        BuildingDTO buildingDTO = new BuildingDTO(buildingOptional.orElseThrow());
         buildingDTO.setOfficeDTOS(officeRepository.findAllByBuildingId(id).stream().map(OfficeDTO::new).collect(Collectors.toList()));
         return buildingDTO;
     }
@@ -109,7 +109,7 @@ public class BuildingService {
         Building building = new Building();
         building.setName(buildingDTO.getName());
         building.setAddress(buildingDTO.getAddress());
-        building.setWard(wardRepository.findById(buildingDTO.getWardId()).get());
+        building.setWard(wardRepository.findById(buildingDTO.getWardId()).orElseThrow());
         building.setNumberOfFloor(buildingDTO.getNumberOfFloor());
         building.setNumberOfBasement(buildingDTO.getNumberOfBasement());
         building.setPricePerM2(buildingDTO.getPricePerM2());
