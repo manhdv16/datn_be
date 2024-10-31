@@ -2,10 +2,13 @@ package com.ptit.datn.service;
 
 import com.ptit.datn.constants.OfficeStatus;
 import com.ptit.datn.domain.Office;
+import com.ptit.datn.domain.Request;
 import com.ptit.datn.repository.BuildingRepository;
 import com.ptit.datn.repository.OfficeRepository;
+import com.ptit.datn.repository.RequestRepository;
 import com.ptit.datn.repository.specification.OfficeSpecification;
 import com.ptit.datn.service.dto.OfficeDTO;
+import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -15,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -24,11 +28,14 @@ public class OfficeService {
 
     private final OfficeRepository officeRepository;
     private final BuildingRepository buildingRepository;
+    private final RequestRepository requestRepository;
 
     public OfficeService(OfficeRepository officeRepository,
-                         BuildingRepository buildingRepository) {
+                         BuildingRepository buildingRepository,
+                         RequestRepository requestRepository) {
         this.officeRepository = officeRepository;
         this.buildingRepository = buildingRepository;
+        this.requestRepository = requestRepository;
     }
 
     @Transactional(readOnly = true)
@@ -89,6 +96,20 @@ public class OfficeService {
 
     public void deleteOffice(Long id) {
         log.info("Delete office");
-        officeRepository.deleteById(id);
+        Office office = officeRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Office not found with id " + id));
+
+        // Lấy các request liên kết với office trước khi xóa
+        Set<Request> associatedRequests = office.getRequests();
+
+        // Xóa office
+        officeRepository.delete(office);
+
+        // Kiểm tra và xóa các request không còn liên kết với office nào
+        for (Request request : associatedRequests) {
+            if (request.getOffices().isEmpty()) {
+                requestRepository.delete(request);
+            }
+        }
     }
 }

@@ -10,11 +10,17 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface OfficeRepository extends JpaRepository<Office, Long>, JpaSpecificationExecutor<Office> {
     void deleteAllByBuildingId(Long buildingId);
+
     List<Office> findAllByBuildingId(Long buildingId);
+
     @Query("select new com.ptit.datn.service.dto.BuildingNameDTO(o.building.id, o.building.name) from Office o where o.id = :officeId")
     Optional<BuildingNameDTO> findBuildingByOfficeId(@Param("officeId") Long officeId);
+
+    @Query("select o from Office o where o.id in :ids")
+    List<Office> findAllByIds(@Param("ids") Set<Long> ids);
 }

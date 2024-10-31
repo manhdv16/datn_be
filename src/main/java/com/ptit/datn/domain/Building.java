@@ -64,4 +64,12 @@ public class Building extends AbstractAuditingEntity<Long> {
 
     @OneToMany(mappedBy = "building", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Office> offices;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "building_image",
+            joinColumns = @JoinColumn(name = "building_id"),
+            inverseJoinColumns = @JoinColumn(name = "image_id")
+    )
+    private Set<Image> images;
 }
