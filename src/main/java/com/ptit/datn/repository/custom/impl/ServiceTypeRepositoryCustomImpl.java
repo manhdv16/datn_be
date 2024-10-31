@@ -16,6 +16,7 @@ import org.jooq.SelectQuery;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -47,7 +48,9 @@ public class ServiceTypeRepositoryCustomImpl implements ServiceTypeRepositoryCus
             query.addLimit(pageable.getPageSize());
         }
 
-        query.addOrderBy(input.getSort());
+        if(StringUtils.hasText(input.getSortProperty())){
+            query.addOrderBy(input.getSort());
+        }
 
         Result<Record> records = query.fetch();
         List<ServiceTypeEntity> result = new ArrayList<>();

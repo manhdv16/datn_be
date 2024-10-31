@@ -12,6 +12,7 @@ import com.ptit.datn.security.SecurityUtils;
 import com.ptit.datn.security.jwt.TokenProvider;
 import com.ptit.datn.service.dto.AdminUserDTO;
 import com.ptit.datn.service.dto.UserDTO;
+import com.ptit.datn.service.dto.UserNameDTO;
 import com.ptit.datn.web.rest.vm.LoginVM;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -142,6 +143,18 @@ public class UserService {
         userRepository.delete(existingUser);
         userRepository.flush();
         return true;
+    }
+
+    public UserNameDTO getUserName(Long id){
+        User user = userRepository.findOneById(id).orElseThrow(
+            () -> new AppException(ErrorCode.USER_NOT_EXISTED)
+        );
+        return new UserNameDTO(
+            user.getId(),
+            user.getLogin(),
+            user.getFirstName(),
+            user.getLastName()
+        );
     }
 
     public User createUser(AdminUserDTO userDTO) {
