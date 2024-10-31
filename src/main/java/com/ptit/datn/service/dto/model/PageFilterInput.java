@@ -35,6 +35,8 @@ public class PageFilterInput<T> {
 
     private Integer serviceCategory;
 
+    private List<Integer> buildingIds;
+
     public Integer getPageNumber() {
         return pageNumber;
     }
@@ -81,5 +83,13 @@ public class PageFilterInput<T> {
 
     public void setServiceCategory(Integer serviceCategory) {
         this.serviceCategory = serviceCategory;
+    }
+
+    public List<Integer> getBuildingIds() {
+        return buildingIds;
+    }
+
+    public void setBuildingIds(List<Integer> buildingIds) {
+        this.buildingIds = buildingIds;
     }
 }
