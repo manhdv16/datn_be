@@ -1,5 +1,6 @@
 package com.ptit.datn.web.rest;
 
+import com.ptit.datn.dto.request.BuildingCreateRequest;
 import com.ptit.datn.service.BuildingService;
 import com.ptit.datn.service.dto.BuildingDTO;
 import org.slf4j.Logger;
@@ -7,8 +8,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigInteger;
 
@@ -51,14 +54,16 @@ public class BuildingResource {
         return ResponseEntity.ok().body(buildingDTO);
     }
 
-    @PostMapping
-    public ResponseEntity<BuildingDTO> createBuilding(@RequestBody BuildingDTO buildingDTO) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<BuildingDTO> createBuilding(@RequestPart(name = "data") BuildingCreateRequest buildingPersistRequest,
+                                                      @RequestPart(name = "images", required = false) MultipartFile[] images) {
         log.info("Create building");
-        return ResponseEntity.created(null).body(buildingService.createBuilding(buildingDTO));
+        return ResponseEntity.created(null).body(buildingService.createBuilding(buildingPersistRequest, images));
     }
 
-    @PutMapping
-    public ResponseEntity<BuildingDTO> updateBuilding(@RequestBody BuildingDTO buildingDTO) {
+    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<BuildingDTO> updateBuilding(@RequestPart(name = "data") BuildingDTO buildingDTO,
+                                                      @RequestPart(name = "images", required = false) MultipartFile[] images) {
         log.info("Update building");
         return ResponseEntity.ok(buildingService.updateBuilding(buildingDTO));
     }

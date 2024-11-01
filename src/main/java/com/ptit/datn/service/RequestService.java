@@ -8,12 +8,14 @@ import com.ptit.datn.repository.RequestRepository;
 import com.ptit.datn.service.dto.RequestDTO;
 import jakarta.persistence.RollbackException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 @Service
+@Transactional
 public class RequestService {
 
     private final RequestRepository requestRepository;
