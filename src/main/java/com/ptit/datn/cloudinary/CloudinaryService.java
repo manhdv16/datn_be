@@ -17,25 +17,39 @@ import java.util.Map;
 @Service
 public class CloudinaryService {
 
-    @Autowired
-    private Cloudinary cloudinary;
+    private final Cloudinary cloudinary;
 
     public CloudinaryService(Cloudinary cloudinary) {
         this.cloudinary = cloudinary;
     }
+
     /**
      * Upload file to cloudinary
      * @param file
      * @return url of the uploaded file
      * @throws IOException
      */
-    public String uploadFile(MultipartFile file) {
+    public Map uploadFile(MultipartFile file) {
         try {
-            Map uploadResult = uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
-            return (String) uploadResult.get("url");
+            Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+            // return (String) uploadResult.get("url");
+            return uploadResult;
         } catch (IOException e) {
             throw new AppException(ErrorCode.URL_NOT_FOUND);
         }
+    }
 
+    /**
+     * Delete file from cloudinary
+     * @param publicId
+     * @return
+     */
+    public Map deleteFile(String publicId) {
+        try {
+            Map deleteResult = cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+            return deleteResult;
+        } catch (IOException e) {
+            throw new AppException(ErrorCode.URL_NOT_FOUND);
+        }
     }
 }
