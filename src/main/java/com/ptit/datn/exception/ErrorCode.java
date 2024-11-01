@@ -30,6 +30,8 @@ public enum ErrorCode {
     USERID_NOT_FOUND(1016, Translator.toLocale("USERID_NOT_FOUND"), HttpStatus.BAD_REQUEST),
     NEW_CONFIRM_PASSWORD_IS_NOT_BLANK(1016, Translator.toLocale("NEW_CONFIRM_PASSWORD_IS_NOT_BLANK"),
         HttpStatus.BAD_REQUEST),
+    ACCESS_DENIED(1016, Translator.toLocale("ACCESS_DENIED"), HttpStatus.BAD_REQUEST),
+
     RECORD_NOT_FOUND(1017, Translator.toLocale("record.notfound"), HttpStatus.NOT_FOUND);
 
     ErrorCode(int code, String message, HttpStatus statusCode) {
