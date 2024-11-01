@@ -109,7 +109,7 @@ public class BuildingService {
                     .map(buildingImage -> imageRepository.findById(buildingImage.getId().getImageId()).orElseThrow().getUrl())
                     .collect(Collectors.toList()));
         });
-        return buildings.map(BuildingDTO::new);
+        return buildingDTOS;
 
     }
 
