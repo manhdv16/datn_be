@@ -2,6 +2,8 @@ package com.ptit.datn.security.jwt;
 
 import static com.ptit.datn.security.SecurityUtils.AUTHORITIES_KEY;
 
+import com.ptit.datn.exception.AppException;
+import com.ptit.datn.exception.ErrorCode;
 import com.ptit.datn.management.SecurityMetersService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -58,11 +60,15 @@ public class TokenProvider {
         this.securityMetersService = securityMetersService;
     }
 
-    public String createToken(Authentication authentication) {
+    public String createToken(Long id, Authentication authentication) {
+        if(id == null) {
+            throw new AppException(ErrorCode.USERID_NOT_FOUND);
+        }
+
         String authorities = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(" "));
 
         return Jwts.builder()
-            .setSubject(authentication.getName())
+            .setSubject(String.valueOf(id))
             .signWith(key, SignatureAlgorithm.HS512)
             .claim(AUTHORITIES_KEY, authorities)
             .setIssuedAt(new Date())

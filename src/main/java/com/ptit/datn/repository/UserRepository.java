@@ -7,6 +7,8 @@ import java.util.Optional;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -20,6 +22,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findOneByEmailIgnoreCase(String email);
     Optional<User> findOneByLogin(String login);
     Optional<User> findOneById(Long id);
+
+    @Query("select u.id from User u where u.login = :login and u.activated = :activated")
+    Long getIdByLoginAndActivated(@Param("login") String login, @Param("activated") Boolean activated);
 
     @EntityGraph(attributePaths = "authorities")
     Optional<User> findOneWithAuthoritiesByLogin(String login);
