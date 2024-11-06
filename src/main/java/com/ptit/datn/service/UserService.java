@@ -328,9 +328,9 @@ public class UserService {
                 request.getPassword()
             );
             Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            return tokenProvider.createToken(authentication);
+            Long id = userRepository.getIdByLoginAndActivated(request.getUsername(), true);
+            return tokenProvider.createToken(id, authentication);
         } catch (BadCredentialsException e) {
             return null;
         }

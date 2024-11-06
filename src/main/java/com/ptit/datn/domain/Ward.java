@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 
 @Entity
-@Table(name = "ward")
+@Table(name = "ward", indexes = {
+        @Index(name = "ward_name_index", columnList = "name")
+})
 @Getter
 public class Ward {
     @Id

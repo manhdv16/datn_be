@@ -1,11 +1,15 @@
 package com.ptit.datn.service;
 
+import com.ptit.datn.cloudinary.CloudinaryService;
 import com.ptit.datn.domain.Building;
-import com.ptit.datn.repository.BuildingRepository;
-import com.ptit.datn.repository.OfficeRepository;
-import com.ptit.datn.repository.WardRepository;
+import com.ptit.datn.domain.BuildingImage;
+import com.ptit.datn.domain.Image;
+import com.ptit.datn.domain.key.BuildingImageId;
+import com.ptit.datn.dto.request.BuildingCreateRequest;
+import com.ptit.datn.repository.*;
 import com.ptit.datn.service.dto.BuildingDTO;
 import com.ptit.datn.service.dto.OfficeDTO;
+import jakarta.persistence.RollbackException;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
@@ -16,9 +20,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigInteger;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,13 +35,23 @@ public class BuildingService {
     private final BuildingRepository buildingRepository;
     private final OfficeRepository officeRepository;
     private final WardRepository wardRepository;
+    private final ImageRepository imageRepository;
+    private final BuildingImageRepository buildingImageRepository;
+
+    private final CloudinaryService cloudinaryService;
 
     public BuildingService(BuildingRepository buildingRepository,
                            WardRepository wardRepository,
-                           OfficeRepository officeRepository) {
+                           OfficeRepository officeRepository,
+                            ImageRepository imageRepository,
+                           BuildingImageRepository buildingImageRepository,
+                           CloudinaryService cloudinaryService) {
         this.buildingRepository = buildingRepository;
         this.wardRepository = wardRepository;
         this.officeRepository = officeRepository;
+        this.cloudinaryService = cloudinaryService;
+        this.imageRepository = imageRepository;
+        this.buildingImageRepository = buildingImageRepository;
     }
 
     @Transactional(readOnly = true)
@@ -88,7 +103,13 @@ public class BuildingService {
         };
 
         Page<Building> buildings = buildingRepository.findAll(spec, pageable);
-        return buildings.map(BuildingDTO::new);
+        Page<BuildingDTO> buildingDTOS = buildings.map(BuildingDTO::new);
+        buildingDTOS.forEach(buildingDTO -> {
+            buildingDTO.setImageUrls(buildingImageRepository.findAllByIdBuildingId(buildingDTO.getId()).stream()
+                    .map(buildingImage -> imageRepository.findById(buildingImage.getId().getImageId()).orElseThrow().getUrl())
+                    .collect(Collectors.toList()));
+        });
+        return buildingDTOS;
 
     }
 
@@ -101,27 +122,61 @@ public class BuildingService {
         }
         BuildingDTO buildingDTO = new BuildingDTO(buildingOptional.orElseThrow());
         buildingDTO.setOfficeDTOS(officeRepository.findAllByBuildingId(id).stream().map(OfficeDTO::new).collect(Collectors.toList()));
+        buildingDTO.setImageUrls(buildingImageRepository.findAllByIdBuildingId(id).stream()
+                .map(buildingImage -> imageRepository.findById(buildingImage.getId().getImageId()).orElseThrow().getUrl())
+                .collect(Collectors.toList()));
         return buildingDTO;
     }
 
-    public BuildingDTO createBuilding(BuildingDTO buildingDTO) {
+    public BuildingDTO createBuilding(BuildingCreateRequest buildingRequest, MultipartFile[] images) {
         log.info("Create building");
         Building building = new Building();
-        building.setName(buildingDTO.getName());
-        building.setAddress(buildingDTO.getAddress());
-        building.setWard(wardRepository.findById(buildingDTO.getWardId()).orElseThrow());
-        building.setNumberOfFloor(buildingDTO.getNumberOfFloor());
-        building.setNumberOfBasement(buildingDTO.getNumberOfBasement());
-        building.setPricePerM2(buildingDTO.getPricePerM2());
-        building.setFloorHeight(buildingDTO.getFloorHeight());
-        building.setFloorArea(buildingDTO.getFloorArea());
-        building.setFacilities(buildingDTO.getFacilities());
-        building.setCarParkingFee(buildingDTO.getCarParkingFee());
-        building.setMotorbikeParkingFee(buildingDTO.getMotorbikeParkingFee());
-        building.setSecurityFee(buildingDTO.getSecurityFee());
-        building.setCleaningFee(buildingDTO.getCleaningFee());
-        building.setNote(buildingDTO.getNote());
-        return new BuildingDTO(buildingRepository.save(building));
+        building.setName(buildingRequest.getName());
+        building.setAddress(buildingRequest.getAddress());
+        building.setWard(wardRepository.findById(buildingRequest.getWardId()).orElseThrow());
+        building.setNumberOfFloor(buildingRequest.getNumberOfFloor());
+        building.setNumberOfBasement(buildingRequest.getNumberOfBasement());
+        building.setPricePerM2(buildingRequest.getPricePerM2());
+        building.setFloorHeight(buildingRequest.getFloorHeight());
+        building.setFloorArea(buildingRequest.getFloorArea());
+        building.setFacilities(buildingRequest.getFacilities());
+        building.setCarParkingFee(buildingRequest.getCarParkingFee());
+        building.setMotorbikeParkingFee(buildingRequest.getMotorbikeParkingFee());
+        building.setSecurityFee(buildingRequest.getSecurityFee());
+        building.setCleaningFee(buildingRequest.getCleaningFee());
+        building.setNote(buildingRequest.getNote());
+
+        Building buildingResult = buildingRepository.save(building);
+
+        List<String> imageUrls = new ArrayList<>();
+        List<Image> addedImages = new ArrayList<>();
+        try {
+            Arrays.stream(images).toList().forEach(image -> {
+                Map imageMap = cloudinaryService.uploadFile(image);
+                Image img = new Image();
+                img.setUrl((String) imageMap.get("url"));
+                img.setPublicId((String) imageMap.get("public_id"));
+                addedImages.add(imageRepository.save(img));
+
+                imageUrls.add(img.getUrl());
+
+                BuildingImage buildingImage = new BuildingImage();
+                buildingImage.setId(new BuildingImageId(buildingResult.getId(), img.getId()));
+                buildingImageRepository.save(buildingImage);
+            });
+        } catch (Exception e) {
+            log.error("Error when upload image: " + e.getMessage());
+            addedImages.forEach(image -> {
+                cloudinaryService.deleteFile(image.getPublicId());
+                imageRepository.delete(image);
+            });
+            buildingRepository.delete(buildingResult);
+            throw new RollbackException("Error when upload image");
+        }
+
+        BuildingDTO buildingDTO = new BuildingDTO(buildingResult);
+        buildingDTO.setImageUrls(imageUrls);
+        return buildingDTO;
     }
 
     public BuildingDTO updateBuilding(BuildingDTO buildingDTO) {
@@ -146,6 +201,17 @@ public class BuildingService {
 
     public void deleteBuilding(Long id) {
         log.info("Delete building");
+
+        // Delete all images of the building
+        List<BuildingImage> buildingImages = buildingImageRepository.findAllByIdBuildingId(id);
+        buildingImages.forEach(buildingImage -> {
+            Image image = imageRepository.findById(buildingImage.getId().getImageId()).orElseThrow();
+            cloudinaryService.deleteFile(image.getPublicId());                  // Delete image on cloudinary
+            imageRepository.deleteById(buildingImage.getId().getImageId());     // Delete image in database
+        });
+        buildingImageRepository.deleteAllByBuildingId(id);
+
+        // Delete building
         buildingRepository.deleteById(id);
     }
 }
