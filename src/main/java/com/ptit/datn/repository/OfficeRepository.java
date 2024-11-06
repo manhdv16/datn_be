@@ -1,6 +1,8 @@
 package com.ptit.datn.repository;
 
+import com.ptit.datn.domain.Building;
 import com.ptit.datn.domain.Office;
+import com.ptit.datn.service.dto.BuildingDTO;
 import com.ptit.datn.service.dto.BuildingNameDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -15,6 +17,6 @@ import java.util.Optional;
 public interface OfficeRepository extends JpaRepository<Office, Long>, JpaSpecificationExecutor<Office> {
     void deleteAllByBuildingId(Long buildingId);
     List<Office> findAllByBuildingId(Long buildingId);
-    @Query("select new com.ptit.datn.service.dto.BuildingNameDTO(o.building.id, o.building.name) from Office o where o.id = :officeId")
-    Optional<BuildingNameDTO> findBuildingByOfficeId(@Param("officeId") Long officeId);
+    @Query("select new com.ptit.datn.service.dto.BuildingDTO(o.building) from Office o where o.id = :officeId")
+    Optional<BuildingDTO> findBuildingByOfficeId(@Param("officeId") Long officeId);
 }

@@ -34,9 +34,7 @@ public class ContractRepositoryCustomImpl implements ContractRepositoryCustom {
     public Page<ContractDTO> getAll(PageFilterInput<List<FilterDTO>> input, Condition condition, Pageable pageable) {
         SelectQuery query = dslContext
             .select(
-                CONTRACT.as("contract"),
-                BUILDING.ID.as("building_id"),
-                BUILDING.NAME.as("building_name")
+                CONTRACT.as("contract")
             ).from(CONTRACT)
             .join(OFFICE)
             .on(OFFICE.ID.eq(CONTRACT.OFFICE_ID))
@@ -71,11 +69,6 @@ public class ContractRepositoryCustomImpl implements ContractRepositoryCustom {
         for (Record record : records) {
             ContractEntity contractEntity = record.get("contract", ContractEntity.class);
             ContractDTO contractDTO = contractMapper.toDTO(contractEntity);
-            BuildingNameDTO building = new BuildingNameDTO(
-                record.get("building_id", Long.class),
-                record.get("building_name", String.class)
-            );
-            contractDTO.setBuilding(building);
             result.add(contractDTO);
         }
 

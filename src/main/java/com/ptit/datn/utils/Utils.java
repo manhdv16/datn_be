@@ -8,6 +8,11 @@ import org.jooq.impl.DSL;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import java.math.BigDecimal;
+import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -34,5 +39,56 @@ public class Utils {
             condition = condition.and(filter.getCondition(columnMap));
         }
         return condition;
+    }
+
+    public static String convertToCustomFormat(Object date) {
+        if (date instanceof Date) {
+            SimpleDateFormat sdf = new SimpleDateFormat("'ngày' dd 'tháng' MM 'năm' yyyy");
+            return sdf.format((Date) date);
+        } else if (date instanceof LocalDate) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("'ngày' dd 'tháng' MM 'năm' yyyy");
+            return ((LocalDate) date).format(formatter);
+        } else {
+            throw new IllegalArgumentException("Đối tượng không hợp lệ. Cần phải là Date hoặc LocalDate.");
+        }
+    }
+
+    public static String convertToWord(BigDecimal number) {
+        if (number.compareTo(BigDecimal.ZERO) == 0) return "không";
+
+        String[] units = {"", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín"};
+        String[] teens = {"mười", "mười một", "mười hai", "mười ba", "mười bốn", "mười lăm", "mười sáu", "mười bảy", "mười tám", "mười chín"};
+        String[] tens = {"", "", "hai mươi", "ba mươi", "bốn mươi", "năm mươi", "sáu mươi", "bảy mươi", "tám mươi", "chín mươi"};
+        String[] scales = {"", "nghìn", "triệu", "tỷ"};
+
+        StringBuilder words = new StringBuilder();
+        long intPart = number.longValue();
+        int scaleIndex = 0;
+
+        while (intPart > 0) {
+            int part = (int) (intPart % 1000);
+            if (part > 0) {
+                StringBuilder partWords = new StringBuilder();
+                if (part >= 100) {
+                    partWords.append(units[part / 100]).append(" trăm ");
+                    part %= 100;
+                }
+                if (part >= 20) {
+                    partWords.append(tens[part / 10]).append(" ");
+                    part %= 10;
+                } else if (part >= 10) {
+                    partWords.append(teens[part - 10]).append(" ");
+                    part = 0;
+                }
+                if (part > 0) {
+                    partWords.append(units[part]).append(" ");
+                }
+                words.insert(0, partWords.toString().trim() + " " + scales[scaleIndex] + " ");
+            }
+            intPart /= 1000;
+            scaleIndex++;
+        }
+
+        return words.toString().trim();
     }
 }

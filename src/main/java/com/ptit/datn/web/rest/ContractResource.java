@@ -6,10 +6,14 @@ import com.ptit.datn.service.ContractService;
 import com.ptit.datn.service.dto.ContractDTO;
 import com.ptit.datn.service.dto.FilterDTO;
 import com.ptit.datn.service.dto.model.PageFilterInput;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -56,4 +60,16 @@ public class ContractResource {
         contractService.deleteContract(id);
         return new CommonResponse().success();
     }
+
+    @GetMapping("/{id}/export-pdf")
+    public void exportPdf(HttpServletResponse response, @PathVariable Long id) throws IOException {
+        response.setContentType("application/pdf");
+
+        String headerKey = "Content-Disposition";
+        String headerValue = "inline; filename=contract.pdf";
+        response.setHeader(headerKey, headerValue);
+        contractService.exportPdf(response.getOutputStream() ,id);
+    }
+
+
 }

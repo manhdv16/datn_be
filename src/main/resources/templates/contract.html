@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.thymeleaf.org"
+  lang="en-US"
+>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="utf-8" />
+  <style>
+    @page {
+      size: A4 portrait;
+    }
+    body { widows:0; orphans:0; font-family:'Times New Roman'; font-size:12pt }
+    h1, h2, h3, h4, h5, h6, p { margin:0pt }
+    li, table { margin-top:0pt; margin-bottom:0pt }
+    h1 { margin-top:12pt; margin-bottom:3pt; page-break-inside:avoid; page-break-after:avoid; line-height:normal; widows:0; orphans:0; font-family:Arial; font-size:16pt; font-weight:bold; font-style:normal }
+    h2 { margin-top:12pt; margin-bottom:3pt; page-break-inside:avoid; page-break-after:avoid; line-height:normal; widows:0; orphans:0; font-family:Arial; font-size:14pt; font-weight:bold; font-style:italic }
+    h3 { margin-top:12pt; margin-bottom:3pt; page-break-inside:avoid; page-break-after:avoid; line-height:normal; widows:0; orphans:0; font-family:Arial; font-size:13pt; font-weight:bold }
+    h4 { margin-top:12pt; margin-bottom:3pt; page-break-inside:avoid; page-break-after:avoid; line-height:normal; widows:0; orphans:0; font-family:'Times New Roman'; font-size:14pt; font-weight:bold }
+    h5 { margin-top:12pt; margin-bottom:3pt; page-break-inside:avoid; page-break-after:avoid; line-height:normal; widows:0; orphans:0; font-size:13pt; font-weight:bold; font-style:italic }
+    h6 { margin-top:12pt; margin-bottom:3pt; page-break-inside:avoid; page-break-after:avoid; line-height:normal; widows:0; orphans:0; font-family:'Times New Roman'; font-size:11pt; font-weight:bold }
+    .Heading7 { margin-top:12pt; margin-bottom:3pt; page-break-inside:avoid; page-break-after:avoid; line-height:normal; widows:0; orphans:0; font-size:12pt; font-weight:normal }
+    .Heading8 { margin-top:12pt; margin-bottom:3pt; page-break-inside:avoid; page-break-after:avoid; line-height:normal; widows:0; orphans:0; font-family:'Times New Roman'; font-size:12pt; font-weight:normal; font-style:italic }
+    .Heading9 { margin-top:12pt; margin-bottom:3pt; page-break-inside:avoid; page-break-after:avoid; line-height:normal; widows:0; orphans:0; font-family:Arial; font-size:11pt; font-weight:normal }
+    .BodyText { margin-top:3pt; widows:2; orphans:2; font-family:'.VnTime'; font-size:12pt }
+    .BodyText2 { text-align:justify; widows:2; orphans:2; font-family:'.VnTime'; font-size:12pt }
+    .BodyText3 { margin-bottom:6pt; widows:0; orphans:0; font-size:8pt }
+    .BodyTextIndent { margin-left:11.7pt; text-indent:-11.7pt; text-align:justify; widows:2; orphans:2; font-family:'.VnTime'; font-size:12pt }
+    .BodyTextIndent2 { margin-left:14.15pt; margin-bottom:6pt; line-height:200%; widows:0; orphans:0; font-size:12pt }
+    .BodyTextIndent3 { margin-left:14.15pt; margin-bottom:6pt; widows:0; orphans:0; font-size:8pt }
+    .CommentText { widows:2; orphans:2; font-size:10pt }
+    .Footer { text-align:left; widows:0; orphans:0; font-size:9pt }
+    .Header { widows:0; orphans:0; font-size:9pt }
+    .ListParagraph { margin-left:36pt; widows:0; orphans:0; font-size:12pt }
+    .Title { text-align:center; widows:2; orphans:2; font-family:'.VnTime'; font-size:12pt; font-weight:bold }
+    span.BodyText2Char { font-family:'.VnTime'; font-size:12pt }
+    span.BodyText3Char { font-size:8pt }
+    span.BodyTextChar { font-family:'.VnTime'; font-size:12pt }
+    span.BodyTextIndent2Char { font-size:12pt }
+    span.BodyTextIndent3Char { font-size:8pt }
+    span.BodyTextIndentChar { font-family:'.VnTime'; font-size:12pt }
+    span.CommentReference { font-size:8pt }
+    span.Hyperlink { text-decoration:underline; color:#0000ff }
+    span.TitleChar { font-family:'.VnTime'; font-size:12pt; font-weight:bold }
+    .awlist1 { list-style:none; counter-reset:awlistcounter22_1 }
+    .awlist1 > li:before { content:'2.' counter(awlistcounter22_1); counter-increment:awlistcounter22_1 }
+    .awlist2 { list-style:none; counter-reset:awlistcounter22_1 10 }
+    .awlist2 > li:before { content:'2.' counter(awlistcounter22_1); counter-increment:awlistcounter22_1 }
+    .awlist3 { list-style:none; counter-reset:awlistcounter23_1 }
+    .awlist3 > li:before { content:'3.' counter(awlistcounter23_1); counter-increment:awlistcounter23_1 }
+    .awlist4 { list-style:none; counter-reset:awlistcounter23_1 7 }
+    .awlist4 > li:before { content:'3.' counter(awlistcounter23_1); counter-increment:awlistcounter23_1 }
+    @media (max-width: 900px) {
+      img {
+        max-width: 100%;
+        height: auto;
+      }
+
+      .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      td, th {
+        padding: 8px;
+        text-align: left;
+        border: 1px solid #ddd;
+      }
+    }
+
+
+  </style>
+</head>
+<body style="background:#ffffff">
+<div>
+  <p style="text-align:center; line-height:150%; font-size:13pt">
+    <strong>CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</strong>
+  </p>
+  <p style="text-align:center; line-height:150%; font-size:13pt">
+    <strong>Độc lập – Tự do – Hạnh phúc</strong>
+  </p>
+  <p style="text-align:center; line-height:150%; font-size:13pt">
+    -------------------------------------
+  </p>
+  <p style="text-align:center; line-height:150%; font-size:13pt">
+    &#xa0;
+  </p>
+  <p style="text-align:center; line-height:150%; font-size:13pt">
+    &#xa0;
+  </p>
+  <p style="text-align:center; line-height:150%; font-size:13pt">
+    <strong>HỢP ĐỒNG CHO THUÊ VĂN PHÒNG</strong>
+  </p>
+  <p style="text-align:center; line-height:150%; font-size:13pt">
+    <strong><em>(Số:</em></strong><strong><em><span th:text="${contract.getCode()}"></span></em></strong><strong><em>/HĐTVP)</em></strong>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    <em>- Căn cứ Bộ luật dân sự số 33/2005 QH 11 của nước CHXHCN Việt Nam</em>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    <em>- Căn cứ Luật Thương mại số 36/2005/QH11 ngày 14/6/2005</em>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    <em>- Căn cứ vào nhu cầu và khả năng của mỗi bên</em>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    <em>&#xa0;</em>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    Hôm nay, <span th:text="${currentDate}"></span>, tại <span th:text="${contract.getOffice().getBuilding().getName()}"></span>, chúng tôi gồm:
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    <strong><u>BÊN A</u></strong><strong>: (BÊN CHO THUÊ VĂN PHÒNG)</strong>
+  </p>
+  <p style="line-height:150%; font-size:13pt">
+    <strong>&#xa0;&#xa0;&#xa0;&#xa0; </strong><strong>………………………………………………………………………..</strong>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    Địa chỉ<span style="width:4.1pt; display:inline-block">&#xa0;</span><span style="width:21pt; display:inline-block">&#xa0;</span>: ………………………………….
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    Điện thoại<span style="width:8.49pt; display:inline-block">&#xa0;</span>: ……………………………………………..<span style="width:17.64pt; display:inline-block">&#xa0;</span><span style="width:21pt; display:inline-block">&#xa0;</span><span style="width:21pt; display:inline-block">&#xa0;</span>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    Mã số thuế : ……………………………………………………..
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    Tài khoản<span style="width:10.66pt; display:inline-block">&#xa0;</span>………………………………………………..
+  </p>
+  <p style="line-height:150%; font-size:13pt">
+    Đại diện<span style="width:18.6pt; display:inline-block">&#xa0;</span>: ……………………………………………………………………………
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    &#xa0;
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    <strong><u>BÊN B</u></strong>: <strong>(BÊN THUÊ VĂN PHÒNG LÀM VIỆC)</strong>
+  </p>
+  <p style="line-height:150%; font-size:13pt">
+    <strong>&#xa0;&#xa0;&#xa0;&#xa0; </strong><strong>………………………………………………………………………………………</strong>
+  </p>
+  <p style="line-height:150%; font-size:13pt">
+    Địa chỉ <span style="width:0.85pt; display:inline-block">&#xa0;</span>: &#xa0; ………………………………………………………………………………
+  </p>
+  <p style="line-height:150%; widows:2; orphans:2; font-size:13pt">
+    Điện Thoại : &#xa0; ………………
+  </p>
+  <p style="line-height:150%; widows:2; orphans:2; font-size:13pt">
+    Mã Số Thuế : &#xa0;………………
+  </p>
+  <p style="line-height:150%; font-size:13pt">
+    Đại diện : <span style="width:18.6pt; display:inline-block" th:text="${contract.getTenant().getFirstName()} + ' ' + ${contract.getTenant().getLastName()}">&#xa0;</span><span style="width:19.89pt; display:inline-block">&#xa0;</span><span style="width:21pt; display:inline-block">&#xa0;</span>
+  </p>
+  <p style="line-height:150%; font-size:13pt">
+    &#xa0;
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt; background-color:#ffffff">
+    Hai bên thống nhất và ký kết hợp đồng cho thuê văn phòng với các điều khoản sau đây:
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    <strong><u>ĐIỀU 1</u></strong>: <strong>CÁC THỎA THUẬN CHÍNH</strong>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    <strong>1.1.</strong> <strong>Chủ quyền hợp pháp và khu vực cho thuê</strong>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    - Bên A cam kết có chủ quyền cho thuê hợp pháp đối với toàn bộ Toà nhà tại địa chỉ <span th:text="${contract.getOffice().getBuilding().getAddress()}"></span>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    <strong>- </strong>Địa chỉ cho thuê:&#xa0; <span style="background-color:#ffff00">Tầng: ............</span>&#xa0; Diện tích:&#xa0;<span th:text="${contract.getOffice().getArea()} + ' m2'"></span>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    &#xa0; Bao gồm các quyền:
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    + Được sử dụng lối đi chung và cầu thang bộ dẫn đến diện tích thuê;
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    + Được sử dụng thang máy của tòa nhà;
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    + Được sử dụng đường ống, dây cáp điện, cáp điện thoại dẫn đến hộp kỹ thuật của tầng có diện tích thuê.
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    + Được sử dụng thiết bị, các tiện nghi và thiết bị cố định do Bên A cung cấp hoặc thi công và các dịch vụ chung của Tòa nhà do Bên A cung cấp cho khách thuê (vệ sinh, bảo vệ...)
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    <strong>1.2. Giá thuê </strong>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    Tổng tiền thuê một tháng: <strong><span th:text="${#numbers.formatDecimal(contract.getRentalPrice() * 30, 0, 0)} + ' VNĐ'"></span></strong>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    Bằng chữ: <strong><span style="font-family:'Times New Roman'" th:text="${T(com.ptit.datn.utils.Utils).convertToWord(contract.getRentalPrice()*30)} + ' việt nam đồng.'"></span></strong>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    Giá thuê này chưa bao gồm thuế VAT
+  </p>
+  <p class="BodyText" style="margin-right:5.35pt; text-align:justify; line-height:150%; font-size:13pt">
+    <span style="font-family:'Times New Roman'">Tiền thuê sẽ được xem xét, điều chỉnh theo tỷ giá VNĐ vào ngày </span><strong><span style="font-family:'Times New Roman'; ">…………… </span></strong><span style="font-family:'Times New Roman'">hoặc </span><strong><span style="font-family:'Times New Roman'; ">………… </span></strong><span style="font-family:'Times New Roman'">hàng năm, do ngân hàng Vietcombank Chi nhánh Tp.HCM công bố. Các bên sẽ thống nhất ý kiến và ký Phụ lục Hợp đồng cho mỗi lần điều chỉnh theo giá thuê tham chiếu ban đầu chưa bao gồm thuế VAT là </span><strong><span style="font-family:'Times New Roman'" th:text="${#numbers.formatDecimal(contract.getRentalPrice(), 0, 0)} + ' VNĐ/m2.'"></span></strong>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    Giá thuê trên bao gồm: phí dịch vụ (an ninh vòng ngoài, tiền nước tại nhà vệ sinh, tiền điện cho thang máy và chiếu sáng khu vực công cộng), phí quản lý. Ngoại trừ tiền điện trả theo công tơ riêng do Bên A lắp đặt tại diện tích thuê.
+  </p>
+  <p class="BodyText2" style="line-height:150%; font-size:13pt">
+    <span style="font-family:'Times New Roman'">Bên A sẽ cung cấp hoá đơn tài chính theo quy định hiện hành sau khi Bên B thanh toán bất kỳ khoản tiền thuê và các khoản phí</span><strong><span style="font-family:'Times New Roman'; "> </span></strong><span style="font-family:'Times New Roman'">cho Bên A theo Hợp Đồng Thuê này.</span>
+  </p>
+  <p class="BodyText2" style="line-height:150%; font-size:13pt">
+    <span style="font-family:'Times New Roman'">Số tiền bên B thanh toán cho bên A bao gồm tiền thuê và thuế VAT phát sinh theo quy định.</span>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    <strong>1.3. Thời hạn thuê:</strong><strong>&#xa0; </strong><strong><span th:text="${contract.getDuration()}"></span></strong>
+  </p>
+  <p class="BodyText2" style="line-height:150%; font-size:13pt">
+    <span style="font-family:'Times New Roman'">Ngày bắt đầu thuê: </span><span style="font-family:'Times New Roman'">&#xa0; </span><strong><span style="font-family:'Times New Roman'" th:text="${T(com.ptit.datn.utils.Utils).convertToCustomFormat(contract.getStartDate())}"></span></strong>
+  </p>
+  <p class="BodyText2" style="line-height:150%; font-size:13pt">
+    <span style="font-family:'Times New Roman'">Ngày kết thúc thời hạn thuê: </span><span style="font-family:'Times New Roman'">&#xa0; </span><strong><span style="font-family:'Times New Roman'" th:text="${T(com.ptit.datn.utils.Utils).convertToCustomFormat(contract.getEndDate())}"></span></strong>
+  </p>
+  <p class="BodyText2" style="line-height:150%; font-size:13pt">
+    <span style="font-family:'Times New Roman'">Thời gian thuê ấn định như trên , hai bên không được hủy ngang trong năm đầu tiên. Trường hợp một trong hai bên đơn phương hủy ngang hợp đồng trong thời gian hợp đồng có hiệu lực thì bên hủy ngang sẽ có trách nhiệm bồi thường cho bên kia số tiền tương ứng với số tiền bên B đã đặt cọc cho bên A .</span>
+  </p>
+  <p class="BodyText2" style="line-height:150%; font-size:13pt">
+    <span style="font-family:'Times New Roman'">Sau mỗi ba năm, hai bên sẽ gặp nhau để cùng thương thảo lại các điều khoản của Hợp Đồng</span>
+  </p>
+  <p class="BodyText2" style="line-height:150%; font-size:13pt">
+    <span style="font-family:'Times New Roman'">Hết thời hạn thuê, Hợp đồng thuê này sau đó có thể được gia hạn thêm thời gian tiếp theo tuỳ vào sự lựa chọn của Bên B theo các điều kiện của Hợp đồng này ngoại trừ Giá Thuê có thể được điều chỉnh để phản ánh mức giá trên thị trường đối với các toà nhà tương tự ở vị trí tương tự trên cơ sở thống nhất và thoả thuận giữa hai bên.</span>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    Quyền lựa chọn gia hạn Hợp đồng sẽ được đề xuất ít nhất <strong>03 (Ba) tháng</strong> trước khi Hợp đồng thuê hết hạn bằng cách bên B gửi thông báo cho Bên A bằng văn bản về đề nghị tiếp tục thuê.
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    <strong>1.4. Mục đích thuê:</strong> <span th:text="${contract.getRentalPurpose()} + '.'"></span>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    <strong>1.5. Đặt cọc bảo đảm</strong>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    Tiền đặt cọc bảo đảm: <strong><span th:text="${#numbers.formatDecimal(contract.getDepositAmount(), 0, 0)} + ' VNĐ'"></span></strong>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    Khoản đặt cọc được bên B chuyển đủ cho Bên A ngay sau khi ký hợp đồng .
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    Khoản đặt cọc này sẽ được giữ trong suốt thời gian thuê, không tính bất kỳ lãi suất nào trên đó và sẽ không được liên đới hoặc xem như là thanh toán tiền thuê, khoản tiền này sẽ được giữ để đảm bảo cho việc Bên Thuê tôn trọng và thực hiện các điều khoản và các điều kiện của Hợp đồng này<strong>.</strong>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    Khoản cọc này sẽ được bên A hoàn trả lại đầy đủ cho Bên B sau khi kết thúc Hợp Đồng nếu Bên B không vi phạm Hợp Đồng và hoàn thành đầy đủ các nghĩa vụ phát sinh ( nếu có) khi bàn giao trả lại mặt bằng thuê ban đầu cho Bên A.
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    <strong>1.6. Thanh toán tiền thuê lần đầu</strong>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    Trong vòng 05 ngày làm việc đầu tiên kể từ khi ký Hợp Đồng Thuê này, Bên B phải thanh toán 01 tháng tiền thuê lần đầu tiên là <strong><span th:text="${#numbers.formatDecimal(contract.getRentalPrice() * 30, 0, 0)} + ' VNĐ'"></span></strong>&#xa0;
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    <strong>1.7. Các khoản thanh toán tiếp theo</strong>
+  </p>
+  <p style="margin-top:3pt; margin-left:8.8pt; text-indent:-8.8pt; text-align:justify; line-height:150%; font-size:13pt">
+    a/ Các lần thanh toán tiếp theo Bên B thanh toán tiền thuê theo kỳ <span th:text="${contract.getPaymentFrequency()}"></span> một lần.
+  </p>
+  <p style="margin-top:3pt; text-align:justify; line-height:150%; font-size:13pt">
+    b/ Thời gian thanh toán: Bên B phải thanh toán cho Bên A từ ngày 01 đến ngày 05 tháng đầu tiên của kỳ thanh toán. Nếu chậm thanh toán thì Bên B phải chịu phạt lãi suất 1%/ngày/số tiền trễ thanh toán
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    Sau thời hạn phạt 10 ngày trên, mà Bên B chưa thanh toán cho Bên A thì Bên A có Quyền đơn phương chấm dứt hợp đồng với Bên B mà không có nghĩa vụ phải trả lại khoản tiền cọc mà Bên B đã đóng ban đầu. Đồng thời Bên B có nghĩa vụ phải thanh toán tiền thuê văn phòng cho Bên A đến thời điểm chấm dứt Hợp Đồng và các chi phí khác (nếu có) trong quá trình sử dụng và bàn giao lại mặt bằng thuê như hiện trạng ban đầu đã bàn giao.
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    <strong>1.8. Hình thức thanh toán: </strong>Chuyển khoản hoặc tiền mặt.
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    <strong>1.9. </strong><strong><span>Ngày Bàn Giao Mặt Bằng Cho Thuê: </span></strong><span th:text="${#dates.format(contract.getHandoverDate(), 'dd/MM/yyyy')}"></span>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    <strong>1.10. Bàn giao của Bên cho thuê nhà</strong>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    Bên A bàn giao trần theo tiêu chuẩn văn phòng, hệ thống chiếu sáng tiêu chuẩn, nền bê tông phẳng, tường sơn, cửa sổ kính, đầu chờ điện thoại, đầu chờ ổ điện &amp; công tắc, hệ thống phòng chống cháy tiêu chuẩn quốc gia, thang máy, thang bộ, an ninh 24/24 và vệ sinh tại khu vực chung của Tòa nhà.
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    Bên A đảm bảo cho Bên B được sử dụng chung các cầu thang bộ, thang máy công cộng, hệ thống phòng cháy chữa cháy chung của toà nhà, an ninh vòng ngoài, chiếu sáng công cộng và vệ sinh tại khu vực công cộng (không bao gồm vệ sinh trong khu vực đã bàn giao cho Bên B).
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    <strong>1.11. Lắp đặt trang thiết bị</strong>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    Bên B tự lắp đặt trang thiết bị bằng chi phí của mình. Công việc lắp đặt trang thiết bị không được làm ảnh hưởng đến kiến trúc và kết cấu của toà nhà và phải được Bên A phê duyệt thiết kế trước khi thực hiện.
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    <strong>1.12. Phí tiện ích (điện, nước) </strong>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    - Tiền nước sử dụng tại khu vực cho thuê bao gồm trong giá thuê.
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    <span style="background-color:#ffff00">- Tiền điện trả theo công tơ riêng do Bên A lắp đặt tại diện tích thuê, với mức giá: ........đ/Kw (Chưa bao gồm VAT) – Giá này sẽ được điều chỉnh tăng giảm phù hợp với quy định chung của Tòa Nhà.</span>
+  </p>
+  <p class="BodyText3" style="text-align:justify; line-height:150%; font-size:13pt">
+    <span style="background-color:#ffff00">Phí xe máy:</span><span style="background-color:#ffff00">&#xa0; </span><span style="background-color:#ffff00">............ vnđ/tháng , Phí xe ô tô:</span><span style="background-color:#ffff00">&#xa0; </span><span style="background-color:#ffff00">: .......... vnđ/tháng</span><span style="background-color:#ffff00">&#xa0; </span><span style="background-color:#ffff00">( Chưa bao gồm VAT).</span>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    Khoản thanh toán của Bên B sẽ trả cho Bên A trong vòng năm (05) ngày sau khi Bên B nhận được phiêu yêu cầu thanh toán đó từ Bên A.
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    <strong>1.13. Hệ thống thông tin liên lạc </strong>(điện thoại, internet, fax…)
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    Bên B sẽ đăng ký và thanh toán trực tiếp với Nhà Cung Cấp Dịch Vụ tại Việt Nam.
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    <strong>1.14. Biển hiệu</strong>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    Bên B được đặt biển tên công ty phía trước cửa diện tích thuê trông ra hành lang bên trong toà nhà và được nêu tên công ty tại Bảng biển hiệu chung của toà nhà.
+  </p>
+  <p class="BodyText3" style="text-align:justify; line-height:150%; font-size:13pt">
+    <strong>1.15. Chấm dứt Hợp đồng</strong>
+  </p>
+  <p style="margin-left:36pt; text-indent:-18pt; text-align:justify; line-height:150%; widows:2; orphans:2; font-size:13pt">
+    <span>-</span><span style="width:13.67pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>Trong trường hợp một trong hai bên muốn chấm dứt Hợp đồng thuê trước thời hạn (ngoại trừ thời hạn không hủy ngang trong năm đầu tiên) thì phải thông báo bằng văn bản cho bên kia trước 03 tháng so với ngày mong muốn chấm dứt Hợp Đồng.
+  </p>
+  <p style="margin-left:36pt; text-indent:-18pt; text-align:justify; line-height:150%; widows:2; orphans:2; font-size:13pt">
+    <span>-</span><span style="width:13.67pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>Nếu một trong hai bên không thông báo cho bên kia trước 03 tháng thì sẽ phải bồi thường cho bên kia 03 tháng tiền thuê và các chi phí phát sinh (nếu có) trong quá trình sử dụng
+  </p>
+  <p style="margin-left:36pt; text-indent:-18pt; text-align:justify; line-height:150%; widows:2; orphans:2; font-size:13pt">
+    <span>-</span><span style="width:13.67pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>Sau khi chấm dứt hợp đồng bên B phải bàn giao diện tích thuê như hiện trạng ban đầu khi bên A bàn giao và thanh toán tiền thuê văn phòng đến thời điểm chấm dứt.
+  </p>
+  <p style="margin-left:36pt; text-align:justify; line-height:150%; widows:2; orphans:2; font-size:13pt">
+    &#xa0;
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    <strong><u>ĐIỀU 2</u></strong><strong>: QUYỀN VÀ NGHĨA VỤ CỦA BÊN A</strong>
+  </p>
+  <ol class="awlist1" style="margin:0pt; padding-left:0pt">
+    <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
+      <span style="width:15.25pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>Bàn giao cho Bên B quyền sử dụng riêng Diện Tích Thuê vào ngày <span th:text="${#dates.format(contract.getHandoverDate(), 'dd/MM/yyyy')}"> </span>để Bên B làm trang trí, lắp đặt văn phòng.
+    </li>
+    <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
+      <span style="width:15.25pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>&#xa0; Đảm bảo tính Pháp lý về quyền quản lý, sử dụng và sử dụng phần Diện Tích Thuê của toà nhà trên theo Pháp luật hiện hành của Nhà nước Việt Nam.
+    </li>
+    <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
+      <span style="width:15.25pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>Nhanh chóng tiến hành việc lắp đặt, sửa chữa các thiết bị như đường dây ngầm mạng, điện thoại, đường điện, đường cấp thoát nước hoặc thiết bị công trình khác chung của toà nhà và có liên quan đến Diện Tích Thuê đối với các thiết bị do Bên A lắp đặt, và tự trang trải các khoản chi phí phát sinh liên quan (trừ việc thay thế các loại bóng đèn, ổ cắm tại diện tích thuê sẽ do Bên B chịu trách nhiệm).
+    </li>
+    <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
+      <span style="width:15.25pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>Bên A có nghĩa vụ nộp các khoản thuế có liên quan đến khoản tiền Bên A nhận được từ Bên B, theo Luật Việt Nam.
+    </li>
+    <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
+      <span style="width:15.25pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>Mỗi khi nhận bất kỳ khoản tiền nào do Bên B trả, Bên A có trách nhiệm cung cấp hoá đơn cho Bên B theo Hợp Đồng này.
+    </li>
+    <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
+      <span style="width:15.25pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>Đảm bảo đầy đủ các dịch vụ tiện ích và Hệ Thống Cung Cấp Dịch Vụ được nối với Diện Tích Thuê như Bên A đã thiết kế và đã được lắp đặt để Bên B có thể sử dụng Diện Tích Thuê theo như các mục đích dự kiến của mình.
+    </li>
+    <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
+      <span style="width:15.25pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>Thường xuyên bảo dưỡng, sửa chữa và thay thế (nếu cần thiết) thiết bị hoàn thiện bên ngoài Diện Tích Thuê, Diện Tích Công Cộng, đường đi bộ và các Hệ Thống Cung Cấp Dịch Vụ trong và xung quanh Tòa Nhà.
+    </li>
+    <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
+      <span style="width:15.25pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>Bên A có quyền ra vào Diện Tích Thuê vào bất kỳ lúc nào thích hợp với sự thông báo trước cho Bên B để kiểm tra, bảo trì, bảo dưỡng Diện Tích Thuê và các trang thiết bị do Bên A lắp đặt bên trong Diện Tích Thuê hoặc sẽ thay mới khi không thể sữa được.
+    </li>
+    <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
+      <span style="width:15.25pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>Không bán tất cả hoặc một phần của Toà nhà trong bất cứ lúc nào trừ khi trong hợp đồng bán bao gồm điều kiện mà việc bán đó không ảnh hưởng đến quyền lợi của Bên B trong hợp đồng thuê này.
+    </li>
+    <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
+      <span style="width:8.75pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>Cung cấp toàn bộ dịch vụ của Toà nhà cho diện tích công cộng.
+    </li>
+  </ol>
+  <ul style="margin:0pt; padding-left:0pt">
+    <li class="BodyText2" style="margin-left:28.98pt; line-height:150%; padding-left:7.02pt; font-family:serif; font-size:13pt">
+      <span style="font-family:'Times New Roman'">Duy trì, làm sạch, sửa chữa các tiện ích công cộng (thang máy, chiếu sáng khu vực công cộng, máy phát điện) để đảm bảo tiêu chuẩn của tòa nhà.</span>
+    </li>
+    <li class="BodyText2" style="margin-left:28.98pt; line-height:150%; padding-left:7.02pt; font-family:serif; font-size:13pt">
+      <span style="font-family:'Times New Roman'">Cung cấp dịch vụ thang máy 24/24 (trừ trường hợp hệ thống bảo trì, mất điện do hệ thống của nhà cung cấp) </span>
+    </li>
+    <li class="BodyText2" style="margin-left:28.98pt; line-height:150%; padding-left:7.02pt; font-family:serif; font-size:13pt">
+      <span style="font-family:'Times New Roman'">Làm vệ sinh ở khu vực công cộng.</span>
+    </li>
+    <li class="BodyText2" style="margin-left:28.98pt; line-height:150%; padding-left:7.02pt; font-family:serif; font-size:13pt">
+      <span style="font-family:'Times New Roman'">Cung cấp bảo vệ khu vực công cộng (ngoài diện tích đã bàn giao cho Bên B)</span>
+    </li>
+    <li class="BodyText2" style="margin-left:28.98pt; line-height:150%; padding-left:7.02pt; font-family:serif; font-size:13pt">
+      <span style="font-family:'Times New Roman'">Cung cấp hệ thống PCCC chung của Toà Nhà.</span>
+      <ol start="11" class="awlist2" style="margin-right:0pt; margin-left:0pt; padding-left:0pt">
+        <li class="BodyText2" style="margin-left:-18pt; text-indent:-18pt; font-family:'Times New Roman'; font-size:13pt; list-style-position:inside">
+          <span style="width:19.25pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>Tuân thủ các quy định của pháp luật Việt Nam
+        </li>
+      </ol>
+    </li>
+  </ul>
+  <p class="BodyText2" style="margin-left:18pt; line-height:150%; font-size:13pt">
+    <span style="font-family:'Times New Roman'">&#xa0;</span>
+  </p>
+  <p class="BodyText2" style="line-height:150%; font-size:13pt">
+    <strong><u><span style="font-family:'Times New Roman'; ">ĐIỀU 3</span></u></strong><strong><span style="font-family:'Times New Roman'; ">: QUYỀN VÀ NGHĨA VỤ CỦA BÊN B</span></strong>
+  </p>
+  <ol class="awlist3" style="margin:0pt; padding-left:0pt">
+    <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
+      <span style="width:15.25pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>Sử dụng Diện Tích Thuê đúng theo mục đích thuê như đã thoả thuận là văn phòng giao dịch.
+    </li>
+    <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
+      <span style="width:15.25pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>Được ra, vào diện tích thuê của mình bất cứ lúc nào trong giờ làm việc mà không làm ảnh hưởng đến an ninh và vệ sinh chung của tòa nhà.
+    </li>
+    <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
+      <span style="width:15.25pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>Không được cho thuê lại, chuyển nhượng một phần hoặc toàn bộ Diện Tích Thuê và các trang thiết bị của Bên A lắp đặt bên trong Diện Tích Thuê khi chưa có sự đồng ý bằng văn bản của Bên A. Trường hợp Bên B có nhu cầu cho thuê lại, chuyển nhượng thì phải thông báo trước bằng văn bản với Bên A ít nhất 03 tháng để Bên A xem xét, quyết định.
+    </li>
+    <li class="BodyText2" style="margin-left:18pt; text-indent:-18pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
+      <span style="width:1.75pt; font:7pt 'Times New Roman'; display:inline-block"> </span>&#xa0;&#xa0;&#xa0; Thanh toán tiền thuê đúng hạn.
+    </li>
+    <li class="BodyText2" style="margin-left:18pt; text-indent:-18pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
+      <span style="width:1.75pt; font:7pt 'Times New Roman'; display:inline-block"> </span>&#xa0;&#xa0; Không để các tầng nhà của Diện Tích Thuê bị quá tải quá mức cho phép .
+    </li>
+    <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
+      <span style="width:15.25pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>&#xa0; Chịu trách nhiệm về tất cả những hư hại hoặc mất mát xảy ra đối với Thiết Bị của Bên A đã bàn giao trong quá trình sử dụng hoặc thiếu sót của Bên B (ngoại trừ các hao mòn thông thường) và phải chịu trách nhiệm về hư hại do bên thứ ba gây ra phát sinh từ việc Bên B sử dụng Diện Tích Thuê, trừ trường hợp hư hại hoặc mất mát đó do Bên A hoặc nhân viên, cán bộ, khách, khách mời, nhà thầu của Bên A gây ra. Bên B sẽ chịu trách nhiệm đối với tài sản riêng của mình.
+    </li>
+    <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
+      <span style="width:15.25pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>&#xa0; Tuân thủ nghiêm ngặt các luật của Việt Nam đã được công bố và được cung cấp công khai về vệ sinh môi trường và phòng cháy chữa cháy được ban hành vào từng thời điểm.
+    </li>
+  </ol>
+  <p class="BodyText2" style="text-indent:31.5pt; line-height:150%; font-size:13pt">
+    <span style="font-family:'Times New Roman'">Đảm bảo trật tự trị an, vệ sinh công cộng, PCCC tại khu vực thuê mà Bên A đã bàn giao cho Bên B</span><strong><span style="font-family:'Times New Roman'; ">.</span></strong>
+  </p>
+  <ol start="8" class="awlist4" style="margin:0pt; padding-left:0pt">
+    <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
+      <span style="width:15.25pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>&#xa0; Giữ gìn nội thất của Diện Tích Thuê luôn ở tình trạng tốt, sạch sẽ, sửa chữa và bảo quản thích hợp trong suốt thời hạn của Hợp đồng thuê này (ngoại trừ hao mòn thông thường).
+    </li>
+    <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
+      <span style="width:15.25pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>Bồi hoàn cho Bên A những chi phí hợp lý mà Bên A phải chi do phải sửa chữa hoặc thay thế các bộ phận hỏng hóc hoặc bị hư hại của Diện Tích Thuê (ngoại trừ hao mòn thông thường) trong trường hợp những hư hại này do Bên B, nhân viên, khách, nhà thầu của Bên B gây ra trong thời hạn của Hợp Đồng Thuê này.
+    </li>
+    <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
+      <span style="width:8.75pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>Chiụ trách nhiệm bồi hoàn cho bên A toàn bộ tổn thất về vật chất, tài sản của tòa nhà trong trường hợp thiệt hại do bên B gây ra.
+    </li>
+    <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
+      <span style="width:8.75pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>Tuân thủ một cách chặt chẽ các quy chế và điều lệ của Toà Nhà và các quy định của pháp luật Việt Nam.
+    </li>
+    <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
+      <span style="width:8.75pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>Được nhận lại tiền đặt cọc sau khi hợp đồng hết hiệu lực và bên B phải thanh toán các chi phát sinh trong quá trình sử dụng (nếu có).
+    </li>
+    <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
+      <span style="width:8.75pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>Chi phí pháp lý: các bên tự chịu trách nhiệm về chi phí pháp lý của mình.
+    </li>
+    <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
+      <span style="width:8.75pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>Trường hợp Bên A vi phạm các cam kết trong hợp đồng này thì toàn bộ các điều kiện ràng buộc nghĩa vụ của Bên A với Bên B đều bị vô hiệu; trường hợp có xảy ra thiệt hại cho Bên B do hành vi vi phạm của Bên A thì Bên A chịu trách nhiệm bồi thường cho Bên B bằng số tiền tương đương với giá trị thiệt hại được xác định.
+    </li>
+  </ol>
+  <p class="BodyText2" style="margin-left:31.5pt; line-height:150%; font-size:13pt">
+    <span style="font-family:'Times New Roman'">&#xa0;</span>
+  </p>
+  <p class="BodyText2" style="line-height:150%; font-size:13pt">
+    <strong><span style="font-family:'Times New Roman'; ">ĐIỀU 4: ĐIỀU KIỆN BẤT KHẢ KHÁNG</span></strong>
+  </p>
+  <p class="BodyText2" style="margin-left:18pt; text-indent:-18pt; line-height:150%; font-size:13pt">
+    <span style="font-family:'Times New Roman'">-</span><span style="width:13.67pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Times New Roman'">Động đất, Chiến tranh, Giông bão...</span>
+  </p>
+  <p class="BodyText2" style="margin-left:18pt; text-indent:-18pt; line-height:150%; font-size:13pt">
+    <span style="font-family:'Times New Roman'">-</span><span style="width:13.67pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Times New Roman'">Hoả hoạn khu vực thuê nhà không do lỗi của bên B gây ra.</span>
+  </p>
+  <p class="BodyText2" style="margin-left:18pt; text-indent:-18pt; line-height:150%; font-size:13pt">
+    <span style="font-family:'Times New Roman'">-</span><span style="width:13.67pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Times New Roman'">Hai Bên bị Chính Phủ Việt Nam hoặc một cơ quan có thẩm quyền quyết định chấm dứt hoạt động. </span>
+  </p>
+  <p class="BodyText2" style="line-height:150%; font-size:13pt">
+    <span style="font-family:'Times New Roman'">Trong trường hợp có sự thay đổi về tổ chức và nhân sự của một (hoặc cả hai bên) ký Hợp Đồng Thuê thì tổ chức và nhân sự thay thế phải kế thừa bản Hợp Đồng Thuê này trừ trường hợp bị Toà án Phúc thẩm tuyên bố là phá sản.</span>
+  </p>
+  <p class="BodyText2" style="line-height:150%; font-size:13pt">
+    <span style="font-family:'Times New Roman'">&#xa0;</span>
+  </p>
+  <p class="BodyText2" style="line-height:150%; font-size:13pt">
+    <strong><span style="font-family:'Times New Roman'; ">ĐIỀU 5: CHẤM DỨT HỢP ĐỒNG</span></strong>
+  </p>
+  <p class="BodyText2" style="line-height:150%; font-size:13pt">
+    <span style="font-family:'Times New Roman'">Hợp Đồng Thuê này sẽ chấm dứt trong các trường hợp sau: </span>
+  </p>
+  <p class="BodyText2" style="line-height:150%; font-size:13pt">
+    <span style="font-family:'Times New Roman'">5.1 Diện Tích Thuê bị Chính Phủ Việt Nam hoặc một cơ quan có thẩm quyền quyết định phá hủy hoặc tháo dỡ.</span>
+  </p>
+  <p class="BodyText2" style="line-height:150%; font-size:13pt">
+    <span style="font-family:'Times New Roman'">5.2 Khi chấm dứt thời hạn Hợp đồng này, với điều kiện trong trường hợp thời hạn của Hợp đồng thuê này được gia hạn, Hợp Đồng Thuê này sẽ kết thúc vào cuối thời gian gia hạn gần nhất.</span>
+  </p>
+  <p class="BodyText2" style="line-height:150%; font-size:13pt">
+    <span style="font-family:'Times New Roman'">5.3 Diện tích thuê bị phá hủy, bị hư hại hoặc bị làm hư hỏng đến mức không thích hợp để ở hoặc sử dụng hoặc không vào được và tình trạng đó không thể khắc phục được.</span>
+  </p>
+  <p class="BodyText2" style="line-height:150%; font-size:13pt">
+    <span style="font-family:'Times New Roman'">5.4 Hai Bên vi phạm nghiêm trọng những điều khoản của Hợp Đồng Thuê này.</span>
+  </p>
+  <p class="BodyText2" style="line-height:150%; font-size:13pt">
+    <span style="font-family:'Times New Roman'">5.5 Trường hợp bất khả kháng xảy ra</span>
+  </p>
+  <p class="BodyText2" style="line-height:150%; font-size:13pt">
+    <span style="font-family:'Times New Roman'">&#xa0;</span>
+  </p>
+  <p class="BodyText2" style="line-height:150%; font-size:13pt">
+    <strong><span style="font-family:'Times New Roman'; ">ĐIỀU 6: ĐIỀU KHOẢN CHUNG</span></strong>
+  </p>
+  <p class="BodyText2" style="line-height:150%; font-size:13pt">
+    <span style="font-family:'Times New Roman'">Các bên bị ràng buộc thực hiện các điều khoản trong Hợp đồng thuê này. Mọi tranh chấp (nếu có), sẽ được giải quyết bằng hoà giải giữa hai bên. </span>
+  </p>
+  <p class="BodyText2" style="line-height:150%; font-size:13pt">
+    <span style="font-family:'Times New Roman'">Trong trường hợp không thể đạt được thống nhất thông qua hoà giải, trong vòng 30 ngày kể từ khi đưa vụ việc tranh chấp ra hoà giải, mỗi bên có thể đưa tranh chấp ra Tòa án có thẩm quyền để giải quyết. </span>
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    Hợp Đồng Thuê này gồm 06 trang và được lập thành hai (02) bản chính. Mỗi Bên giữ một (01) bản chính có giá trị pháp lý như nhau.
+  </p>
+  <p class="BodyText3" style="text-align:justify; line-height:150%; font-size:13pt">
+    Hợp đồng này có hiệu lực từ ngày ký.
+  </p>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    <strong>&#xa0;</strong>
+  </p>
+  <table style="border-collapse:collapse">
+    <tr style="height:156.45pt">
+      <td style="width:231.3pt; padding-right:5.4pt; padding-left:5.4pt; vertical-align:top">
+        <p style="text-align:center; line-height:150%; font-size:13pt">
+          <strong>BÊN B</strong>
+        </p>
+        <p style="text-align:center; line-height:150%; font-size:13pt">
+          <strong>(Ký tên và đóng dấu)</strong>
+        </p>
+        <p style="text-align:center; line-height:150%; font-size:13pt">
+          <strong>&#xa0;</strong>
+        </p>
+        <p style="text-align:center; line-height:150%; font-size:13pt">
+          <strong>&#xa0;</strong>
+        </p>
+        <p style="text-align:center; line-height:150%; font-size:13pt">
+          <strong>&#xa0;</strong>
+        </p>
+        <p style="text-align:center; line-height:150%; font-size:13pt">
+          <strong>&#xa0;</strong>
+        </p>
+        <p style="text-align:center; line-height:150%; font-size:13pt">
+          <strong>&#xa0;</strong>
+        </p>
+      </td>
+      <td style="width:231.35pt; padding-right:5.4pt; padding-left:5.4pt; vertical-align:top">
+        <p style="text-align:center; line-height:150%; font-size:13pt">
+          <strong>Bên A </strong>
+        </p>
+        <p style="text-align:center; line-height:150%; font-size:13pt">
+          <strong>(Ký tên và đóng dấu)</strong>
+        </p>
+        <p style="text-align:center; line-height:150%; font-size:13pt">
+          <strong>&#xa0;</strong>
+        </p>
+        <p style="text-align:center; line-height:150%; font-size:13pt">
+          <strong>&#xa0;</strong>
+        </p>
+        <p style="line-height:150%; font-size:13pt">
+          <strong>&#xa0;</strong>
+        </p>
+        <p style="line-height:150%; font-size:13pt">
+          <strong>&#xa0;</strong>
+        </p>
+        <p style="text-align:center; line-height:150%; font-size:13pt">
+          <strong>&#xa0;</strong>
+        </p>
+        <p style="text-align:center; line-height:150%; font-size:13pt">
+          <strong>&#xa0;</strong>
+        </p>
+        <p style="text-align:center; line-height:150%; font-size:13pt">
+          <strong>&#xa0;</strong>
+        </p>
+        <p style="text-align:center; line-height:150%; font-size:13pt">
+          <strong>&#xa0;</strong>
+        </p>
+        <p style="text-align:center; line-height:150%; font-size:13pt">
+          <strong>&#xa0;</strong>
+        </p>
+        <p style="text-align:center; line-height:150%; font-size:13pt">
+          <strong>&#xa0;</strong>
+        </p>
+      </td>
+    </tr>
+  </table>
+  <p style="text-align:justify; line-height:150%; font-size:13pt">
+    &#xa0;
+  </p>
+  <div style="clear:both">
+    <p class="Footer" style="margin-right:18pt; text-align:center; font-size:11pt">
+      &#xa0;
+    </p>
+  </div>
+</div>
+</body>
+</html>

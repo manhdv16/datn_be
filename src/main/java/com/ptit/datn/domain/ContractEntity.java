@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.sql.Date;
-import java.sql.Timestamp;
 
 @Entity
 @Table(name = "contract", schema = "defaultdb", catalog = "")
@@ -24,10 +23,10 @@ public class ContractEntity extends AbstractAuditingEntity<Long>{
     private Long tenantId;
     @Basic
     @Column(name = "start_date")
-    private Timestamp startDate;
+    private Date startDate;
     @Basic
     @Column(name = "end_date")
-    private Timestamp endDate;
+    private Date endDate;
     @Basic
     @Column(name = "duration")
     private String duration;
@@ -41,8 +40,11 @@ public class ContractEntity extends AbstractAuditingEntity<Long>{
     @Column(name = "payment_frequency")
     private String paymentFrequency;
     @Basic
-    @Column(name = "payment_due_date")
-    private Date paymentDueDate;
+    @Column(name = "handover_date")
+    private Date handoverDate;
+    @Basic
+    @Column(name = "rental_purpose")
+    private String rentalPurpose;
     @Basic
     @Column(name = "status")
     private Integer status;
@@ -86,19 +88,19 @@ public class ContractEntity extends AbstractAuditingEntity<Long>{
         this.tenantId = tenantId;
     }
 
-    public Timestamp getStartDate() {
+    public Date getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Timestamp startDate) {
+    public void setStartDate(Date startDate) {
         this.startDate = startDate;
     }
 
-    public Timestamp getEndDate() {
+    public Date getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Timestamp endDate) {
+    public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
 
@@ -134,12 +136,20 @@ public class ContractEntity extends AbstractAuditingEntity<Long>{
         this.paymentFrequency = paymentFrequency;
     }
 
-    public Date getPaymentDueDate() {
-        return paymentDueDate;
+    public Date getHandoverDate() {
+        return handoverDate;
     }
 
-    public void setPaymentDueDate(Date paymentDueDate) {
-        this.paymentDueDate = paymentDueDate;
+    public void setHandoverDate(Date handoverDate) {
+        this.handoverDate = handoverDate;
+    }
+
+    public String getRentalPurpose() {
+        return rentalPurpose;
+    }
+
+    public void setRentalPurpose(String rentalPurpose) {
+        this.rentalPurpose = rentalPurpose;
     }
 
     public Integer getStatus() {
@@ -209,8 +219,9 @@ public class ContractEntity extends AbstractAuditingEntity<Long>{
             return false;
         if (paymentFrequency != null ? !paymentFrequency.equals(that.paymentFrequency) : that.paymentFrequency != null)
             return false;
-        if (paymentDueDate != null ? !paymentDueDate.equals(that.paymentDueDate) : that.paymentDueDate != null)
+        if (handoverDate != null ? !handoverDate.equals(that.handoverDate) : that.handoverDate != null)
             return false;
+        if (rentalPurpose != null ? !rentalPurpose.equals(that.rentalPurpose) : that.rentalPurpose != null) return false;
         if (status != null ? !status.equals(that.status) : that.status != null) return false;
         if (contractType != null ? !contractType.equals(that.contractType) : that.contractType != null) return false;
         if (terminationClause != null ? !terminationClause.equals(that.terminationClause) : that.terminationClause != null)
@@ -235,7 +246,8 @@ public class ContractEntity extends AbstractAuditingEntity<Long>{
         result = 31 * result + (rentalPrice != null ? rentalPrice.hashCode() : 0);
         result = 31 * result + (depositAmount != null ? depositAmount.hashCode() : 0);
         result = 31 * result + (paymentFrequency != null ? paymentFrequency.hashCode() : 0);
-        result = 31 * result + (paymentDueDate != null ? paymentDueDate.hashCode() : 0);
+        result = 31 * result + (handoverDate != null ? handoverDate.hashCode() : 0);
+        result = 31 * result + (rentalPurpose != null ? rentalPurpose.hashCode() : 0);
         result = 31 * result + (status != null ? status.hashCode() : 0);
         result = 31 * result + (contractType != null ? contractType.hashCode() : 0);
         result = 31 * result + (terminationClause != null ? terminationClause.hashCode() : 0);

@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 public interface ContractMapper extends EntityMapper<ContractDTO, ContractEntity> {
     ContractEntity toEntity(ContractDTO contractDTO);
 
-    @Mapping(target = "building", ignore = true)
     @Mapping(target = "office", ignore = true)
     @Mapping(target = "tenant", ignore = true)
     ContractDTO toDTO(ContractEntity contractEntity);
