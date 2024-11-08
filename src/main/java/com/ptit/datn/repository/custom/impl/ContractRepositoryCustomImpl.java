@@ -30,7 +30,7 @@ public class ContractRepositoryCustomImpl implements ContractRepositoryCustom {
     private final ContractMapper contractMapper;
 
     @Override
-    public Page<ContractDTO> getAll(PageFilterInput<List<FilterDTO>> input, Condition condition, Pageable pageable) {
+    public Page<ContractEntity> getAll(PageFilterInput<List<FilterDTO>> input, Condition condition, Pageable pageable) {
         SelectQuery query = dslContext
             .select(
                 CONTRACT.as("contract")
@@ -65,12 +65,11 @@ public class ContractRepositoryCustomImpl implements ContractRepositoryCustom {
         }
 
         Result<Record> records = query.fetch();
-        List<ContractDTO> result = new ArrayList<>();
+        List<ContractEntity> result = new ArrayList<>();
 
         for (Record record : records) {
             ContractEntity contractEntity = record.get("contract", ContractEntity.class);
-            ContractDTO contractDTO = contractMapper.toDTO(contractEntity);
-            result.add(contractDTO);
+            result.add(contractEntity);
         }
 
         return new PageImpl<>(result, pageable, totalElements);

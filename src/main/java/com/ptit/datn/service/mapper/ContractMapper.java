@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "spring")
 public interface ContractMapper extends EntityMapper<ContractDTO, ContractEntity> {
+
     ContractEntity toEntity(ContractDTO contractDTO);
 
     @Mapping(target = "offices", ignore = true)
