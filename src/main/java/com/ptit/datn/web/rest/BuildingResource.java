@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigInteger;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/buildings")
@@ -42,6 +43,12 @@ public class BuildingResource {
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok().body(buildingService.getBuildings(pageable, keyword, wardId, districtId,
             provinceId, minPrice, maxPrice, minArea, maxArea));
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<BuildingDTO>> getAllBuildings() {
+        log.info("Get all buildings");
+        return ResponseEntity.ok().body(buildingService.getAllBuildingsUnpaged());
     }
 
     @GetMapping("/{id}")

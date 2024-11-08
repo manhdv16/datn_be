@@ -55,6 +55,12 @@ public class BuildingService {
     }
 
     @Transactional(readOnly = true)
+    public List<BuildingDTO> getAllBuildingsUnpaged() {
+        log.info("Get all buildings");
+        return buildingRepository.findAll().stream().map(BuildingDTO::new).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public Page<BuildingDTO> getBuildings(Pageable pageable,
                                           String keyword,
                                           Long wardId,
