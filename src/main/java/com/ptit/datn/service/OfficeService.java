@@ -39,13 +39,15 @@ public class OfficeService {
     }
 
     @Transactional(readOnly = true)
-    public Page<OfficeDTO> getOffices(Pageable pageable, String search, Long wardId, Long districtId,
+    public Page<OfficeDTO> getOffices(Pageable pageable, String search, Long buildingId, Long wardId, Long districtId,
                                       Long provinceId, BigInteger minPrice, BigInteger maxPrice,
                                       Double minArea, Double maxArea) {
         log.info("Get offices");
         Specification<Office> spec = Specification.where(null);
         if (search != null)
             spec = spec.and(OfficeSpecification.search(search));
+        if (buildingId != null)
+            spec = spec.and(OfficeSpecification.hasBuildingId(buildingId));
         if (wardId != null)
             spec = spec.and(OfficeSpecification.hasWardId(wardId));
         if (districtId != null)

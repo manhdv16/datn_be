@@ -22,6 +22,12 @@ public class OfficeSpecification {
         };
     }
 
+    public static Specification<Office> hasBuildingId(Long buildingId) {
+        return (Root<Office> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) -> {
+            return criteriaBuilder.equal(root.get("building").get("id"), buildingId);
+        };
+    }
+
     public static Specification<Office> hasWardId(Long wardId) {
         return (Root<Office> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) -> {
             return criteriaBuilder.equal(root.get("building").get("ward").get("id"), wardId);

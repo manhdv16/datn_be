@@ -29,6 +29,7 @@ public class OfficeResource {
     public ResponseEntity<Page<OfficeDTO>> getOffices(@RequestParam(defaultValue = "0") Integer page,
                                                       @RequestParam(defaultValue = "20") Integer size,
                                                       @RequestParam(required = false) String search,
+                                                      @RequestParam(required = false) Long buildingId,
                                                       @RequestParam(required = false) Long wardId,
                                                       @RequestParam(required = false) Long districtId,
                                                       @RequestParam(required = false) Long provinceId,
@@ -39,7 +40,7 @@ public class OfficeResource {
                                                       ) {
         log.info("REST request to get a page of offices");
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate"));
-        Page<OfficeDTO> list = officeService.getOffices(pageable, search, wardId, districtId, provinceId,
+        Page<OfficeDTO> list = officeService.getOffices(pageable, search, buildingId, wardId, districtId, provinceId,
             minPrice, maxPrice, minArea, maxArea);
         return ResponseEntity.ok().body(list);
     }
