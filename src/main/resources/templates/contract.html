@@ -114,8 +114,8 @@
     <em>&#xa0;</em>
   </p>
   <p style="text-align:justify; line-height:150%; font-size:13pt">
-    Hôm nay, <span th:text="${currentDate}"></span>, tại <span th:if="${contract.getOffices() != null && !contract.getOffices().isEmpty()}"
-                                                               th:text="${contract.getOffices().getFirst().getBuilding().getName()}"></span>, chúng tôi gồm:
+    Hôm nay, <span th:text="${currentDate}"></span>, tại <span th:if="${offices != null && !offices.isEmpty()}"
+                                                               th:text="${offices.get(1).getBuilding().getName()}"></span>, chúng tôi gồm:
   </p>
   <p style="text-align:justify; line-height:150%; font-size:13pt">
     <strong><u>BÊN A</u></strong><strong>: (BÊN CHO THUÊ VĂN PHÒNG)</strong>
@@ -172,26 +172,26 @@
     <strong>1.1.</strong> <strong>Chủ quyền hợp pháp và khu vực cho thuê</strong>
   </p>
   <p style="text-align:justify; line-height:150%; font-size:13pt">
-    - Bên A cam kết có chủ quyền cho thuê hợp pháp đối với toàn bộ Toà nhà tại địa chỉ <span th:if="${contract.getOffices() != null && !contract.getOffices().isEmpty()}"
-                                                                                             th:text="${contract.getOffices().getFirst().getBuilding().getAddress()}"></span>
+    - Bên A cam kết có chủ quyền cho thuê hợp pháp đối với toàn bộ Toà nhà tại địa chỉ <span th:if="${offices != null && !offices.isEmpty()}"
+                                                                                             th:text="${offices.get(1).getBuilding().getAddress()}"></span>
   </p>
-  <div th:if="${contract.getOffices().size() > 1}">
+  <div th:if="${offices.size() > 1}">
     <p style="text-align:justify; line-height:150%; font-size:13pt">
       <strong>- </strong>Địa điểm cho thuê:
     </p>
     <ul>
-      <li th:each="office : ${contract.getOffices()}">
+      <li th:each="office : ${offices}">
         <p style="text-align:justify; line-height:150%; font-size:13pt">
           Văn phòng tầng <span th:text="${office.getFloor()}"></span> có diện tích <span th:text="${office.getArea()} + ' m2'"></span>
         </p>
       </li>
     </ul>
   </div>
-  <div th:if="${contract.getOffices().size() == 1}">
+  <div th:if="${offices.size() == 1}">
     <p style="text-align:justify; line-height:150%; font-size:13pt">
-      <strong>- </strong>Địa điểm cho thuê:&#xa0; Tầng: <span th:if="${contract.getOffices() != null && !contract.getOffices().isEmpty()}"
-                                                              th:text="${contract.getOffices().getFirst().getFloor()}"></span>&#xa0; Diện tích:&#xa0;<span th:if="${contract.getOffices() != null && !contract.getOffices().isEmpty()}"
-                                                                                                                                                           th:text="${contract.getOffices().getFirst().getArea()}"></span>
+      <strong>- </strong>Địa điểm cho thuê:&#xa0; Tầng: <span th:if="${offices != null && !offices.isEmpty()}"
+                                                              th:text="${offices.get(1).getFloor()}"></span>&#xa0; Diện tích:&#xa0;<span th:if="${offices != null && !offices.isEmpty()}"
+                                                                                                                                         th:text="${offices.get(1).getArea()}"></span>
     </p>
   </div>
   <p style="text-align:justify; line-height:150%; font-size:13pt">
@@ -212,9 +212,9 @@
   <p style="text-align:justify; line-height:150%; font-size:13pt">
     <strong>1.2. Giá thuê </strong>
   </p>
-  <div th:if="${contract.getOffices().size() > 1}">
+  <div th:if="${offices.size() > 1}">
     <ul>
-      <li th:each="office : ${contract.getOffices()}">
+      <li th:each="office : ${offices}">
         <p style="text-align:justify; line-height:150%; font-size:13pt">
           Văn phòng có diện tích <span th:text="${office.getArea()} + ' m2 '"></span>là: <strong><span th:text="${office.getPrice()} + ' VNĐ/m2/tháng'"></span></strong>
         </p>

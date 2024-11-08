@@ -157,6 +157,9 @@ public class ContractService {
                 currentDate.getYear()
             )
         );
+
+        context.setVariable("offices", contractDTO.getOffices());
+
         long totalPrice = contractDTO.getOffices().stream().mapToLong(office -> office.getPrice().longValue()*office.getArea().longValue()).sum();
         context.setVariable("totalPrice", totalPrice);
 
