@@ -44,6 +44,7 @@ public class RequestService {
     public RequestDTO createRequest(RequestDTO requestDTO) {
         Request request = new Request();
         request.setUserId(requestDTO.getUserId());
+        request.setBuildingId(requestDTO.getBuildingId());
         request.setDate(requestDTO.getDate());
         request.setTime(requestDTO.getTime());
         request.setNote(requestDTO.getNote());
