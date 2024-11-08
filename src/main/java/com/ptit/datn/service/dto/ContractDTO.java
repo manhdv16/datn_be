@@ -17,8 +17,11 @@ import java.util.List;
 public class ContractDTO {
     private Long id;
     private String code;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private List<OfficeDTO> offices;
-    private Long tenantId;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private RequestFormDTO request;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private UserNameDTO tenant;
     private Date startDate;
     private Date endDate;

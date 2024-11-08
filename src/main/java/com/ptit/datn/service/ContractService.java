@@ -50,6 +50,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -71,15 +72,16 @@ public class ContractService {
             Constants.EntityType.CONTRACT
         );
         Condition condition = Utils.getFilter(input.getFilter(), columnMap);
-        Page<ContractDTO> contractPage = contractRepository.getAll(input, condition, pageable);
-        List<ContractDTO> contractDTOS = contractPage.getContent();
-        contractDTOS.forEach(
-            contract -> {
-                contract.setOffices(officeRepository.findByContractId(contract.getId()));
-                contract.setTenant(userService.getUserName(contract.getTenantId()));
-            }
-        );
-        return new PageImpl<>(contractDTOS, pageable, contractPage.getTotalElements());
+        Page<ContractEntity> contractPage = contractRepository.getAll(input, condition, pageable);
+        List<ContractEntity> contracts = contractPage.getContent();
+        List<ContractDTO> result = contracts.stream()
+            .map(contract -> {
+                ContractDTO contractDTO = contractMapper.toDTO(contract);
+                contractDTO.setOffices(officeRepository.findByContractId(contract.getId()));
+                contractDTO.setTenant(userService.getUserName(contract.getTenantId()));
+                return contractDTO;
+            }).collect(Collectors.toList());
+        return new PageImpl<>(result, pageable, contractPage.getTotalElements());
     }
 
     public ContractDTO getDetail(Long id){
@@ -98,21 +100,23 @@ public class ContractService {
         log.info("save contract by {}", SecurityUtils.getCurrentUserLogin());
         ContractEntity contractSave = contractMapper.toEntity(contractDTO);
         contractSave.setStatus(Constants.ContractStatus.DRAFT);
+        if(contractDTO.getRequest() != null) {
+            contractSave.setTenantId(contractDTO.getRequest().getTenantId());
+        }
         contractSave = contractRepository.save(contractSave);
 
         List<ContractOfficeEntity> contractOfficeEntitiesSave = new ArrayList<>();
-        if(!CollectionUtils.isEmpty(contractDTO.getOffices())){
-            for (OfficeDTO office : contractDTO.getOffices()) {
-                if(office.getId() != null){
-                    ContractOfficeEntity contractOfficeEntity = new ContractOfficeEntity();
-                    contractOfficeEntity.setContractId(contractSave.getId());
-                    contractOfficeEntity.setOfficeId(office.getId());
-                    contractOfficeEntity.setRentalPrice(office.getPrice());
-                    contractOfficeEntitiesSave.add(contractOfficeEntity);
-                }
+        if(contractDTO.getRequest() != null){
+            for (Long officeId : contractDTO.getRequest().getOffices()) {
+                ContractOfficeEntity contractOfficeEntity = new ContractOfficeEntity();
+                contractOfficeEntity.setContractId(contractSave.getId());
+                contractOfficeEntity.setOfficeId(officeId);
+                contractOfficeEntity.setRentalPrice(officeRepository.findById(officeId).orElseThrow(
+                    () -> new AppException(ErrorCode.RECORD_NOT_FOUND)
+                ).getPrice());
+                contractOfficeEntitiesSave.add(contractOfficeEntity);
             }
         }
-
         contractOfficeRepository.saveAll(contractOfficeEntitiesSave);
         return contractSave.getId();
     }
