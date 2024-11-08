@@ -114,9 +114,8 @@
     <em>&#xa0;</em>
   </p>
   <p style="text-align:justify; line-height:150%; font-size:13pt">
-    Hôm nay, <span th:text="${currentDate}"></span>, tại <span th:text="${(contract.getOffices() != null && !contract.getOffices().isEmpty())
-                  ? contract.getOffices().getFirst().getBuilding().getName()
-                  : 'Rỗng'}"></span>, chúng tôi gồm:
+    Hôm nay, <span th:text="${currentDate}"></span>, tại <span th:if="${contract.getOffices() != null && !contract.getOffices().isEmpty()}"
+                                                               th:text="${contract.getOffices().getFirst().getBuilding().getName()}"></span>, chúng tôi gồm:
   </p>
   <p style="text-align:justify; line-height:150%; font-size:13pt">
     <strong><u>BÊN A</u></strong><strong>: (BÊN CHO THUÊ VĂN PHÒNG)</strong>
@@ -173,9 +172,8 @@
     <strong>1.1.</strong> <strong>Chủ quyền hợp pháp và khu vực cho thuê</strong>
   </p>
   <p style="text-align:justify; line-height:150%; font-size:13pt">
-    - Bên A cam kết có chủ quyền cho thuê hợp pháp đối với toàn bộ Toà nhà tại địa chỉ <span th:text="${(contract.getOffices() != null && !contract.getOffices().isEmpty())
-                  ? contract.getOffices().getFirst().getBuilding().getAddress()
-                  : 'No office details available'}"></span>
+    - Bên A cam kết có chủ quyền cho thuê hợp pháp đối với toàn bộ Toà nhà tại địa chỉ <span th:if="${contract.getOffices() != null && !contract.getOffices().isEmpty()}"
+                                                                                             th:text="${contract.getOffices().getFirst().getBuilding().getAddress()}"></span>
   </p>
   <div th:if="${contract.getOffices().size() > 1}">
     <p style="text-align:justify; line-height:150%; font-size:13pt">
@@ -191,11 +189,9 @@
   </div>
   <div th:if="${contract.getOffices().size() == 1}">
     <p style="text-align:justify; line-height:150%; font-size:13pt">
-      <strong>- </strong>Địa điểm cho thuê:&#xa0; Tầng: <span th:text="${${(contract.getOffices() != null && !contract.getOffices().isEmpty())
-                  ? contract.getOffices().getFirst().getFloor()
-                  : 'No office details available'}}"> </span>&#xa0; Diện tích:&#xa0;<span th:text="${${(contract.getOffices() != null && !contract.getOffices().isEmpty())
-                  ? contract.getOffices().getFirst().getArea()
-                  : 'No office details available'}} + ' m2'"></span>
+      <strong>- </strong>Địa điểm cho thuê:&#xa0; Tầng: <span th:if="${contract.getOffices() != null && !contract.getOffices().isEmpty()}"
+                                                              th:text="${contract.getOffices().getFirst().getFloor()}"></span>&#xa0; Diện tích:&#xa0;<span th:if="${contract.getOffices() != null && !contract.getOffices().isEmpty()}"
+                                                                                                                                                           th:text="${contract.getOffices().getFirst().getArea()}"></span>
     </p>
   </div>
   <p style="text-align:justify; line-height:150%; font-size:13pt">
