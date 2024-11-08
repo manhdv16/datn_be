@@ -100,6 +100,7 @@ public class RequestService {
             userRepository.findById(request.getUserId()).ifPresent(user -> requestDTO.setUserDTO(new UserDTO(user)));
         }
 
+        // Get buildingDTO
         requestDTO.setBuildingDTO(new BuildingDTO(buildingRepository.findById(request.getBuildingId()).orElseThrow()));
 
         // Get officeDTOs
