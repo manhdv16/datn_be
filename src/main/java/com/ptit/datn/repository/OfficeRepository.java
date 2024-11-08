@@ -4,6 +4,7 @@ import com.ptit.datn.domain.Building;
 import com.ptit.datn.domain.Office;
 import com.ptit.datn.service.dto.BuildingDTO;
 import com.ptit.datn.service.dto.BuildingNameDTO;
+import com.ptit.datn.service.dto.OfficeDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -25,4 +26,9 @@ public interface OfficeRepository extends JpaRepository<Office, Long>, JpaSpecif
 
     @Query("select o from Office o where o.id in :ids")
     List<Office> findAllByIds(@Param("ids") Set<Long> ids);
+
+    @Query("select new com.ptit.datn.service.dto.OfficeDTO(o) from Office o " +
+        "join ContractOfficeEntity co on co.officeId = o.id " +
+        "where co.contractId = :contractId")
+    List<OfficeDTO> findByContractId(@Param("contractId") Long contractId);
 }

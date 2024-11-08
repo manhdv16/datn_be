@@ -5,9 +5,11 @@ import com.lowagie.text.pdf.BaseFont;
 import com.ptit.datn.domain.Building;
 import com.ptit.datn.domain.ColumnPropertyEntity;
 import com.ptit.datn.domain.ContractEntity;
+import com.ptit.datn.domain.ContractOfficeEntity;
 import com.ptit.datn.exception.AppException;
 import com.ptit.datn.exception.ErrorCode;
 import com.ptit.datn.repository.ColumnPropertyRepository;
+import com.ptit.datn.repository.ContractOfficeRepository;
 import com.ptit.datn.repository.ContractRepository;
 import com.ptit.datn.repository.OfficeRepository;
 import com.ptit.datn.security.SecurityUtils;
@@ -35,19 +37,17 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ResourceUtils;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.time.Instant;
+import java.math.BigInteger;
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -64,7 +64,7 @@ public class ContractService {
     private final ColumnPropertyRepository columnPropertyRepository;
     private final ContractMapper contractMapper;
     private final TemplateEngine templateEngine;
-
+    private final ContractOfficeRepository contractOfficeRepository;
     public Page<ContractDTO> getAll(PageFilterInput<List<FilterDTO>> input){
         Pageable pageable = Utils.getPageable(input);
         Map<String, ColumnPropertyEntity> columnMap = columnPropertyRepository.findByEntityTypeAndIsActiveTrueMap(
@@ -75,7 +75,7 @@ public class ContractService {
         List<ContractDTO> contractDTOS = contractPage.getContent();
         contractDTOS.forEach(
             contract -> {
-                contract.setOffice(officeService.getOffice(contract.getOfficeId()));
+                contract.setOffices(officeRepository.findByContractId(contract.getId()));
                 contract.setTenant(userService.getUserName(contract.getTenantId()));
             }
         );
@@ -88,7 +88,7 @@ public class ContractService {
                 () -> new AppException(ErrorCode.RECORD_NOT_FOUND)
             );
         ContractDTO result = contractMapper.toDTO(contract);
-        result.setOffice(officeService.getOffice(contract.getOfficeId()));
+        result.setOffices(officeRepository.findByContractId(contract.getId()));
         result.setTenant(userService.getUserName(contract.getTenantId()));
         return result;
     }
@@ -98,7 +98,23 @@ public class ContractService {
         log.info("save contract by {}", SecurityUtils.getCurrentUserLogin());
         ContractEntity contractSave = contractMapper.toEntity(contractDTO);
         contractSave.setStatus(Constants.ContractStatus.DRAFT);
-        return contractRepository.save(contractSave).getId();
+        contractSave = contractRepository.save(contractSave);
+
+        List<ContractOfficeEntity> contractOfficeEntitiesSave = new ArrayList<>();
+        if(!CollectionUtils.isEmpty(contractDTO.getOffices())){
+            for (OfficeDTO office : contractDTO.getOffices()) {
+                if(office.getId() != null){
+                    ContractOfficeEntity contractOfficeEntity = new ContractOfficeEntity();
+                    contractOfficeEntity.setContractId(contractSave.getId());
+                    contractOfficeEntity.setOfficeId(office.getId());
+                    contractOfficeEntity.setRentalPrice(office.getPrice());
+                    contractOfficeEntitiesSave.add(contractOfficeEntity);
+                }
+            }
+        }
+
+        contractOfficeRepository.saveAll(contractOfficeEntitiesSave);
+        return contractSave.getId();
     }
 
     @Transactional
@@ -119,6 +135,8 @@ public class ContractService {
             );
         contract.setActive(false);
         contractRepository.save(contract);
+        List<ContractOfficeEntity> contractOfficeEntities = contractOfficeRepository.findByContractId(contract.getId());
+        contractOfficeRepository.deleteAll(contractOfficeEntities);
     }
 
     public void exportPdf(OutputStream outputStream, Long id) throws IOException {
@@ -135,6 +153,8 @@ public class ContractService {
                 currentDate.getYear()
             )
         );
+        long totalPrice = contractDTO.getOffices().stream().mapToLong(office -> office.getPrice().longValue()*office.getArea().longValue()).sum();
+        context.setVariable("totalPrice", totalPrice);
 
         String htmlContent = templateEngine.process("contract", context);
             ITextRenderer renderer = new ITextRenderer();

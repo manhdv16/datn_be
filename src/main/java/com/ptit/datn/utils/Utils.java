@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -53,8 +54,8 @@ public class Utils {
         }
     }
 
-    public static String convertToWord(BigDecimal number) {
-        if (number.compareTo(BigDecimal.ZERO) == 0) return "không";
+    public static String convertToWord(long number) {
+        if (number == 0L) return "không";
 
         String[] units = {"", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín"};
         String[] teens = {"mười", "mười một", "mười hai", "mười ba", "mười bốn", "mười lăm", "mười sáu", "mười bảy", "mười tám", "mười chín"};
@@ -62,11 +63,10 @@ public class Utils {
         String[] scales = {"", "nghìn", "triệu", "tỷ"};
 
         StringBuilder words = new StringBuilder();
-        long intPart = number.longValue();
         int scaleIndex = 0;
 
-        while (intPart > 0) {
-            int part = (int) (intPart % 1000);
+        while (number > 0) {
+            int part = (int) (number % 1000);
             if (part > 0) {
                 StringBuilder partWords = new StringBuilder();
                 if (part >= 100) {
@@ -85,7 +85,7 @@ public class Utils {
                 }
                 words.insert(0, partWords.toString().trim() + " " + scales[scaleIndex] + " ");
             }
-            intPart /= 1000;
+            number /= 1000;
             scaleIndex++;
         }
 

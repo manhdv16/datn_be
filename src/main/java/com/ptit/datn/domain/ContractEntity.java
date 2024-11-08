@@ -3,6 +3,7 @@ package com.ptit.datn.domain;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Date;
 
 @Entity
@@ -16,9 +17,6 @@ public class ContractEntity extends AbstractAuditingEntity<Long>{
     @Column(name = "code")
     private String code;
     @Basic
-    @Column(name = "office_id")
-    private Long officeId;
-    @Basic
     @Column(name = "tenant_id")
     private Long tenantId;
     @Basic
@@ -31,11 +29,8 @@ public class ContractEntity extends AbstractAuditingEntity<Long>{
     @Column(name = "duration")
     private String duration;
     @Basic
-    @Column(name = "rental_price")
-    private BigDecimal rentalPrice;
-    @Basic
     @Column(name = "deposit_amount")
-    private BigDecimal depositAmount;
+    private BigInteger depositAmount;
     @Basic
     @Column(name = "payment_frequency")
     private String paymentFrequency;
@@ -72,14 +67,6 @@ public class ContractEntity extends AbstractAuditingEntity<Long>{
         this.id = id;
     }
 
-    public Long getOfficeId() {
-        return officeId;
-    }
-
-    public void setOfficeId(Long officeId) {
-        this.officeId = officeId;
-    }
-
     public Long getTenantId() {
         return tenantId;
     }
@@ -112,19 +99,11 @@ public class ContractEntity extends AbstractAuditingEntity<Long>{
         this.duration = duration;
     }
 
-    public BigDecimal getRentalPrice() {
-        return rentalPrice;
-    }
-
-    public void setRentalPrice(BigDecimal rentalPrice) {
-        this.rentalPrice = rentalPrice;
-    }
-
-    public BigDecimal getDepositAmount() {
+    public BigInteger getDepositAmount() {
         return depositAmount;
     }
 
-    public void setDepositAmount(BigDecimal depositAmount) {
+    public void setDepositAmount(BigInteger depositAmount) {
         this.depositAmount = depositAmount;
     }
 
@@ -209,12 +188,10 @@ public class ContractEntity extends AbstractAuditingEntity<Long>{
 
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (code != null ? !code.equals(that.code) : that.code != null) return false;
-        if (officeId != null ? !officeId.equals(that.officeId) : that.officeId != null) return false;
         if (tenantId != null ? !tenantId.equals(that.tenantId) : that.tenantId != null) return false;
         if (startDate != null ? !startDate.equals(that.startDate) : that.startDate != null) return false;
         if (endDate != null ? !endDate.equals(that.endDate) : that.endDate != null) return false;
         if (duration != null ? !duration.equals(that.duration) : that.duration != null) return false;
-        if (rentalPrice != null ? !rentalPrice.equals(that.rentalPrice) : that.rentalPrice != null) return false;
         if (depositAmount != null ? !depositAmount.equals(that.depositAmount) : that.depositAmount != null)
             return false;
         if (paymentFrequency != null ? !paymentFrequency.equals(that.paymentFrequency) : that.paymentFrequency != null)
@@ -238,12 +215,10 @@ public class ContractEntity extends AbstractAuditingEntity<Long>{
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (code != null ? code.hashCode() : 0);
-        result = 31 * result + (officeId != null ? officeId.hashCode() : 0);
         result = 31 * result + (tenantId != null ? tenantId.hashCode() : 0);
         result = 31 * result + (startDate != null ? startDate.hashCode() : 0);
         result = 31 * result + (endDate != null ? endDate.hashCode() : 0);
         result = 31 * result + (duration != null ? duration.hashCode() : 0);
-        result = 31 * result + (rentalPrice != null ? rentalPrice.hashCode() : 0);
         result = 31 * result + (depositAmount != null ? depositAmount.hashCode() : 0);
         result = 31 * result + (paymentFrequency != null ? paymentFrequency.hashCode() : 0);
         result = 31 * result + (handoverDate != null ? handoverDate.hashCode() : 0);

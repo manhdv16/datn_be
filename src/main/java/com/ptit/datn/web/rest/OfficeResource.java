@@ -45,7 +45,7 @@ public class OfficeResource {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OfficeDTO> getOffice(@RequestParam Long id) {
+    public ResponseEntity<OfficeDTO> getOffice(@PathVariable Long id) {
         log.info("REST request to get office : {}", id);
         OfficeDTO officeDTO = officeService.getOffice(id);
         return ResponseEntity.ok().body(officeDTO);

@@ -114,7 +114,7 @@
     <em>&#xa0;</em>
   </p>
   <p style="text-align:justify; line-height:150%; font-size:13pt">
-    Hôm nay, <span th:text="${currentDate}"></span>, tại <span th:text="${contract.getOffice().getBuilding().getName()}"></span>, chúng tôi gồm:
+    Hôm nay, <span th:text="${currentDate}"></span>, tại <span th:text="${contract.getOffices().getFirst().getBuilding().getName()}"></span>, chúng tôi gồm:
   </p>
   <p style="text-align:justify; line-height:150%; font-size:13pt">
     <strong><u>BÊN A</u></strong><strong>: (BÊN CHO THUÊ VĂN PHÒNG)</strong>
@@ -171,11 +171,25 @@
     <strong>1.1.</strong> <strong>Chủ quyền hợp pháp và khu vực cho thuê</strong>
   </p>
   <p style="text-align:justify; line-height:150%; font-size:13pt">
-    - Bên A cam kết có chủ quyền cho thuê hợp pháp đối với toàn bộ Toà nhà tại địa chỉ <span th:text="${contract.getOffice().getBuilding().getAddress()}"></span>
+    - Bên A cam kết có chủ quyền cho thuê hợp pháp đối với toàn bộ Toà nhà tại địa chỉ <span th:text="${contract.getOffices().getFirst().getBuilding().getAddress()}"></span>
   </p>
-  <p style="text-align:justify; line-height:150%; font-size:13pt">
-    <strong>- </strong>Địa chỉ cho thuê:&#xa0; <span style="background-color:#ffff00">Tầng: ............</span>&#xa0; Diện tích:&#xa0;<span th:text="${contract.getOffice().getArea()} + ' m2'"></span>
-  </p>
+  <div th:if="${contract.getOffices().size() > 1}">
+    <p style="text-align:justify; line-height:150%; font-size:13pt">
+      <strong>- </strong>Địa điểm cho thuê:
+    </p>
+    <ul>
+      <li th:each="office : ${contract.getOffices()}">
+        <p style="text-align:justify; line-height:150%; font-size:13pt">
+          Văn phòng tầng <span th:text="${office.getFloor()}"></span> có diện tích <span th:text="${office.getArea()} + ' m2'"></span>
+        </p>
+      </li>
+    </ul>
+  </div>
+  <div th:if="${contract.getOffices().size() == 1}">
+    <p style="text-align:justify; line-height:150%; font-size:13pt">
+      <strong>- </strong>Địa điểm cho thuê:&#xa0; Tầng: <span th:text="${contract.getOffices().getFirst().getFloor()}"> </span>&#xa0; Diện tích:&#xa0;<span th:text="${contract.getOffices().getFirst().getArea()} + ' m2'"></span>
+    </p>
+  </div>
   <p style="text-align:justify; line-height:150%; font-size:13pt">
     &#xa0; Bao gồm các quyền:
   </p>
@@ -194,18 +208,27 @@
   <p style="text-align:justify; line-height:150%; font-size:13pt">
     <strong>1.2. Giá thuê </strong>
   </p>
+  <div th:if="${contract.getOffices().size() > 1}">
+    <ul>
+      <li th:each="office : ${contract.getOffices()}">
+        <p style="text-align:justify; line-height:150%; font-size:13pt">
+          Văn phòng có diện tích <span th:text="${office.getArea()} + ' m2 '"></span>là: <strong><span th:text="${office.getPrice()} + ' VNĐ/m2/tháng'"></span></strong>
+        </p>
+      </li>
+    </ul>
+  </div>
   <p style="text-align:justify; line-height:150%; font-size:13pt">
-    Tổng tiền thuê một tháng: <strong><span th:text="${#numbers.formatDecimal(contract.getRentalPrice() * 30, 0, 0)} + ' VNĐ'"></span></strong>
+    Tổng tiền thuê một tháng: <strong><span th:text="${totalPrice} + ' VNĐ'"></span></strong>
   </p>
   <p style="text-align:justify; line-height:150%; font-size:13pt">
-    Bằng chữ: <strong><span style="font-family:'Times New Roman'" th:text="${T(com.ptit.datn.utils.Utils).convertToWord(contract.getRentalPrice()*30)} + ' việt nam đồng.'"></span></strong>
+    Bằng chữ: <strong><span style="font-family:'Times New Roman'" th:text="${T(com.ptit.datn.utils.Utils).convertToWord(totalPrice)} + ' việt nam đồng.'"></span></strong>
   </p>
   <p style="text-align:justify; line-height:150%; font-size:13pt">
     Giá thuê này chưa bao gồm thuế VAT
   </p>
-  <p class="BodyText" style="margin-right:5.35pt; text-align:justify; line-height:150%; font-size:13pt">
-    <span style="font-family:'Times New Roman'">Tiền thuê sẽ được xem xét, điều chỉnh theo tỷ giá VNĐ vào ngày </span><strong><span style="font-family:'Times New Roman'; ">…………… </span></strong><span style="font-family:'Times New Roman'">hoặc </span><strong><span style="font-family:'Times New Roman'; ">………… </span></strong><span style="font-family:'Times New Roman'">hàng năm, do ngân hàng Vietcombank Chi nhánh Tp.HCM công bố. Các bên sẽ thống nhất ý kiến và ký Phụ lục Hợp đồng cho mỗi lần điều chỉnh theo giá thuê tham chiếu ban đầu chưa bao gồm thuế VAT là </span><strong><span style="font-family:'Times New Roman'" th:text="${#numbers.formatDecimal(contract.getRentalPrice(), 0, 0)} + ' VNĐ/m2.'"></span></strong>
-  </p>
+<!--  <p class="BodyText" style="margin-right:5.35pt; text-align:justify; line-height:150%; font-size:13pt">-->
+<!--    <span style="font-family:'Times New Roman'">Tiền thuê sẽ được xem xét, điều chỉnh theo tỷ giá VNĐ vào ngày </span><strong><span style="font-family:'Times New Roman'; ">…………… </span></strong><span style="font-family:'Times New Roman'">hoặc </span><strong><span style="font-family:'Times New Roman'; ">………… </span></strong><span style="font-family:'Times New Roman'">hàng năm, do ngân hàng Vietcombank Chi nhánh Tp.HCM công bố. Các bên sẽ thống nhất ý kiến và ký Phụ lục Hợp đồng cho mỗi lần điều chỉnh theo giá thuê tham chiếu ban đầu chưa bao gồm thuế VAT là </span><strong><span style="font-family:'Times New Roman'" th:text="${#numbers.formatDecimal(contract.getRentalPrice(), 0, 0)} + ' VNĐ/m2.'"></span></strong>-->
+<!--  </p>-->
   <p style="text-align:justify; line-height:150%; font-size:13pt">
     Giá thuê trên bao gồm: phí dịch vụ (an ninh vòng ngoài, tiền nước tại nhà vệ sinh, tiền điện cho thang máy và chiếu sáng khu vực công cộng), phí quản lý. Ngoại trừ tiền điện trả theo công tơ riêng do Bên A lắp đặt tại diện tích thuê.
   </p>
@@ -243,7 +266,7 @@
     <strong>1.5. Đặt cọc bảo đảm</strong>
   </p>
   <p style="text-align:justify; line-height:150%; font-size:13pt">
-    Tiền đặt cọc bảo đảm: <strong><span th:text="${#numbers.formatDecimal(contract.getDepositAmount(), 0, 0)} + ' VNĐ'"></span></strong>
+    Tiền đặt cọc bảo đảm: <strong><span th:text="${contract.getDepositAmount()} + ' VNĐ'"></span></strong>
   </p>
   <p style="text-align:justify; line-height:150%; font-size:13pt">
     Khoản đặt cọc được bên B chuyển đủ cho Bên A ngay sau khi ký hợp đồng .
@@ -258,7 +281,7 @@
     <strong>1.6. Thanh toán tiền thuê lần đầu</strong>
   </p>
   <p style="text-align:justify; line-height:150%; font-size:13pt">
-    Trong vòng 05 ngày làm việc đầu tiên kể từ khi ký Hợp Đồng Thuê này, Bên B phải thanh toán 01 tháng tiền thuê lần đầu tiên là <strong><span th:text="${#numbers.formatDecimal(contract.getRentalPrice() * 30, 0, 0)} + ' VNĐ'"></span></strong>&#xa0;
+    Trong vòng 05 ngày làm việc đầu tiên kể từ khi ký Hợp Đồng Thuê này, Bên B phải thanh toán 01 tháng tiền thuê lần đầu tiên là <strong><span th:text="${totalPrice} + ' VNĐ'"></span></strong>&#xa0;
   </p>
   <p style="text-align:justify; line-height:150%; font-size:13pt">
     <strong>1.7. Các khoản thanh toán tiếp theo</strong>
@@ -415,10 +438,10 @@
       <span style="width:1.75pt; font:7pt 'Times New Roman'; display:inline-block"> </span>&#xa0;&#xa0; Không để các tầng nhà của Diện Tích Thuê bị quá tải quá mức cho phép .
     </li>
     <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
-      <span style="width:15.25pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>&#xa0; Chịu trách nhiệm về tất cả những hư hại hoặc mất mát xảy ra đối với Thiết Bị của Bên A đã bàn giao trong quá trình sử dụng hoặc thiếu sót của Bên B (ngoại trừ các hao mòn thông thường) và phải chịu trách nhiệm về hư hại do bên thứ ba gây ra phát sinh từ việc Bên B sử dụng Diện Tích Thuê, trừ trường hợp hư hại hoặc mất mát đó do Bên A hoặc nhân viên, cán bộ, khách, khách mời, nhà thầu của Bên A gây ra. Bên B sẽ chịu trách nhiệm đối với tài sản riêng của mình.
+      <span style="width:15.25pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0; </span>&#xa0; Chịu trách nhiệm về tất cả những hư hại hoặc mất mát xảy ra đối với Thiết Bị của Bên A đã bàn giao trong quá trình sử dụng hoặc thiếu sót của Bên B (ngoại trừ các hao mòn thông thường) và phải chịu trách nhiệm về hư hại do bên thứ ba gây ra phát sinh từ việc Bên B sử dụng Diện Tích Thuê, trừ trường hợp hư hại hoặc mất mát đó do Bên A hoặc nhân viên, cán bộ, khách, khách mời, nhà thầu của Bên A gây ra. Bên B sẽ chịu trách nhiệm đối với tài sản riêng của mình.
     </li>
     <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
-      <span style="width:15.25pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>&#xa0; Tuân thủ nghiêm ngặt các luật của Việt Nam đã được công bố và được cung cấp công khai về vệ sinh môi trường và phòng cháy chữa cháy được ban hành vào từng thời điểm.
+      <span style="width:15.25pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0; </span>&#xa0; Tuân thủ nghiêm ngặt các luật của Việt Nam đã được công bố và được cung cấp công khai về vệ sinh môi trường và phòng cháy chữa cháy được ban hành vào từng thời điểm.
     </li>
   </ol>
   <p class="BodyText2" style="text-indent:31.5pt; line-height:150%; font-size:13pt">
@@ -426,25 +449,25 @@
   </p>
   <ol start="8" class="awlist4" style="margin:0pt; padding-left:0pt">
     <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
-      <span style="width:15.25pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>&#xa0; Giữ gìn nội thất của Diện Tích Thuê luôn ở tình trạng tốt, sạch sẽ, sửa chữa và bảo quản thích hợp trong suốt thời hạn của Hợp đồng thuê này (ngoại trừ hao mòn thông thường).
+      <span style="width:15.25pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0; </span>&#xa0; Giữ gìn nội thất của Diện Tích Thuê luôn ở tình trạng tốt, sạch sẽ, sửa chữa và bảo quản thích hợp trong suốt thời hạn của Hợp đồng thuê này (ngoại trừ hao mòn thông thường).
     </li>
     <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
-      <span style="width:15.25pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>Bồi hoàn cho Bên A những chi phí hợp lý mà Bên A phải chi do phải sửa chữa hoặc thay thế các bộ phận hỏng hóc hoặc bị hư hại của Diện Tích Thuê (ngoại trừ hao mòn thông thường) trong trường hợp những hư hại này do Bên B, nhân viên, khách, nhà thầu của Bên B gây ra trong thời hạn của Hợp Đồng Thuê này.
+      <span style="width:15.25pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0; </span>Bồi hoàn cho Bên A những chi phí hợp lý mà Bên A phải chi do phải sửa chữa hoặc thay thế các bộ phận hỏng hóc hoặc bị hư hại của Diện Tích Thuê (ngoại trừ hao mòn thông thường) trong trường hợp những hư hại này do Bên B, nhân viên, khách, nhà thầu của Bên B gây ra trong thời hạn của Hợp Đồng Thuê này.
     </li>
     <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
-      <span style="width:8.75pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>Chiụ trách nhiệm bồi hoàn cho bên A toàn bộ tổn thất về vật chất, tài sản của tòa nhà trong trường hợp thiệt hại do bên B gây ra.
+      <span style="width:8.75pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0; </span>Chiụ trách nhiệm bồi hoàn cho bên A toàn bộ tổn thất về vật chất, tài sản của tòa nhà trong trường hợp thiệt hại do bên B gây ra.
     </li>
     <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
-      <span style="width:8.75pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>Tuân thủ một cách chặt chẽ các quy chế và điều lệ của Toà Nhà và các quy định của pháp luật Việt Nam.
+      <span style="width:8.75pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0; </span>Tuân thủ một cách chặt chẽ các quy chế và điều lệ của Toà Nhà và các quy định của pháp luật Việt Nam.
     </li>
     <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
-      <span style="width:8.75pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>Được nhận lại tiền đặt cọc sau khi hợp đồng hết hiệu lực và bên B phải thanh toán các chi phát sinh trong quá trình sử dụng (nếu có).
+      <span style="width:8.75pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0; </span>Được nhận lại tiền đặt cọc sau khi hợp đồng hết hiệu lực và bên B phải thanh toán các chi phát sinh trong quá trình sử dụng (nếu có).
     </li>
     <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
-      <span style="width:8.75pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>Chi phí pháp lý: các bên tự chịu trách nhiệm về chi phí pháp lý của mình.
+      <span style="width:8.75pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0; </span>Chi phí pháp lý: các bên tự chịu trách nhiệm về chi phí pháp lý của mình.
     </li>
     <li class="BodyText2" style="margin-left:31.5pt; text-indent:-31.5pt; line-height:150%; font-family:'Times New Roman'; font-size:13pt">
-      <span style="width:8.75pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span>Trường hợp Bên A vi phạm các cam kết trong hợp đồng này thì toàn bộ các điều kiện ràng buộc nghĩa vụ của Bên A với Bên B đều bị vô hiệu; trường hợp có xảy ra thiệt hại cho Bên B do hành vi vi phạm của Bên A thì Bên A chịu trách nhiệm bồi thường cho Bên B bằng số tiền tương đương với giá trị thiệt hại được xác định.
+      <span style="width:8.75pt; font:7pt 'Times New Roman'; display:inline-block">&#xa0; </span>Trường hợp Bên A vi phạm các cam kết trong hợp đồng này thì toàn bộ các điều kiện ràng buộc nghĩa vụ của Bên A với Bên B đều bị vô hiệu; trường hợp có xảy ra thiệt hại cho Bên B do hành vi vi phạm của Bên A thì Bên A chịu trách nhiệm bồi thường cho Bên B bằng số tiền tương đương với giá trị thiệt hại được xác định.
     </li>
   </ol>
   <p class="BodyText2" style="margin-left:31.5pt; line-height:150%; font-size:13pt">
