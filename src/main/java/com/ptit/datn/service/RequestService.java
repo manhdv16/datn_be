@@ -3,10 +3,16 @@ package com.ptit.datn.service;
 import com.ptit.datn.constants.RequestStatus;
 import com.ptit.datn.domain.Office;
 import com.ptit.datn.domain.Request;
+import com.ptit.datn.domain.User;
 import com.ptit.datn.repository.OfficeRepository;
 import com.ptit.datn.repository.RequestRepository;
+import com.ptit.datn.repository.UserRepository;
+import com.ptit.datn.service.dto.OfficeDTO;
 import com.ptit.datn.service.dto.RequestDTO;
+import com.ptit.datn.service.dto.UserDTO;
 import jakarta.persistence.RollbackException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,11 +26,14 @@ public class RequestService {
 
     private final RequestRepository requestRepository;
     private final OfficeRepository officeRepository;
+    private final UserRepository userRepository;
 
     public RequestService(RequestRepository requestRepository,
-                          OfficeRepository officeRepository) {
+                          OfficeRepository officeRepository,
+                          UserRepository userRepository) {
         this.requestRepository = requestRepository;
         this.officeRepository = officeRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -55,6 +64,43 @@ public class RequestService {
         requestDTO_result.setOfficeIds(requestDTO.getOfficeIds());
 
         return requestDTO_result;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<RequestDTO> getAllRequests(Pageable pageable) {
+        Page<Request> requests = requestRepository.findAll(pageable);
+        Page<RequestDTO> requestDTOS = requests.map(RequestDTO::new);
+
+        // Get userDTOs
+        requestDTOS.forEach(requestDTO -> {
+            if (requestDTO.getUserId() != null) {
+                userRepository.findById(requestDTO.getUserId()).ifPresent(user -> requestDTO.setUserDTO(new UserDTO(user)));
+            }
+        });
+
+        return requestDTOS;
+    }
+
+    @Transactional(readOnly = true)
+    public RequestDTO getRequestById(Long id) {
+        Request request = requestRepository.findById(id).orElseThrow();
+        RequestDTO requestDTO = new RequestDTO(request);
+
+        // Get userDTO
+        if (request.getUserId() != null) {
+            userRepository.findById(request.getUserId()).ifPresent(user -> requestDTO.setUserDTO(new UserDTO(user)));
+        }
+
+        // Get officeDTOs
+        Set<Office> offices = request.getOffices();
+        Set<OfficeDTO> officeDTOs = new HashSet<>();
+        offices.forEach(office -> {
+            OfficeDTO officeDTO = new OfficeDTO(office);
+            officeDTOs.add(officeDTO);
+        });
+        requestDTO.setOfficeDTOs(officeDTOs);
+
+        return requestDTO;
     }
 
     public RequestDTO updateRequest(RequestDTO requestDTO) {

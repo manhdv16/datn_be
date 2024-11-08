@@ -4,7 +4,6 @@ import static com.ptit.datn.database.domain.Tables.*;
 
 import com.ptit.datn.domain.ContractEntity;
 import com.ptit.datn.repository.custom.ContractRepositoryCustom;
-import com.ptit.datn.service.dto.BuildingNameDTO;
 import com.ptit.datn.service.dto.ContractDTO;
 import com.ptit.datn.service.dto.FilterDTO;
 import com.ptit.datn.service.dto.model.PageFilterInput;
