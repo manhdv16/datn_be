@@ -30,6 +30,9 @@ public class Request extends AbstractAuditingEntity<Long> {
     )
     private Set<Office> offices = new HashSet<>();
 
+    @Column(name = "building_id")
+    private Long buildingId;
+
     @Column(name = "date")
     private LocalDate date;
 

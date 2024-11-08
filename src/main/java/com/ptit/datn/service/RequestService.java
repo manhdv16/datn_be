@@ -4,9 +4,11 @@ import com.ptit.datn.constants.RequestStatus;
 import com.ptit.datn.domain.Office;
 import com.ptit.datn.domain.Request;
 import com.ptit.datn.domain.User;
+import com.ptit.datn.repository.BuildingRepository;
 import com.ptit.datn.repository.OfficeRepository;
 import com.ptit.datn.repository.RequestRepository;
 import com.ptit.datn.repository.UserRepository;
+import com.ptit.datn.service.dto.BuildingDTO;
 import com.ptit.datn.service.dto.OfficeDTO;
 import com.ptit.datn.service.dto.RequestDTO;
 import com.ptit.datn.service.dto.UserDTO;
@@ -26,14 +28,17 @@ public class RequestService {
 
     private final RequestRepository requestRepository;
     private final OfficeRepository officeRepository;
+    private final BuildingRepository buildingRepository;
     private final UserRepository userRepository;
 
     public RequestService(RequestRepository requestRepository,
                           OfficeRepository officeRepository,
-                          UserRepository userRepository) {
+                          UserRepository userRepository,
+                          BuildingRepository buildingRepository) {
         this.requestRepository = requestRepository;
         this.officeRepository = officeRepository;
         this.userRepository = userRepository;
+        this.buildingRepository = buildingRepository;
     }
 
     /**
@@ -44,6 +49,7 @@ public class RequestService {
     public RequestDTO createRequest(RequestDTO requestDTO) {
         Request request = new Request();
         request.setUserId(requestDTO.getUserId());
+        request.setBuildingId(requestDTO.getBuildingId());
         request.setDate(requestDTO.getDate());
         request.setTime(requestDTO.getTime());
         request.setNote(requestDTO.getNote());
@@ -76,7 +82,10 @@ public class RequestService {
             if (requestDTO.getUserId() != null) {
                 userRepository.findById(requestDTO.getUserId()).ifPresent(user -> requestDTO.setUserDTO(new UserDTO(user)));
             }
+            buildingRepository.findById(requestDTO.getBuildingId()).ifPresent(building -> requestDTO.setBuildingDTO(new BuildingDTO(building)));
         });
+
+
 
         return requestDTOS;
     }
@@ -90,6 +99,9 @@ public class RequestService {
         if (request.getUserId() != null) {
             userRepository.findById(request.getUserId()).ifPresent(user -> requestDTO.setUserDTO(new UserDTO(user)));
         }
+
+        // Get buildingDTO
+        requestDTO.setBuildingDTO(new BuildingDTO(buildingRepository.findById(request.getBuildingId()).orElseThrow()));
 
         // Get officeDTOs
         Set<Office> offices = request.getOffices();
