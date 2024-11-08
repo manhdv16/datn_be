@@ -53,6 +53,8 @@ public class ContractRepositoryCustomImpl implements ContractRepositoryCustom {
 
         query.addConditions(condition);
 
+        query.addGroupBy(CONTRACT.ID);
+
         long totalElements = dslContext.fetchCount(query);
 
         if(pageable.isPaged()){
