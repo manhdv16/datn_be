@@ -100,6 +100,8 @@ public class RequestService {
             userRepository.findById(request.getUserId()).ifPresent(user -> requestDTO.setUserDTO(new UserDTO(user)));
         }
 
+        requestDTO.setBuildingDTO(new BuildingDTO(buildingRepository.findById(request.getBuildingId()).orElseThrow()));
+
         // Get officeDTOs
         Set<Office> offices = request.getOffices();
         Set<OfficeDTO> officeDTOs = new HashSet<>();
