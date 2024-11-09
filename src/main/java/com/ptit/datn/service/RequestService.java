@@ -55,17 +55,25 @@ public class RequestService {
         request.setNote(requestDTO.getNote());
         request.setStatus(RequestStatus.PENDING); // When user create a request, the status is PENDING
 
-        // Get all offices by officeIds
-        List<Office> officeList = officeRepository.findAllByIds(requestDTO.getOfficeIds());
-        if (officeList.size() != requestDTO.getOfficeIds().size()) {
-            throw new RollbackException("Some offices are not found");
-        }
-        officeList.forEach(office -> {
-            if (office.getStatus() != 0)
-                throw new RollbackException("Office is not available");
+        // If admin create a request, the status is ACCEPTED and the offices are set
+        if (requestDTO.getOfficeIds() != null && !requestDTO.getOfficeIds().isEmpty()) {
+            List<Office> officeList = officeRepository.findAllByIds(requestDTO.getOfficeIds());
+            if (officeList.size() != requestDTO.getOfficeIds().size()) {
+                throw new RollbackException("Some offices are not found");
+            }
+            officeList.forEach(office -> {
+                if (office.getStatus() != 0)
+                    throw new RollbackException("Office is not available");
 
-            request.getOffices().add(office);
-        });
+                request.getOffices().add(office);
+            });
+            request.setStatus(RequestStatus.ACCEPTED);
+        }
+        // If user create a request, the status is PENDING and the offices are not set
+        else {
+            request.setStatus(RequestStatus.PENDING);
+        }
+
         RequestDTO requestDTO_result = new RequestDTO(requestRepository.save(request));
         requestDTO_result.setOfficeIds(requestDTO.getOfficeIds());
 
