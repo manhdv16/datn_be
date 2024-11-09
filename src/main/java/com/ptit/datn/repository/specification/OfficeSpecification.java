@@ -70,4 +70,10 @@ public class OfficeSpecification {
         };
     }
 
+    public static Specification<Office> hasStatus(Integer status) {
+        return (Root<Office> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) -> {
+            return criteriaBuilder.equal(root.get("status"), status);
+        };
+    }
+
 }

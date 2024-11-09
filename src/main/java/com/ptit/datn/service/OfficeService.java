@@ -41,7 +41,7 @@ public class OfficeService {
     @Transactional(readOnly = true)
     public Page<OfficeDTO> getOffices(Pageable pageable, String search, Long buildingId, Long wardId, Long districtId,
                                       Long provinceId, BigInteger minPrice, BigInteger maxPrice,
-                                      Double minArea, Double maxArea) {
+                                      Double minArea, Double maxArea, Integer status) {
         log.info("Get offices");
         Specification<Office> spec = Specification.where(null);
         if (search != null)
@@ -62,6 +62,8 @@ public class OfficeService {
             spec = spec.and(OfficeSpecification.hasAreaGreaterOrEqual(minArea));
         if (maxArea != null)
             spec = spec.and(OfficeSpecification.hasAreaLessOrEqual(maxArea));
+        if (status != null)
+            spec = spec.and(OfficeSpecification.hasStatus(status));
         Page<Office> offices = officeRepository.findAll(spec, pageable);
         return offices.map(OfficeDTO::new);
     }
