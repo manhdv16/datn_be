@@ -36,14 +36,16 @@ public class OfficeResource {
                                                       @RequestParam(required = false) BigInteger minPrice,
                                                       @RequestParam(required = false) BigInteger maxPrice,
                                                       @RequestParam(required = false) Double minArea,
-                                                      @RequestParam(required = false) Double maxArea
+                                                      @RequestParam(required = false) Double maxArea,
+                                                      @RequestParam(required = false) Integer status
                                                       ) {
         log.info("REST request to get a page of offices");
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate"));
         Page<OfficeDTO> list = officeService.getOffices(pageable, search, buildingId, wardId, districtId, provinceId,
-            minPrice, maxPrice, minArea, maxArea);
+            minPrice, maxPrice, minArea, maxArea, status);
         return ResponseEntity.ok().body(list);
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<OfficeDTO> getOffice(@PathVariable Long id) {
