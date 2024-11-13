@@ -3,9 +3,12 @@ package com.ptit.datn.service;
 import com.ptit.datn.config.Constants;
 import com.ptit.datn.domain.Authority;
 import com.ptit.datn.domain.User;
+import com.ptit.datn.domain.UserBuilding;
+import com.ptit.datn.dto.request.ResponsibilityAssignmentRequest;
 import com.ptit.datn.exception.AppException;
 import com.ptit.datn.exception.ErrorCode;
 import com.ptit.datn.repository.AuthorityRepository;
+import com.ptit.datn.repository.UserBuildingRepository;
 import com.ptit.datn.repository.UserRepository;
 import com.ptit.datn.security.AuthoritiesConstants;
 import com.ptit.datn.security.SecurityUtils;
@@ -13,14 +16,14 @@ import com.ptit.datn.security.jwt.TokenProvider;
 import com.ptit.datn.service.dto.AdminUserDTO;
 import com.ptit.datn.service.dto.UserDTO;
 import com.ptit.datn.service.dto.UserNameDTO;
+import com.ptit.datn.utils.DataUtils;
 import com.ptit.datn.web.rest.vm.LoginVM;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.slf4j.Logger;
@@ -32,6 +35,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -54,6 +58,7 @@ public class UserService {
     TokenProvider tokenProvider;
     AuthorityRepository authorityRepository;
     AuthenticationManagerBuilder authenticationManagerBuilder;
+    UserBuildingRepository userBuildingRepository;
 
     public Optional<User> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
@@ -175,11 +180,16 @@ public class UserService {
         } else {
             user.setLangKey(userDTO.getLangKey());
         }
-        String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
+        String encryptedPassword = passwordEncoder.encode(Constants.DEFAULT_PASSWORD);
         user.setPassword(encryptedPassword);
-        user.setResetKey(RandomUtil.generateResetKey());
+        user.setResetKey(Constants.DEFAULT_PASSWORD);
         user.setResetDate(Instant.now());
         user.setActivated(true);
+        user.setCccd(userDTO.getCccd());
+        user.setAddress(userDTO.getAddress());
+        user.setDob(userDTO.getDob());
+        user.setFullName(userDTO.getFirstName() + " " + userDTO.getLastName());
+
         if (userDTO.getAuthorities() != null) {
             Set<Authority> authorities = userDTO
                 .getAuthorities()
@@ -286,6 +296,11 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    public Page<AdminUserDTO> getAllManagers(Pageable pageable) {
+        return userRepository.findAllByRole(pageable).map(AdminUserDTO::new);
+    }
+
+    @Transactional(readOnly = true)
     public Page<UserDTO> getAllPublicUsers(Pageable pageable) {
         return userRepository.findAllByIdNotNullAndActivatedIsTrue(pageable).map(UserDTO::new);
     }
@@ -297,7 +312,8 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Optional<User> getUserWithAuthorities() {
-        return SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneWithAuthoritiesByLogin);
+        Long id = Long.parseLong(Objects.requireNonNull(SecurityUtils.getCurrentUserLogin().orElse(null)));
+        return userRepository.findOneWithAuthoritiesById(id);
     }
 
     /**
@@ -338,5 +354,19 @@ public class UserService {
         } catch (BadCredentialsException e) {
             return null;
         }
+    }
+
+    public String assignResponsible(Long buildingId, ResponsibilityAssignmentRequest request) {
+        if (DataUtils.isNullOrEmpty(request)) {
+            throw new AppException(ErrorCode.EMPTY_REQUEST);
+        }
+        request.getListUserId()
+            .forEach(userId -> {
+                UserBuilding userBuilding = new UserBuilding();
+                userBuilding.setBuildingId(buildingId);
+                userBuilding.setUserId(userId);
+                userBuildingRepository.save(userBuilding);
+            });
+        return "Assign responsible successfully";
     }
 }

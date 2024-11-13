@@ -109,7 +109,7 @@ public class MailService {
         this.sendEmailFromTemplateSync(user, "mail/activationEmail", "email.activation.title");
     }
 
-    @Async
+//    @Async
     public void sendCreationEmail(User user) {
         log.debug("Sending creation email to '{}'", user.getEmail());
         this.sendEmailFromTemplateSync(user, "mail/creationEmail", "email.activation.title");

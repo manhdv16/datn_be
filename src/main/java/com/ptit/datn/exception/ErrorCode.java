@@ -19,7 +19,7 @@ public enum ErrorCode {
     NEW_PASSWORD_MUST_BE_DIFFERENT(1009, Translator.toLocale("NEW_PASSWORD_MUST_BE_DIFFERENT"), HttpStatus.BAD_REQUEST),
     CONFIRM_PASSWORD_NOT_MATCH(1009, Translator.toLocale("CONFIRM_PASSWORD_NOT_MATCH"), HttpStatus.BAD_REQUEST),
     INVALID_OLD_PASSWORD(1009, Translator.toLocale("INVALID_OLD_PASSWORD"), HttpStatus.BAD_REQUEST),
-    TAXCODE_IS_NOT_BLANK(1010, Translator.toLocale("TAXCODE_IS_NOT_BLANK"), HttpStatus.BAD_REQUEST),
+    EMAIL_EXISTED(1010, Translator.toLocale("EMAIL_EXISTED"), HttpStatus.BAD_REQUEST),
     PASSWORD_IS_NOT_BLANK(1011, Translator.toLocale("PASSWORD_IS_NOT_BLANK"), HttpStatus.BAD_REQUEST),
     FIELDS_OF_DIGITAL_SIGNATURE_ARE_REQUIRED(1012, Translator.toLocale("FIELDS_OF_DIGITAL_SIGNATURE_ARE_REQUIRED"), HttpStatus.BAD_REQUEST),
     LOGIN_FAILED(1013, Translator.toLocale("login.failed"), HttpStatus.BAD_REQUEST),
@@ -31,7 +31,7 @@ public enum ErrorCode {
     NEW_CONFIRM_PASSWORD_IS_NOT_BLANK(1016, Translator.toLocale("NEW_CONFIRM_PASSWORD_IS_NOT_BLANK"),
         HttpStatus.BAD_REQUEST),
     ACCESS_DENIED(1016, Translator.toLocale("ACCESS_DENIED"), HttpStatus.BAD_REQUEST),
-
+    EMPTY_REQUEST(1016, Translator.toLocale("EMPTY_REQUEST"), HttpStatus.BAD_REQUEST),
     RECORD_NOT_FOUND(1017, Translator.toLocale("record.notfound"), HttpStatus.NOT_FOUND);
 
     ErrorCode(int code, String message, HttpStatus statusCode) {
