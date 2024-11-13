@@ -27,10 +27,16 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Long getIdByLoginAndActivated(@Param("login") String login, @Param("activated") Boolean activated);
 
     @EntityGraph(attributePaths = "authorities")
+    Optional<User> findOneWithAuthoritiesById(Long id);
+
+    @EntityGraph(attributePaths = "authorities")
     Optional<User> findOneWithAuthoritiesByLogin(String login);
 
     @EntityGraph(attributePaths = "authorities")
     Optional<User> findOneWithAuthoritiesByEmailIgnoreCase(String email);
 
     Page<User> findAllByIdNotNullAndActivatedIsTrue(Pageable pageable);
+
+    @Query("select u from User u inner join UserAuthority ua on u.id = ua.userId where ua.authorityName = 'ROLE_MANAGER'")
+    Page<User> findAllByRole(Pageable pageable);
 }

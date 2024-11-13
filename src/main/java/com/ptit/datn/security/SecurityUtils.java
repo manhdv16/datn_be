@@ -1,6 +1,7 @@
 package com.ptit.datn.security;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.springframework.security.core.Authentication;
@@ -102,5 +103,9 @@ public final class SecurityUtils {
 
     private static Stream<String> getAuthorities(Authentication authentication) {
         return authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority);
+    }
+
+    public static List<? extends GrantedAuthority> getAuthorities() {
+        return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().toList();
     }
 }

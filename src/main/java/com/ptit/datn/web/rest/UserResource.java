@@ -2,7 +2,10 @@ package com.ptit.datn.web.rest;
 
 import com.ptit.datn.config.Constants;
 import com.ptit.datn.domain.User;
+import com.ptit.datn.dto.request.ResponsibilityAssignmentRequest;
 import com.ptit.datn.dto.response.ApiResponse;
+import com.ptit.datn.exception.AppException;
+import com.ptit.datn.exception.ErrorCode;
 import com.ptit.datn.repository.UserRepository;
 import com.ptit.datn.security.AuthoritiesConstants;
 import com.ptit.datn.service.MailService;
@@ -103,12 +106,12 @@ public class UserResource {
             throw new BadRequestAlertException("A new user cannot already have an ID", "userManagement", "idexists");
             // Lowercase the user login before comparing with database
         } else if (userRepository.findOneByLogin(userDTO.getLogin().toLowerCase()).isPresent()) {
-            throw new LoginAlreadyUsedException();
+            throw new AppException(ErrorCode.USER_EXISTED);
         } else if (userRepository.findOneByEmailIgnoreCase(userDTO.getEmail()).isPresent()) {
-            throw new EmailAlreadyUsedException();
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
         } else {
             User newUser = userService.createUser(userDTO);
-            //            mailService.sendCreationEmail(newUser);
+            mailService.sendCreationEmail(newUser);
             return ApiResponse.<User>builder().message("User created").result(newUser).build();
         }
     }
@@ -122,15 +125,33 @@ public class UserResource {
         log.debug("REST request to update User : {}", userDTO);
         Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail());
         if (existingUser.isPresent() && (!existingUser.orElseThrow().getId().equals(userDTO.getId()))) {
-            throw new EmailAlreadyUsedException();
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
         }
         existingUser = userRepository.findOneByLogin(userDTO.getLogin().toLowerCase());
         if (existingUser.isPresent() && (!existingUser.orElseThrow().getId().equals(userDTO.getId()))) {
-            throw new LoginAlreadyUsedException();
+            throw new AppException(ErrorCode.USER_EXISTED);
         }
         Optional<AdminUserDTO> updatedUser = userService.updateUser(userDTO);
 
         return ApiResponse.<AdminUserDTO>builder().message("User updated").result(updatedUser.orElse(null)).build();
+    }
+
+    @PutMapping("/assign-users-responsible-by-building-id/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
+    public ApiResponse<String> assignUserResponsibilityBuilding(@PathVariable("id") Long buildingId, @RequestBody ResponsibilityAssignmentRequest request) {
+        return ApiResponse.<String>builder()
+            .result(userService.assignResponsible(buildingId, request))
+            .build();
+    }
+
+    @GetMapping("/managers")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
+    public ResponseEntity<List<AdminUserDTO>> getAllManagers(Pageable pageable) {
+        log.debug("REST request to get all managers for an admin");
+
+        final Page<AdminUserDTO> page = userService.getAllManagers(pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
     @GetMapping("/users")

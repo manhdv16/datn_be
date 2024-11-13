@@ -3,6 +3,8 @@ package com.ptit.datn.web.rest;
 import com.ptit.datn.domain.User;
 import com.ptit.datn.dto.request.ForgotPasswordRequest;
 import com.ptit.datn.dto.response.ApiResponse;
+import com.ptit.datn.exception.AppException;
+import com.ptit.datn.exception.ErrorCode;
 import com.ptit.datn.repository.UserRepository;
 import com.ptit.datn.security.SecurityUtils;
 import com.ptit.datn.service.MailService;
@@ -64,7 +66,7 @@ public class AccountResource {
         return userService
             .getUserWithAuthorities()
             .map(AdminUserDTO::new)
-            .orElseThrow(() -> new AccountResourceException("User could not be found"));
+            .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
     }
 
     @PostMapping("/account")
