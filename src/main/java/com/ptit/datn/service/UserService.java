@@ -122,14 +122,13 @@ public class UserService {
         newUser.setLogin(userDTO.getLogin().toLowerCase());
         // new user gets initially a generated password
         newUser.setPassword(encryptedPassword);
-        newUser.setFirstName(userDTO.getFirstName());
-        newUser.setLastName(userDTO.getLastName());
+        newUser.setFullName(userDTO.getFullName());
         if (userDTO.getEmail() != null) {
             newUser.setEmail(userDTO.getEmail().toLowerCase());
         }
         newUser.setImageUrl(userDTO.getImageUrl());
         newUser.setLangKey(userDTO.getLangKey());
-        newUser.setFullName(userDTO.getFirstName() + " " + userDTO.getLastName());
+        newUser.setFullName(userDTO.getFullName());
         newUser.setCccd(userDTO.getCccd());
         newUser.setAddress(userDTO.getAddress());
         newUser.setDob(userDTO.getDob());
@@ -161,16 +160,15 @@ public class UserService {
         return new UserNameDTO(
             user.getId(),
             user.getLogin(),
-            user.getFirstName(),
-            user.getLastName()
+            user.getFullName()
         );
     }
 
     public User createUser(AdminUserDTO userDTO) {
         User user = new User();
         user.setLogin(userDTO.getLogin().toLowerCase());
-        user.setFirstName(userDTO.getFirstName());
-        user.setLastName(userDTO.getLastName());
+        user.setFullName(userDTO.getFullName());
+        user.setPhoneNumber(userDTO.getPhoneNumber());
         if (userDTO.getEmail() != null) {
             user.setEmail(userDTO.getEmail().toLowerCase());
         }
@@ -188,7 +186,6 @@ public class UserService {
         user.setCccd(userDTO.getCccd());
         user.setAddress(userDTO.getAddress());
         user.setDob(userDTO.getDob());
-        user.setFullName(userDTO.getFirstName() + " " + userDTO.getLastName());
 
         if (userDTO.getAuthorities() != null) {
             Set<Authority> authorities = userDTO
@@ -217,8 +214,8 @@ public class UserService {
             .map(Optional::get)
             .map(user -> {
                 user.setLogin(userDTO.getLogin().toLowerCase());
-                user.setFirstName(userDTO.getFirstName());
-                user.setLastName(userDTO.getLastName());
+                user.setFullName(userDTO.getFullName());
+                user.setPhoneNumber(userDTO.getPhoneNumber());
                 if (userDTO.getEmail() != null) {
                     user.setEmail(userDTO.getEmail().toLowerCase());
                 }
@@ -241,9 +238,9 @@ public class UserService {
             .map(AdminUserDTO::new);
     }
 
-    public void deleteUser(String login) {
+    public void deleteUser(Long id) {
         userRepository
-            .findOneByLogin(login)
+            .findOneById(id)
             .ifPresent(user -> {
                 userRepository.delete(user);
                 log.debug("Deleted User: {}", user);
@@ -253,18 +250,16 @@ public class UserService {
     /**
      * Update basic information (first name, last name, email, language) for the current user.
      *
-     * @param firstName first name of user.
-     * @param lastName  last name of user.
+     * @param fullName first name of user.
      * @param email     email id of user.
      * @param langKey   language key.
      * @param imageUrl  image URL of user.
      */
-    public void updateUser(String firstName, String lastName, String email, String langKey, String imageUrl) {
+    public void updateUser(String fullName, String email, String langKey, String imageUrl) {
         SecurityUtils.getCurrentUserLogin()
             .flatMap(userRepository::findOneByLogin)
             .ifPresent(user -> {
-                user.setFirstName(firstName);
-                user.setLastName(lastName);
+                user.setFullName(fullName);
                 if (email != null) {
                     user.setEmail(email.toLowerCase());
                 }

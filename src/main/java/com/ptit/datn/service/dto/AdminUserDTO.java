@@ -3,8 +3,10 @@ package com.ptit.datn.service.dto;
 import com.ptit.datn.config.Constants;
 import com.ptit.datn.domain.Authority;
 import com.ptit.datn.domain.User;
-import jakarta.persistence.Column;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,22 +32,22 @@ public class AdminUserDTO implements Serializable {
     @Size(min = 1, max = 50, message = "INVALID_USERNAME")
     private String login;
 
-    @Size(max = 50)
-    private String firstName;
+    @Size(max = 100)
+    private String fullName;
 
-    @Size(max = 50)
-    private String lastName;
+    @Size(max = 15)
+    private String phoneNumber;
 
     @Email
     @Size(min = 5, max = 254)
     private String email;
 
-    @Size(max = 256)
+//    @Size(max = 256)
     private String imageUrl;
 
     private boolean activated = false;
 
-    @Size(min = 2, max = 10)
+//    @Size(min = 2, max = 10)
     private String langKey;
 
     private String cccd;
@@ -71,9 +73,12 @@ public class AdminUserDTO implements Serializable {
     public AdminUserDTO(User user) {
         this.id = user.getId();
         this.login = user.getLogin();
-        this.firstName = user.getFirstName();
-        this.lastName = user.getLastName();
+        this.fullName = user.getFullName();
         this.email = user.getEmail();
+        this.phoneNumber = user.getPhoneNumber();
+        this.cccd = user.getCccd();
+        this.address = user.getAddress();
+        this.dob = user.getDob();
         this.activated = user.isActivated();
         this.imageUrl = user.getImageUrl();
         this.langKey = user.getLangKey();
@@ -89,9 +94,9 @@ public class AdminUserDTO implements Serializable {
     public String toString() {
         return "AdminUserDTO{" +
             "login='" + login + '\'' +
-            ", firstName='" + firstName + '\'' +
-            ", lastName='" + lastName + '\'' +
+            ", fullName='" + fullName + '\'' +
             ", email='" + email + '\'' +
+            ", phoneNumber='" + phoneNumber + '\'' +
             ", imageUrl='" + imageUrl + '\'' +
             ", activated=" + activated +
             ", langKey='" + langKey + '\'' +
