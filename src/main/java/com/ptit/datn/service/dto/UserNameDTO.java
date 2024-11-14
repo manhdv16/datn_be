@@ -12,6 +12,5 @@ import lombok.Setter;
 public class UserNameDTO {
     private Long id;
     private String login;
-    private String firstName;
-    private String lastName;
+    private String fullName;
 }
