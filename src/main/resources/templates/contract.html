@@ -114,8 +114,8 @@
     <em>&#xa0;</em>
   </p>
   <p style="text-align:justify; line-height:150%; font-size:13pt">
-    Hôm nay, <span th:text="${currentDate}"></span>, tại <span th:if="${offices != null && !offices.isEmpty()}"
-                                                               th:text="${offices.get(1).getBuilding().getName()}"></span>, chúng tôi gồm:
+    Hôm nay, <span th:text="${currentDate}"></span>, tại <span th:if="${!offices.isEmpty() && offices.size() >= 1}"
+                                                               th:text="${offices.get(0).getBuilding().getName()}"></span>, chúng tôi gồm:
   </p>
   <p style="text-align:justify; line-height:150%; font-size:13pt">
     <strong><u>BÊN A</u></strong><strong>: (BÊN CHO THUÊ VĂN PHÒNG)</strong>
@@ -157,7 +157,7 @@
     Mã Số Thuế : &#xa0;………………
   </p>
   <p style="line-height:150%; font-size:13pt">
-    Đại diện : <span style="width:18.6pt; display:inline-block" th:text="${contract.getTenant().getFirstName()} + ' ' + ${contract.getTenant().getLastName()}">&#xa0;</span><span style="width:19.89pt; display:inline-block">&#xa0;</span><span style="width:21pt; display:inline-block">&#xa0;</span>
+    Đại diện : <span style="width:18.6pt; display:inline-block" th:text="${contract.getTenant().getFullName()}">&#xa0;</span><span style="width:19.89pt; display:inline-block">&#xa0;</span><span style="width:21pt; display:inline-block">&#xa0;</span>
   </p>
   <p style="line-height:150%; font-size:13pt">
     &#xa0;
@@ -172,8 +172,8 @@
     <strong>1.1.</strong> <strong>Chủ quyền hợp pháp và khu vực cho thuê</strong>
   </p>
   <p style="text-align:justify; line-height:150%; font-size:13pt">
-    - Bên A cam kết có chủ quyền cho thuê hợp pháp đối với toàn bộ Toà nhà tại địa chỉ <span th:if="${offices != null && !offices.isEmpty()}"
-                                                                                             th:text="${offices.get(1).getBuilding().getAddress()}"></span>
+    - Bên A cam kết có chủ quyền cho thuê hợp pháp đối với toàn bộ Toà nhà tại địa chỉ <span th:if="${!offices.isEmpty() && offices.size() >= 1}"
+                                                                                             th:text="${offices.get(0).getBuilding().getAddress()}"></span>
   </p>
   <div th:if="${offices.size() > 1}">
     <p style="text-align:justify; line-height:150%; font-size:13pt">
@@ -189,9 +189,9 @@
   </div>
   <div th:if="${offices.size() == 1}">
     <p style="text-align:justify; line-height:150%; font-size:13pt">
-      <strong>- </strong>Địa điểm cho thuê:&#xa0; Tầng: <span th:if="${offices != null && !offices.isEmpty()}"
-                                                              th:text="${offices.get(1).getFloor()}"></span>&#xa0; Diện tích:&#xa0;<span th:if="${offices != null && !offices.isEmpty()}"
-                                                                                                                                         th:text="${offices.get(1).getArea()}"></span>
+      <strong>- </strong>Địa điểm cho thuê:&#xa0; Tầng: <span th:if="${!offices.isEmpty() && offices.size() >= 1}"
+                                                              th:text="${offices.get(0).getFloor()}"></span>&#xa0; Diện tích:&#xa0;<span th:if="${!offices.isEmpty() && offices.size() >= 1}"
+                                                                                                                                         th:text="${offices.get(0).getArea()}"></span>
     </p>
   </div>
   <p style="text-align:justify; line-height:150%; font-size:13pt">
