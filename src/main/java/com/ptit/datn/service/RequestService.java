@@ -1,6 +1,7 @@
 package com.ptit.datn.service;
 
 import com.ptit.datn.constants.RequestStatus;
+import com.ptit.datn.domain.Building;
 import com.ptit.datn.domain.Office;
 import com.ptit.datn.domain.Request;
 import com.ptit.datn.domain.User;
@@ -13,8 +14,10 @@ import com.ptit.datn.service.dto.OfficeDTO;
 import com.ptit.datn.service.dto.RequestDTO;
 import com.ptit.datn.service.dto.UserDTO;
 import jakarta.persistence.RollbackException;
+import jakarta.persistence.criteria.Join;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -82,6 +85,7 @@ public class RequestService {
 
     @Transactional(readOnly = true)
     public Page<RequestDTO> getAllRequests(Pageable pageable) {
+
         Page<Request> requests = requestRepository.findAll(pageable);
         Page<RequestDTO> requestDTOS = requests.map(RequestDTO::new);
 
@@ -90,10 +94,10 @@ public class RequestService {
             if (requestDTO.getUserId() != null) {
                 userRepository.findById(requestDTO.getUserId()).ifPresent(user -> requestDTO.setUserDTO(new UserDTO(user)));
             }
-            buildingRepository.findById(requestDTO.getBuildingId()).ifPresent(building -> requestDTO.setBuildingDTO(new BuildingDTO(building)));
+            if (requestDTO.getBuildingId() != null) {
+                buildingRepository.findById(requestDTO.getBuildingId()).ifPresent(building -> requestDTO.setBuildingDTO(new BuildingDTO(building)));
+            }
         });
-
-
 
         return requestDTOS;
     }
