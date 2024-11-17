@@ -30,7 +30,7 @@ public class BuildingResource {
 
     @GetMapping
     public ResponseEntity<Page<BuildingDTO>> getBuildings(@RequestParam(defaultValue = "0") Integer page,
-                                                          @RequestParam(defaultValue = "20") Integer size,
+                                                          @RequestParam(defaultValue = "10") Integer size,
                                                           @RequestParam(required = false) String keyword,
                                                           @RequestParam(required = false) Long wardId,
                                                           @RequestParam(required = false) Long districtId,

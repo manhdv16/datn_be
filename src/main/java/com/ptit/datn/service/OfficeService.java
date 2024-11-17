@@ -77,6 +77,7 @@ public class OfficeService {
     public OfficeDTO createOffice(OfficeDTO officeDTO) {
         log.info("Create office");
         Office office = new Office();
+        office.setName(officeDTO.getName());
         office.setArea(officeDTO.getArea());
         office.setFloor(officeDTO.getFloor());
         office.setPrice(officeDTO.getPrice());
@@ -89,6 +90,7 @@ public class OfficeService {
     public OfficeDTO updateOffice(OfficeDTO officeDTO) {
         log.info("Update office");
         Office office = officeRepository.findById(officeDTO.getId()).orElseThrow();
+        office.setName(officeDTO.getName());
         office.setArea(officeDTO.getArea());
         office.setFloor(officeDTO.getFloor());
         office.setPrice(officeDTO.getPrice());

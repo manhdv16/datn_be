@@ -75,7 +75,7 @@ public class BuildingService {
         Specification<Building> spec = (root, query, cb) -> {
             // Join with the offices table to filter by price/area
             Join<Object, Object> officeJoin = root.join("offices", JoinType.LEFT);
-
+            query.distinct(true);
             Predicate predicate = cb.conjunction(); // Base condition
 
             if (keyword != null && !keyword.trim().isEmpty()) {

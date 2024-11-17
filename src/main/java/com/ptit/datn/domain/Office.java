@@ -19,6 +19,9 @@ public class Office extends AbstractAuditingEntity<Long> {
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
 
+        @Column(name = "name")
+        private String name;
+
         @Column(name = "area")
         private Double area;
 

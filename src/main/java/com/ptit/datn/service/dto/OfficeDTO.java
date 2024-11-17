@@ -11,6 +11,7 @@ import java.math.BigInteger;
 public class OfficeDTO {
 
     private Long id;
+    private String name;
     private Double area;
     private Integer floor;
     private BigInteger price;
@@ -27,6 +28,7 @@ public class OfficeDTO {
 
     public OfficeDTO(Office office) {
         this.id = office.getId();
+        this.name = office.getName();
         this.area = office.getArea();
         this.floor = office.getFloor();
         this.price = office.getPrice();

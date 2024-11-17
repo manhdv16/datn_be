@@ -59,7 +59,8 @@ public class Building extends AbstractAuditingEntity<Long> {
     @Column(name = "cleaning_fee")
     private BigInteger cleaningFee;
 
-    @Column(name = "note")
+    @Lob
+    @Column(name = "note", columnDefinition = "TEXT")
     private String note;
 
     @OneToMany(mappedBy = "building", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
