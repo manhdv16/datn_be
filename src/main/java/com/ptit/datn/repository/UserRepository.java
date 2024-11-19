@@ -39,4 +39,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("select u from User u inner join UserAuthority ua on u.id = ua.userId where ua.authorityName = 'ROLE_MANAGER'")
     Page<User> findAllByRole(Pageable pageable);
+
+    @Query("select u.digitalSignature from User u where u.id = :id")
+    String getDigitalSignatureByUserId(@Param("id") Long id);
 }

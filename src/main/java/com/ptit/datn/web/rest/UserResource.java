@@ -4,6 +4,7 @@ import com.ptit.datn.config.Constants;
 import com.ptit.datn.domain.User;
 import com.ptit.datn.dto.request.ResponsibilityAssignmentRequest;
 import com.ptit.datn.dto.response.ApiResponse;
+import com.ptit.datn.dto.response.UserResponse;
 import com.ptit.datn.exception.AppException;
 import com.ptit.datn.exception.ErrorCode;
 import com.ptit.datn.repository.UserRepository;
@@ -63,42 +64,9 @@ import java.util.Optional;
 @RequestMapping("/api/admin")
 public class UserResource {
 
-    private static final List<String> ALLOWED_ORDERED_PROPERTIES = Collections.unmodifiableList(
-        Arrays.asList(
-            "id",
-            "login",
-            "firstName",
-            "lastName",
-            "email",
-            "activated",
-            "langKey",
-            "createdBy",
-            "createdDate",
-            "lastModifiedBy",
-            "lastModifiedDate"
-        )
-    );
-
-    private static final Logger log = LoggerFactory.getLogger(UserResource.class);
-
-    @Value("${jhipster.clientApp.name}")
-    private String applicationName;
-
-    private final UserService userService;
-
-    private final UserRepository userRepository;
-
-    private final MailService mailService;
-
-    public UserResource(UserService userService, UserRepository userRepository, MailService mailService) {
-        this.userService = userService;
-        this.userRepository = userRepository;
-        this.mailService = mailService;
-    }
-
     @PostMapping("/users")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ApiResponse<User> createUser(@Valid @RequestBody AdminUserDTO userDTO) throws URISyntaxException {
+    public ApiResponse<User> createUser(@ModelAttribute @Valid AdminUserDTO userDTO) throws Exception {
         log.debug("REST request to save User : {}", userDTO);
 
         if (userDTO.getId() != null) {
@@ -120,7 +88,7 @@ public class UserResource {
     public ApiResponse<AdminUserDTO> updateUser(
         @PathVariable(name = "login", required = false) @Pattern(regexp = Constants.LOGIN_REGEX) String login,
         @Valid @RequestBody AdminUserDTO userDTO
-    ) {
+    ) throws Exception {
         log.debug("REST request to update User : {}", userDTO);
         Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail());
         if (existingUser.isPresent() && (!existingUser.orElseThrow().getId().equals(userDTO.getId()))) {
@@ -170,11 +138,11 @@ public class UserResource {
         return pageable.getSort().stream().map(Sort.Order::getProperty).allMatch(ALLOWED_ORDERED_PROPERTIES::contains);
     }
 
-    @GetMapping("/users/{login}")
+    @GetMapping("/users/{id}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<AdminUserDTO> getUser(@PathVariable("login") @Pattern(regexp = Constants.LOGIN_REGEX) String login) {
-        log.debug("REST request to get User : {}", login);
-        return ResponseUtil.wrapOrNotFound(userService.getUserWithAuthoritiesByLogin(login).map(AdminUserDTO::new));
+    public ResponseEntity<UserResponse> getUser(@PathVariable("id") Long id) {
+        log.debug("REST request to get User : {}", id);
+        return ResponseUtil.wrapOrNotFound(userService.getUserWithAuthoritiesById(id).map(UserResponse::new));
     }
 
     @DeleteMapping("/users/{id}")
@@ -183,5 +151,40 @@ public class UserResource {
         log.debug("REST request to delete User: {}", id);
         userService.deleteUser(id);
         return ApiResponse.<Void>builder().message("User deleted").build();
+    }
+
+
+
+    private static final List<String> ALLOWED_ORDERED_PROPERTIES = Collections.unmodifiableList(
+        Arrays.asList(
+            "id",
+            "login",
+            "firstName",
+            "lastName",
+            "email",
+            "activated",
+            "langKey",
+            "createdBy",
+            "createdDate",
+            "lastModifiedBy",
+            "lastModifiedDate"
+        )
+    );
+
+    private static final Logger log = LoggerFactory.getLogger(UserResource.class);
+
+    @Value("${jhipster.clientApp.name}")
+    private String applicationName;
+
+    private final UserService userService;
+
+    private final UserRepository userRepository;
+
+    private final MailService mailService;
+
+    public UserResource(UserService userService, UserRepository userRepository, MailService mailService) {
+        this.userService = userService;
+        this.userRepository = userRepository;
+        this.mailService = mailService;
     }
 }

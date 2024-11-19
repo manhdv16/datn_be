@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -27,9 +28,9 @@ public class AdminUserDTO implements Serializable {
 
     private Long id;
 
-    @NotBlank(message = "INVALID_USERNAME")
-    @Pattern(regexp = Constants.LOGIN_REGEX, message = "INVALID_USERNAME")
-    @Size(min = 1, max = 50, message = "INVALID_USERNAME")
+//    @NotBlank(message = "INVALID_USERNAME")
+//    @Pattern(regexp = Constants.LOGIN_REGEX, message = "INVALID_USERNAME")
+//    @Size(min = 1, max = 50, message = "INVALID_USERNAME")
     private String login;
 
     @Size(max = 100)
@@ -42,8 +43,7 @@ public class AdminUserDTO implements Serializable {
     @Size(min = 5, max = 254)
     private String email;
 
-//    @Size(max = 256)
-    private String imageUrl;
+    private MultipartFile imageDigitalSignature;
 
     private boolean activated = false;
 
@@ -80,7 +80,7 @@ public class AdminUserDTO implements Serializable {
         this.address = user.getAddress();
         this.dob = user.getDob();
         this.activated = user.isActivated();
-        this.imageUrl = user.getImageUrl();
+        this.imageDigitalSignature = null;
         this.langKey = user.getLangKey();
         this.createdBy = user.getCreatedBy();
         this.createdDate = user.getCreatedDate();
@@ -97,7 +97,7 @@ public class AdminUserDTO implements Serializable {
             ", fullName='" + fullName + '\'' +
             ", email='" + email + '\'' +
             ", phoneNumber='" + phoneNumber + '\'' +
-            ", imageUrl='" + imageUrl + '\'' +
+            ", imageUrl='" + imageDigitalSignature + '\'' +
             ", activated=" + activated +
             ", langKey='" + langKey + '\'' +
             ", createdBy=" + createdBy +

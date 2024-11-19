@@ -66,8 +66,12 @@ public class User extends AbstractAuditingEntity<Long> implements Serializable {
     private String langKey;
 
     @Size(max = 256)
-    @Column(name = "image_url", length = 256)
-    private String imageUrl;
+    @Column(name = "digital_signature", length = 256)
+    private String digitalSignature;
+
+    @Size(max = 256)
+    @Column(name = "sign_image", length = 256)
+    private String signImage;
 
     @Size(max = 20)
     @Column(name = "activation_key", length = 20)
@@ -125,7 +129,7 @@ public class User extends AbstractAuditingEntity<Long> implements Serializable {
             "login='" + login + '\'' +
             ", fullName='" + fullName + '\'' +
             ", email='" + email + '\'' +
-            ", imageUrl='" + imageUrl + '\'' +
+            ", imageUrl='" + digitalSignature + '\'' +
             ", activated='" + activated + '\'' +
             ", langKey='" + langKey + '\'' +
             ", activationKey='" + activationKey + '\'' +

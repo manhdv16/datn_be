@@ -1,5 +1,6 @@
 package com.ptit.datn.service;
 
+import com.ptit.datn.cloudinary.CloudinaryService;
 import com.ptit.datn.config.Constants;
 import com.ptit.datn.domain.Authority;
 import com.ptit.datn.domain.User;
@@ -18,12 +19,6 @@ import com.ptit.datn.service.dto.UserDTO;
 import com.ptit.datn.service.dto.UserNameDTO;
 import com.ptit.datn.utils.DataUtils;
 import com.ptit.datn.web.rest.vm.LoginVM;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.slf4j.Logger;
@@ -35,12 +30,16 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tech.jhipster.security.RandomUtil;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Service class for managing users.
@@ -59,6 +58,7 @@ public class UserService {
     AuthorityRepository authorityRepository;
     AuthenticationManagerBuilder authenticationManagerBuilder;
     UserBuildingRepository userBuildingRepository;
+    CloudinaryService cloudinaryService;
 
     public Optional<User> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
@@ -100,7 +100,7 @@ public class UserService {
             });
     }
 
-    public User registerUser(AdminUserDTO userDTO, String password) {
+    public User registerUser(AdminUserDTO userDTO, String password) throws Exception {
         userRepository
             .findOneByLogin(userDTO.getLogin().toLowerCase())
             .ifPresent(existingUser -> {
@@ -126,7 +126,7 @@ public class UserService {
         if (userDTO.getEmail() != null) {
             newUser.setEmail(userDTO.getEmail().toLowerCase());
         }
-        newUser.setImageUrl(userDTO.getImageUrl());
+        newUser.setDigitalSignature(SignatureService.generateHashFromMultipartFile(userDTO.getImageDigitalSignature()));
         newUser.setLangKey(userDTO.getLangKey());
         newUser.setFullName(userDTO.getFullName());
         newUser.setCccd(userDTO.getCccd());
@@ -164,7 +164,7 @@ public class UserService {
         );
     }
 
-    public User createUser(AdminUserDTO userDTO) {
+    public User createUser(AdminUserDTO userDTO) throws Exception {
         User user = new User();
         user.setLogin(userDTO.getLogin().toLowerCase());
         user.setFullName(userDTO.getFullName());
@@ -172,7 +172,8 @@ public class UserService {
         if (userDTO.getEmail() != null) {
             user.setEmail(userDTO.getEmail().toLowerCase());
         }
-        user.setImageUrl(userDTO.getImageUrl());
+        user.setDigitalSignature(SignatureService.generateHashFromMultipartFile(userDTO.getImageDigitalSignature()));
+        user.setSignImage((String)cloudinaryService.uploadFile(userDTO.getImageDigitalSignature()).get("url"));
         if (userDTO.getLangKey() == null) {
             user.setLangKey(Constants.DEFAULT_LANGUAGE); // default language
         } else {
@@ -208,7 +209,7 @@ public class UserService {
      * @param userDTO user to update.
      * @return updated user.
      */
-    public Optional<AdminUserDTO> updateUser(AdminUserDTO userDTO) {
+    public Optional<AdminUserDTO> updateUser(AdminUserDTO userDTO) throws Exception {
         return Optional.of(userRepository.findById(userDTO.getId()))
             .filter(Optional::isPresent)
             .map(Optional::get)
@@ -219,7 +220,11 @@ public class UserService {
                 if (userDTO.getEmail() != null) {
                     user.setEmail(userDTO.getEmail().toLowerCase());
                 }
-                user.setImageUrl(userDTO.getImageUrl());
+                try {
+                    user.setDigitalSignature(SignatureService.generateHashFromMultipartFile(userDTO.getImageDigitalSignature()));
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
                 user.setActivated(userDTO.isActivated());
                 user.setLangKey(userDTO.getLangKey());
                 Set<Authority> managedAuthorities = user.getAuthorities();
@@ -244,29 +249,6 @@ public class UserService {
             .ifPresent(user -> {
                 userRepository.delete(user);
                 log.debug("Deleted User: {}", user);
-            });
-    }
-
-    /**
-     * Update basic information (first name, last name, email, language) for the current user.
-     *
-     * @param fullName first name of user.
-     * @param email     email id of user.
-     * @param langKey   language key.
-     * @param imageUrl  image URL of user.
-     */
-    public void updateUser(String fullName, String email, String langKey, String imageUrl) {
-        SecurityUtils.getCurrentUserLogin()
-            .flatMap(userRepository::findOneByLogin)
-            .ifPresent(user -> {
-                user.setFullName(fullName);
-                if (email != null) {
-                    user.setEmail(email.toLowerCase());
-                }
-                user.setLangKey(langKey);
-                user.setImageUrl(imageUrl);
-                userRepository.save(user);
-                log.debug("Changed Information for User: {}", user);
             });
     }
 
@@ -301,8 +283,8 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<User> getUserWithAuthoritiesByLogin(String login) {
-        return userRepository.findOneWithAuthoritiesByLogin(login);
+    public Optional<User> getUserWithAuthoritiesById(Long id) {
+        return userRepository.findOneWithAuthoritiesById(id);
     }
 
     @Transactional(readOnly = true)
@@ -326,11 +308,6 @@ public class UserService {
             });
     }
 
-    /**
-     * Gets a list of all the authorities.
-     *
-     * @return a list of all the authorities.
-     */
     @Transactional(readOnly = true)
     public List<String> getAuthorities() {
         return authorityRepository.findAll().stream().map(Authority::getName).toList();
@@ -363,5 +340,29 @@ public class UserService {
                 userBuildingRepository.save(userBuilding);
             });
         return "Assign responsible successfully";
+    }
+
+    public String getDigitalSignature() {
+        Long id = Long.valueOf(SecurityUtils.getCurrentUserLogin().get());
+        return userRepository.getDigitalSignatureByUserId(id);
+    }
+
+
+    /**
+     * Update basic information (first name, last name, email, language) for the current user.
+     */
+    public void updateUser(String fullName, String email, String langKey, String imageUrl) {
+        SecurityUtils.getCurrentUserLogin()
+            .flatMap(userRepository::findOneByLogin)
+            .ifPresent(user -> {
+                user.setFullName(fullName);
+                if (email != null) {
+                    user.setEmail(email.toLowerCase());
+                }
+                user.setLangKey(langKey);
+                user.setDigitalSignature(imageUrl);
+                userRepository.save(user);
+                log.debug("Changed Information for User: {}", user);
+            });
     }
 }
