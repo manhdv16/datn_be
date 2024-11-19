@@ -32,7 +32,7 @@ public class CloudinaryService {
     public Map uploadFile(MultipartFile file) {
         try {
             Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
-            // return (String) uploadResult.get("url");
+//             return (String) uploadResult.get("url");
             return uploadResult;
         } catch (IOException e) {
             throw new AppException(ErrorCode.URL_NOT_FOUND);

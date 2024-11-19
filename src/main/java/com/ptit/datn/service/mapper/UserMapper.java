@@ -2,6 +2,7 @@ package com.ptit.datn.service.mapper;
 
 import com.ptit.datn.domain.Authority;
 import com.ptit.datn.domain.User;
+import com.ptit.datn.service.SignatureService;
 import com.ptit.datn.service.dto.AdminUserDTO;
 import com.ptit.datn.service.dto.UserDTO;
 import java.util.*;
@@ -53,7 +54,7 @@ public class UserMapper {
             user.setCccd(userDTO.getCccd());
             user.setAddress(userDTO.getAddress());
             user.setDob(userDTO.getDob());
-            user.setImageUrl(userDTO.getImageUrl());
+            user.setDigitalSignature(SignatureService.generateHashFromMultipartFile(userDTO.getImageDigitalSignature()));
             user.setCreatedBy(userDTO.getCreatedBy());
             user.setCreatedDate(userDTO.getCreatedDate());
             user.setLastModifiedBy(userDTO.getLastModifiedBy());
