@@ -18,6 +18,7 @@ import com.ptit.datn.service.dto.AdminUserDTO;
 import com.ptit.datn.service.dto.UserDTO;
 import com.ptit.datn.service.dto.UserNameDTO;
 import com.ptit.datn.utils.DataUtils;
+import com.ptit.datn.web.rest.AccountResource;
 import com.ptit.datn.web.rest.vm.LoginVM;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -34,9 +35,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import tech.jhipster.security.RandomUtil;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -210,7 +213,12 @@ public class UserService {
      * @return updated user.
      */
     public Optional<AdminUserDTO> updateUser(AdminUserDTO userDTO) throws Exception {
-        return Optional.of(userRepository.findById(userDTO.getId()))
+        String id = SecurityUtils.getCurrentUserLogin().orElse(null);
+        if (id == null) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
+        }
+
+        return Optional.of(userRepository.findById(Long.parseLong(id)))
             .filter(Optional::isPresent)
             .map(Optional::get)
             .map(user -> {
@@ -221,7 +229,10 @@ public class UserService {
                     user.setEmail(userDTO.getEmail().toLowerCase());
                 }
                 try {
-                    user.setDigitalSignature(SignatureService.generateHashFromMultipartFile(userDTO.getImageDigitalSignature()));
+                    user.setDigitalSignature(SignatureService
+                        .generateHashFromMultipartFile(userDTO.getImageDigitalSignature()));
+                    user.setSignImage((String)cloudinaryService
+                        .uploadFile(userDTO.getImageDigitalSignature()).get("url"));
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -345,24 +356,5 @@ public class UserService {
     public String getDigitalSignature() {
         Long id = Long.valueOf(SecurityUtils.getCurrentUserLogin().get());
         return userRepository.getDigitalSignatureByUserId(id);
-    }
-
-
-    /**
-     * Update basic information (first name, last name, email, language) for the current user.
-     */
-    public void updateUser(String fullName, String email, String langKey, String imageUrl) {
-        SecurityUtils.getCurrentUserLogin()
-            .flatMap(userRepository::findOneByLogin)
-            .ifPresent(user -> {
-                user.setFullName(fullName);
-                if (email != null) {
-                    user.setEmail(email.toLowerCase());
-                }
-                user.setLangKey(langKey);
-                user.setDigitalSignature(imageUrl);
-                userRepository.save(user);
-                log.debug("Changed Information for User: {}", user);
-            });
     }
 }
