@@ -3,6 +3,7 @@ package com.ptit.datn.web.rest;
 import com.ptit.datn.domain.User;
 import com.ptit.datn.dto.request.ForgotPasswordRequest;
 import com.ptit.datn.dto.response.ApiResponse;
+import com.ptit.datn.dto.response.UserResponse;
 import com.ptit.datn.exception.AppException;
 import com.ptit.datn.exception.ErrorCode;
 import com.ptit.datn.repository.UserRepository;
@@ -20,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -62,11 +64,17 @@ public class AccountResource {
     }
 
     @GetMapping("/account")
-    public AdminUserDTO getAccount() {
-        return userService
+    public ApiResponse<UserResponse> getAccount() {
+        UserResponse userResponse= userService
             .getUserWithAuthorities()
-            .map(AdminUserDTO::new)
+            .map(UserResponse::new)
             .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        return ApiResponse.<UserResponse>builder()
+            .code(HttpStatus.OK.value())
+            .message("Get account successfully")
+            .result(userResponse)
+            .build();
     }
 
     @PostMapping(path = "/account/change-password")
@@ -83,7 +91,6 @@ public class AccountResource {
         Optional<User> user = userService.requestPasswordReset(request.getMail());
         mailService.sendPasswordResetMail(user.orElseThrow());
         return ApiResponse.builder().message("The key to reset your password has been sent to your email.").build();
-
     }
 
     @PostMapping(path = "/account/reset-password/finish")
@@ -99,26 +106,18 @@ public class AccountResource {
         return ApiResponse.builder().message("Password reset successfully").build();
     }
 
-
-
-    @PostMapping("/account")
-    public void saveAccount(@Valid @RequestBody AdminUserDTO userDTO) {
-        String userLogin = SecurityUtils.getCurrentUserLogin()
-            .orElseThrow(() -> new AccountResourceException("Current user login not found"));
+    @PutMapping("/account/update")
+    public ApiResponse<AdminUserDTO> saveAccount(@Valid @RequestBody AdminUserDTO userDTO) throws Exception {
         Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail());
-        if (existingUser.isPresent() && (!existingUser.orElseThrow().getLogin().equalsIgnoreCase(userLogin))) {
-            throw new EmailAlreadyUsedException();
+        if (existingUser.isPresent() && (!existingUser.orElseThrow().getId().equals(userDTO.getId()))) {
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
         }
-        Optional<User> user = userRepository.findOneByLogin(userLogin);
-        if (!user.isPresent()) {
-            throw new AccountResourceException("User could not be found");
+        existingUser = userRepository.findOneByLogin(userDTO.getLogin().toLowerCase());
+        if (existingUser.isPresent() && (!existingUser.orElseThrow().getId().equals(userDTO.getId()))) {
+            throw new AppException(ErrorCode.USER_EXISTED);
         }
-//        userService.updateUser(
-//            userDTO.getFullName(),
-//            userDTO.getEmail(),
-//            userDTO.getLangKey(),
-//            userDTO.getImageUrl()
-//        );
+        Optional<AdminUserDTO> updatedUser = userService.updateUser(userDTO);
+        return ApiResponse.<AdminUserDTO>builder().message("User updated").result(updatedUser.orElse(null)).build();
     }
 
 

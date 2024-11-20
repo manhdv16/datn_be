@@ -1,11 +1,15 @@
 package com.ptit.datn.web.rest;
 
+import com.ptit.datn.dto.response.ApiResponse;
 import com.ptit.datn.service.SignatureService;
 import com.ptit.datn.service.UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -18,7 +22,7 @@ public class SignatureController {
 
     // API nhận file từ FE
     @PostMapping("/verify")
-    public boolean verifySignature(@RequestParam("file") MultipartFile file) {
+    public ApiResponse<Boolean> verifySignature(@RequestParam("file") MultipartFile file) {
         try {
             // Sinh giá trị hash từ file tải lên
             String uploadedHash = SignatureService.generateHashFromMultipartFile(file);
@@ -26,11 +30,18 @@ public class SignatureController {
             String storedHash = userService.getDigitalSignature();
 
             // So sánh hash
-            return SignatureService.compareHashes(uploadedHash, storedHash);
-
+            Boolean isMatch = SignatureService.compareHashes(uploadedHash, storedHash);
+            return ApiResponse.<Boolean>builder()
+                .message("Verify signature successfully")
+                .code(1000)
+                .result(isMatch)
+                .build();
         } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+            return ApiResponse.<Boolean>builder()
+                .message("Verify signature failed")
+                .code(9999)
+                .result(false)
+                .build();
         }
     }
 }

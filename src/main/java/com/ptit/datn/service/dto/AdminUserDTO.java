@@ -28,9 +28,9 @@ public class AdminUserDTO implements Serializable {
 
     private Long id;
 
-//    @NotBlank(message = "INVALID_USERNAME")
-//    @Pattern(regexp = Constants.LOGIN_REGEX, message = "INVALID_USERNAME")
-//    @Size(min = 1, max = 50, message = "INVALID_USERNAME")
+    @NotBlank(message = "INVALID_USERNAME")
+    @Pattern(regexp = Constants.LOGIN_REGEX, message = "INVALID_USERNAME")
+    @Size(min = 1, max = 50, message = "INVALID_USERNAME")
     private String login;
 
     @Size(max = 100)
