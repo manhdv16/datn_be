@@ -354,7 +354,7 @@ public class UserService {
     }
 
     public String getDigitalSignature() {
-        Long id = Long.valueOf(SecurityUtils.getCurrentUserLogin().get());
+        Long id = Long.valueOf(SecurityUtils.getCurrentUserLogin().orElseThrow());
         return userRepository.getDigitalSignatureByUserId(id);
     }
 }
