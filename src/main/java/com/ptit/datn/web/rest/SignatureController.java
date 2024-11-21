@@ -32,14 +32,14 @@ public class SignatureController {
             // So sánh hash
             Boolean isMatch = SignatureService.compareHashes(uploadedHash, storedHash);
             return ApiResponse.<Boolean>builder()
-                .message("Verify signature successfully")
-                .code(1000)
+                .code(isMatch ? 200 : 1001)
                 .result(isMatch)
+                .message(isMatch ? "Verify signature successfully" : "Verify signature failed")
                 .build();
         } catch (Exception e) {
             return ApiResponse.<Boolean>builder()
                 .message("Verify signature failed")
-                .code(9999)
+                .code(1001)
                 .result(false)
                 .build();
         }
