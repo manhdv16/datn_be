@@ -42,4 +42,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("select u.digitalSignature from User u where u.id = :id")
     String getDigitalSignatureByUserId(@Param("id") Long id);
+
+    @Query("select u from User u inner join UserBuilding ub on u.id = ub.userId where ub.buildingId = :id")
+    List<User> getManagerByBuilding(@Param("id") Long id);
 }

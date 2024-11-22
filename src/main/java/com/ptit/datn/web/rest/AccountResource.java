@@ -116,6 +116,7 @@ public class AccountResource {
         if (existingUser.isPresent() && (!existingUser.orElseThrow().getId().equals(userDTO.getId()))) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
+        userDTO.setId(null);
         Optional<AdminUserDTO> updatedUser = userService.updateUser(userDTO);
         return ApiResponse.<AdminUserDTO>builder().message("User updated").result(updatedUser.orElse(null)).build();
     }

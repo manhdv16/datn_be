@@ -1,8 +1,7 @@
 package com.ptit.datn.web.rest;
 
-import com.ptit.datn.config.Constants;
 import com.ptit.datn.domain.User;
-import com.ptit.datn.dto.request.ResponsibilityAssignmentRequest;
+import com.ptit.datn.dto.request.UserListRequest;
 import com.ptit.datn.dto.response.ApiResponse;
 import com.ptit.datn.dto.response.UserResponse;
 import com.ptit.datn.exception.AppException;
@@ -14,7 +13,6 @@ import com.ptit.datn.service.UserService;
 import com.ptit.datn.service.dto.AdminUserDTO;
 import com.ptit.datn.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,7 +28,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
 
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -83,29 +80,26 @@ public class UserResource {
         }
     }
 
-    @PutMapping({ "/users", "/users/{login}" })
+    @PutMapping({ "/users/{id}" })
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ApiResponse<AdminUserDTO> updateUser(
-        @PathVariable(name = "login", required = false) @Pattern(regexp = Constants.LOGIN_REGEX) String login,
-        @Valid @RequestBody AdminUserDTO userDTO
-    ) throws Exception {
+    public ApiResponse<AdminUserDTO> updateUser(@PathVariable("id") Long id, @ModelAttribute @Valid AdminUserDTO userDTO) throws Exception {
         log.debug("REST request to update User : {}", userDTO);
         Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail());
-        if (existingUser.isPresent() && (!existingUser.orElseThrow().getId().equals(userDTO.getId()))) {
+        if (existingUser.isPresent() && (!existingUser.orElseThrow().getId().equals(id))) {
             throw new AppException(ErrorCode.EMAIL_EXISTED);
         }
         existingUser = userRepository.findOneByLogin(userDTO.getLogin().toLowerCase());
-        if (existingUser.isPresent() && (!existingUser.orElseThrow().getId().equals(userDTO.getId()))) {
+        if (existingUser.isPresent() && (!existingUser.orElseThrow().getId().equals(id))) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
+        userDTO.setId(id);
         Optional<AdminUserDTO> updatedUser = userService.updateUser(userDTO);
-
         return ApiResponse.<AdminUserDTO>builder().message("User updated").result(updatedUser.orElse(null)).build();
     }
 
-    @PutMapping("/assign-users-responsible-by-building-id/{id}")
+    @PostMapping("/assign-users-responsible-by-building-id/{id}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ApiResponse<String> assignUserResponsibilityBuilding(@PathVariable("id") Long buildingId, @RequestBody ResponsibilityAssignmentRequest request) {
+    public ApiResponse<String> assignUserResponsibilityBuilding(@PathVariable("id") Long buildingId, @RequestBody UserListRequest request) {
         return ApiResponse.<String>builder()
             .result(userService.assignResponsible(buildingId, request))
             .build();
@@ -120,6 +114,14 @@ public class UserResource {
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
+
+    @GetMapping("/manager/by-building/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
+    public ResponseEntity<List<AdminUserDTO>> getManagerByBuilding(@PathVariable("id") Long id) {
+        List<AdminUserDTO> list = userService.getManagerByBuilding(id);
+        return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+
 
     @GetMapping("/users")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")

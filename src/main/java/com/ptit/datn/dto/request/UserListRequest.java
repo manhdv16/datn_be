@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ResponsibilityAssignmentRequest {
+public class UserListRequest {
     @NotNull
     List<Long> listUserId;
 }

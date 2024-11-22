@@ -2,6 +2,8 @@ package com.ptit.datn.utils;
 
 import com.ptit.datn.constants.Constants;
 import jakarta.servlet.http.HttpServletRequest;
+
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -32,6 +34,20 @@ public class Translator {
         try {
             return messageSource.getMessage(msgCode, null, resolveLocale(request));
         } catch (Exception ex) {
+            log.error(ex.getMessage(), ex);
+            return "";
+        }
+    }
+
+    public static String getMessage(String msgCode, Object... args) {
+        if(RequestContextHolder.getRequestAttributes() == null) {
+            return messageSource.getMessage(msgCode, null, new Locale(Constants.VI));
+        }
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        try {
+            String message = messageSource.getMessage(msgCode, null, resolveLocale(request));
+            return MessageFormat.format(message, args);
+        }catch (Exception ex){
             log.error(ex.getMessage(), ex);
             return "";
         }

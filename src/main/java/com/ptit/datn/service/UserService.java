@@ -5,7 +5,7 @@ import com.ptit.datn.config.Constants;
 import com.ptit.datn.domain.Authority;
 import com.ptit.datn.domain.User;
 import com.ptit.datn.domain.UserBuilding;
-import com.ptit.datn.dto.request.ResponsibilityAssignmentRequest;
+import com.ptit.datn.dto.request.UserListRequest;
 import com.ptit.datn.exception.AppException;
 import com.ptit.datn.exception.ErrorCode;
 import com.ptit.datn.repository.AuthorityRepository;
@@ -18,7 +18,6 @@ import com.ptit.datn.service.dto.AdminUserDTO;
 import com.ptit.datn.service.dto.UserDTO;
 import com.ptit.datn.service.dto.UserNameDTO;
 import com.ptit.datn.utils.DataUtils;
-import com.ptit.datn.web.rest.AccountResource;
 import com.ptit.datn.web.rest.vm.LoginVM;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -35,11 +34,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 import tech.jhipster.security.RandomUtil;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -62,6 +59,7 @@ public class UserService {
     AuthenticationManagerBuilder authenticationManagerBuilder;
     UserBuildingRepository userBuildingRepository;
     CloudinaryService cloudinaryService;
+    BuildingService buildingService;
 
     public Optional<User> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
@@ -213,21 +211,24 @@ public class UserService {
      * @return updated user.
      */
     public Optional<AdminUserDTO> updateUser(AdminUserDTO userDTO) throws Exception {
-        String id = SecurityUtils.getCurrentUserLogin().orElse(null);
-        if (id == null) {
-            throw new AppException(ErrorCode.INVALID_TOKEN);
+        Long id;
+        if (DataUtils.isNullOrEmpty(userDTO.getId())){
+            String strId = SecurityUtils.getCurrentUserLogin().orElse(null);
+            if (DataUtils.isNullOrEmpty(strId)) {
+                throw new AppException(ErrorCode.INVALID_TOKEN);
+            }
+            id = Long.parseLong(strId);
+        } else {
+            id = userDTO.getId();
         }
-
-        return Optional.of(userRepository.findById(Long.parseLong(id)))
+        return Optional.of(userRepository.findById(id))
             .filter(Optional::isPresent)
             .map(Optional::get)
             .map(user -> {
                 user.setLogin(userDTO.getLogin().toLowerCase());
                 user.setFullName(userDTO.getFullName());
                 user.setPhoneNumber(userDTO.getPhoneNumber());
-                if (userDTO.getEmail() != null) {
-                    user.setEmail(userDTO.getEmail().toLowerCase());
-                }
+                user.setEmail(userDTO.getEmail().toLowerCase());
                 try {
                     user.setDigitalSignature(SignatureService
                         .generateHashFromMultipartFile(userDTO.getImageDigitalSignature()));
@@ -236,8 +237,8 @@ public class UserService {
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-                user.setActivated(userDTO.isActivated());
-                user.setLangKey(userDTO.getLangKey());
+//                user.setActivated(userDTO.isActivated());
+//                user.setLangKey(userDTO.getLangKey());
                 Set<Authority> managedAuthorities = user.getAuthorities();
                 managedAuthorities.clear();
                 userDTO
@@ -286,6 +287,11 @@ public class UserService {
     @Transactional(readOnly = true)
     public Page<AdminUserDTO> getAllManagers(Pageable pageable) {
         return userRepository.findAllByRole(pageable).map(AdminUserDTO::new);
+    }
+
+    @Transactional(readOnly = true)
+    public List<AdminUserDTO> getManagerByBuilding(Long id) {
+        return userRepository.getManagerByBuilding(id).stream().map(AdminUserDTO::new).toList();
     }
 
     @Transactional(readOnly = true)
@@ -339,10 +345,21 @@ public class UserService {
         }
     }
 
-    public String assignResponsible(Long buildingId, ResponsibilityAssignmentRequest request) {
+    public String assignResponsible(Long buildingId, UserListRequest request) {
         if (DataUtils.isNullOrEmpty(request)) {
             throw new AppException(ErrorCode.EMPTY_REQUEST);
         }
+        // check buildId exists
+        // check number of user manager in building
+        if (request.getListUserId().size() > Constants.MAX_MANAGER) {
+            throw new AppException(ErrorCode.NUMBER_MANAGER_OF_BUILDING,Constants.MAX_MANAGER);
+        }
+        // check number of user manager in building
+        Integer numManager = userBuildingRepository.countUserManagerByBuildingId(buildingId);
+        if (request.getListUserId().size() > Constants.MAX_MANAGER-numManager) {
+            throw new AppException(ErrorCode.NUMBER_MANAGER_OF_BUILDING, Constants.MAX_MANAGER);
+        }
+
         request.getListUserId()
             .forEach(userId -> {
                 UserBuilding userBuilding = new UserBuilding();
