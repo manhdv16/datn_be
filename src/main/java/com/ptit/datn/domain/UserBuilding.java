@@ -5,7 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "jhi_user_building")
+@Table(name = "jhi_user_building", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"user_id", "building_id"})
+})
 @Getter
 @Setter
 public class UserBuilding {

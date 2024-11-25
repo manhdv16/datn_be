@@ -290,6 +290,12 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    public Page<AdminUserDTO> getAllManagerNotAssignedBuildingId(Pageable pageable, Long buildingId) {
+        return userRepository.findAllManagerNotAssignedBuildingId(pageable, buildingId).map(AdminUserDTO::new);
+    }
+
+
+    @Transactional(readOnly = true)
     public List<AdminUserDTO> getManagerByBuilding(Long id) {
         return userRepository.getManagerByBuilding(id).stream().map(AdminUserDTO::new).toList();
     }
@@ -373,5 +379,13 @@ public class UserService {
     public String getDigitalSignature() {
         Long id = Long.valueOf(SecurityUtils.getCurrentUserLogin().orElseThrow());
         return userRepository.getDigitalSignatureByUserId(id);
+    }
+
+    public void removeAssignedManager(Long buildingId, Long userId) {
+        Integer count = userBuildingRepository.countUserManagerByBuildingIdAndUserId(buildingId, userId);
+        if (count == 0) {
+            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+        }
+        userBuildingRepository.deleteByBuildingIdAndUserId(buildingId, userId);
     }
 }

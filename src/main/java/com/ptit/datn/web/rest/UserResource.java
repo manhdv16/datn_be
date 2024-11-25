@@ -1,5 +1,6 @@
 package com.ptit.datn.web.rest;
 
+import com.cloudinary.Api;
 import com.ptit.datn.domain.User;
 import com.ptit.datn.dto.request.UserListRequest;
 import com.ptit.datn.dto.response.ApiResponse;
@@ -121,6 +122,25 @@ public class UserResource {
         List<AdminUserDTO> list = userService.getManagerByBuilding(id);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
+
+    @DeleteMapping("/remove-assigned-manager/{buildingId}/{userId}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
+    public ApiResponse<Void> removeAssignedManager(@PathVariable("buildingId") Long buildingId, @PathVariable("userId") Long userId) {
+        log.debug("REST request to delete assigned of manager: {}", buildingId);
+        userService.removeAssignedManager(buildingId, userId);
+        return ApiResponse.<Void>builder().message("Assigned manager deleted").build();
+    }
+
+    @GetMapping("/get-all-managers-not-assigned/{buildingId}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
+    public ResponseEntity<List<AdminUserDTO>> getAllManagerNotAssignedBuildingId(Pageable pageable, @PathVariable("buildingId") Long buildingId) {
+        log.debug("REST request to get all managers not assigned building by {} for an admin", buildingId);
+
+        final Page<AdminUserDTO> page = userService.getAllManagerNotAssignedBuildingId(pageable, buildingId);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
 
 
     @GetMapping("/users")
