@@ -45,4 +45,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("select u from User u inner join UserBuilding ub on u.id = ub.userId where ub.buildingId = :id")
     List<User> getManagerByBuilding(@Param("id") Long id);
+
+    @Query("SELECT u FROM User u INNER JOIN UserAuthority ua ON u.id = ua.userId LEFT JOIN UserBuilding ub ON u.id = ub.userId AND ub.buildingId = :buildingId WHERE ub.userId IS NULL AND ua.authorityName = 'ROLE_MANAGER'")
+    Page<User> findAllManagerNotAssignedBuildingId(Pageable pageable,@Param("buildingId") Long buildingId);
+
 }
