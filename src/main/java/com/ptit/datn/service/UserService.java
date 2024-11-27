@@ -161,7 +161,8 @@ public class UserService {
         return new UserNameDTO(
             user.getId(),
             user.getLogin(),
-            user.getFullName()
+            user.getFullName(),
+            user.getSignImage()
         );
     }
 

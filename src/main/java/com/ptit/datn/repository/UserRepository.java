@@ -4,6 +4,8 @@ import com.ptit.datn.domain.User;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+
+import com.ptit.datn.service.dto.UserNameDTO;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,6 +24,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findOneByEmailIgnoreCase(String email);
     Optional<User> findOneByLogin(String login);
     Optional<User> findOneById(Long id);
+
+    @Query("""
+        select new com.ptit.datn.service.dto.UserNameDTO(u.id, u.login, u.fullName, u.signImage) from User u
+        join ContractSignatureEntity c on c.userId = u.id where c.contractId = :contractId and u.activated = true
+    """)
+    List<UserNameDTO> getUserWithSignImageByContractId(@Param("contractId") Long contractId);
 
     @Query("select u.id from User u where u.login = :login and u.activated = :activated")
     Long getIdByLoginAndActivated(@Param("login") String login, @Param("activated") Boolean activated);

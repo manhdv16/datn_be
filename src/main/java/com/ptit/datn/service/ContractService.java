@@ -2,21 +2,13 @@ package com.ptit.datn.service;
 
 import com.cloudinary.http44.api.Response;
 import com.lowagie.text.pdf.BaseFont;
-import com.ptit.datn.domain.Building;
-import com.ptit.datn.domain.ColumnPropertyEntity;
-import com.ptit.datn.domain.ContractEntity;
-import com.ptit.datn.domain.ContractOfficeEntity;
+import com.ptit.datn.cloudinary.CloudinaryService;
+import com.ptit.datn.domain.*;
 import com.ptit.datn.exception.AppException;
 import com.ptit.datn.exception.ErrorCode;
-import com.ptit.datn.repository.ColumnPropertyRepository;
-import com.ptit.datn.repository.ContractOfficeRepository;
-import com.ptit.datn.repository.ContractRepository;
-import com.ptit.datn.repository.OfficeRepository;
+import com.ptit.datn.repository.*;
 import com.ptit.datn.security.SecurityUtils;
-import com.ptit.datn.service.dto.BuildingDTO;
-import com.ptit.datn.service.dto.ContractDTO;
-import com.ptit.datn.service.dto.FilterDTO;
-import com.ptit.datn.service.dto.OfficeDTO;
+import com.ptit.datn.service.dto.*;
 import com.ptit.datn.service.dto.model.PageFilterInput;
 import com.ptit.datn.service.mapper.ContractMapper;
 import com.ptit.datn.utils.Constants;
@@ -39,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ResourceUtils;
+import org.springframework.util.StringUtils;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.xhtmlrenderer.pdf.ITextRenderer;
@@ -47,9 +40,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -62,10 +53,13 @@ public class ContractService {
     private final OfficeService officeService;
     private final OfficeRepository officeRepository;
     private final UserService userService;
+    private final UserRepository userRepository;
     private final ColumnPropertyRepository columnPropertyRepository;
     private final ContractMapper contractMapper;
     private final TemplateEngine templateEngine;
     private final ContractOfficeRepository contractOfficeRepository;
+    private final ContractSignatureRepository contractSignatureRepository;
+    private CloudinaryService cloudinaryService;
     public Page<ContractDTO> getAll(PageFilterInput<List<FilterDTO>> input){
         Pageable pageable = Utils.getPageable(input);
         Map<String, ColumnPropertyEntity> columnMap = columnPropertyRepository.findByEntityTypeAndIsActiveTrueMap(
@@ -146,6 +140,16 @@ public class ContractService {
     public void exportPdf(OutputStream outputStream, Long id) throws IOException {
         ContractDTO contractDTO = getDetail(id);
 
+        List<UserNameDTO> signers = userRepository.getUserWithSignImageByContractId(id);
+        signers.forEach(user -> {
+            try {
+                user.setBase64Image(cloudinaryService.getBase64FromPath(user.getImageSignature()));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            user.setBase64Image("");
+        });
+
         Context context = new Context();
         context.setVariable("contract", contractDTO);
         LocalDate currentDate = LocalDate.now();
@@ -163,11 +167,35 @@ public class ContractService {
         long totalPrice = contractDTO.getOffices().stream().mapToLong(office -> office.getPrice().longValue()*office.getArea().longValue()).sum();
         context.setVariable("totalPrice", totalPrice);
 
+        if (!CollectionUtils.isEmpty(signers)) {
+            context.setVariable("approvalUsers", signers);
+            int numberOfSignatureTable = (int) Math.ceil(signers.size() / 4.0); // Always round up
+            List<List<UserNameDTO>> signatureTable = new ArrayList<>(numberOfSignatureTable);
+
+            for (int i = 0; i < signers.size(); i++) {
+                if (i % 4 == 0) {
+                    signatureTable.add(new ArrayList<>(4));
+                }
+                signatureTable.get(i / 4).add(signers.get(i));
+            }
+
+            context.setVariable("signatureTable", signatureTable);
+        }
+
         String htmlContent = templateEngine.process("contract", context);
             ITextRenderer renderer = new ITextRenderer();
             renderer.getFontResolver().addFont(ResourceUtils.getFile("times.ttf").getPath(), BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
             renderer.setDocumentFromString(htmlContent);
             renderer.layout();
             renderer.createPDF(outputStream);
+    }
+
+    public void saveHistorySigner(Long contractId, Long userId){
+        ContractSignatureEntity contractSignatureEntity = new ContractSignatureEntity();
+        contractSignatureEntity.setContractId(contractId);
+        contractSignatureEntity.setUserId(userId);
+        int index = contractSignatureRepository.countStep();
+        contractSignatureEntity.setStep(index+1);
+        contractSignatureRepository.save(contractSignatureEntity);
     }
 }
