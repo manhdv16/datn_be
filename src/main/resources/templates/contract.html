@@ -612,15 +612,15 @@
         </th>
       </tr>
       </thead>
-      <tbody style="text-align: center">
+      <tbody style="width: auto; text-align: center">
       <tr>
         <td th:each="row, iter : ${approvalUsers}">
           <img
-            th:if="${!#strings.isEmpty(row.getBase64Image())}"
-            style="width: 100%"
-            th:src="${row.getBase64Image()}"
+            th:if="${!#strings.isEmpty(row.getImageSignature())}"
+            style="width: 60%; max-width: 100%; height: auto;"
+            th:src="${row.getImageSignature()}"
           />
-          <span th:if="${#strings.isEmpty(row.getBase64Image())}">[Đã ký]</span>
+          <span th:if="${#strings.isEmpty(row.getImageSignature())}">[Đã ký]</span>
         </td>
       </tr>
       <tr>

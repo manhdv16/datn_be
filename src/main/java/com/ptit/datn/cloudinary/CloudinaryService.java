@@ -57,35 +57,4 @@ public class CloudinaryService {
             throw new AppException(ErrorCode.URL_NOT_FOUND);
         }
     }
-
-    public String getBase64FromPath(String imagePath) {
-        try {
-            // Tạo URL đầy đủ từ path
-//            String imageUrl = cloudinary.url().secure(true).generate(imagePath);
-
-            // Tải ảnh từ URL
-            InputStream inputStream = new URL(imagePath).openStream();
-            byte[] imageBytes = inputStream.readAllBytes();
-
-            // Chuyển đổi thành Base64
-            return Base64.getEncoder().encodeToString(imageBytes);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public String convertImageToBase64(String imagePath) throws Exception {
-        // Download image
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<byte[]> response = restTemplate.getForEntity(imagePath, byte[].class);
-
-        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-            // Convert image to Base64
-            byte[] imageBytes = response.getBody();
-            return Base64.getEncoder().encodeToString(imageBytes);
-        } else {
-            return null;
-        }
-    }
 }

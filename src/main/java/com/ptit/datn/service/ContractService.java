@@ -142,12 +142,8 @@ public class ContractService {
 
         List<UserNameDTO> signers = userRepository.getUserWithSignImageByContractId(id);
         signers.forEach(user -> {
-            try {
-                user.setBase64Image(cloudinaryService.getBase64FromPath(user.getImageSignature()));
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            user.setBase64Image("");
+            String resizedImg = addResizeParameters(user.getImageSignature(), 170, 140, "c_scale");
+            user.setImageSignature(resizedImg);
         });
 
         Context context = new Context();
@@ -188,6 +184,19 @@ public class ContractService {
             renderer.setDocumentFromString(htmlContent);
             renderer.layout();
             renderer.createPDF(outputStream);
+    }
+
+    private String generateResizedImageUrl(String originalUrl, int width, int height) {
+        return originalUrl.replace("/upload/", "/upload/w_" + width + ",h_" + height + ",c_fit/");
+    }
+
+    private String addResizeParameters(String originalUrl, int width, int height, String cropMode) {
+        if (!originalUrl.contains("/upload/")) {
+            throw new IllegalArgumentException("URL không hợp lệ, thiếu '/upload/'.");
+        }
+        // Thêm tham số resize vào sau "/upload/"
+        String resizeParams = String.format("w_%d,h_%d,%s/", width, height, cropMode);
+        return originalUrl.replace("/upload/", "/upload/" + resizeParams);
     }
 
     public void saveHistorySigner(Long contractId, Long userId){
