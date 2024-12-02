@@ -7,7 +7,7 @@ import java.sql.Timestamp;
 
 @Entity
 @Table(name = "contract_signature", schema = "defaultdb", catalog = "")
-public class ContractSignatureEntity extends AbstractAuditingEntity<Long> implements Serializable {
+public class ContractSignatureEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id")

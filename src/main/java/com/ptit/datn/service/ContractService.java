@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.xhtmlrenderer.pdf.ITextRenderer;
@@ -39,7 +40,10 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,7 +54,6 @@ public class ContractService {
     private static final Logger log = LoggerFactory.getLogger(ContractService.class);
 
     private final ContractRepository contractRepository;
-    private final OfficeService officeService;
     private final OfficeRepository officeRepository;
     private final UserService userService;
     private final UserRepository userRepository;
@@ -186,10 +189,6 @@ public class ContractService {
             renderer.createPDF(outputStream);
     }
 
-    private String generateResizedImageUrl(String originalUrl, int width, int height) {
-        return originalUrl.replace("/upload/", "/upload/w_" + width + ",h_" + height + ",c_fit/");
-    }
-
     private String addResizeParameters(String originalUrl, int width, int height, String cropMode) {
         if (!originalUrl.contains("/upload/")) {
             throw new IllegalArgumentException("URL không hợp lệ, thiếu '/upload/'.");
@@ -199,10 +198,23 @@ public class ContractService {
         return originalUrl.replace("/upload/", "/upload/" + resizeParams);
     }
 
-    public void saveHistorySigner(Long contractId, Long userId){
+    public void verifySigner(Long contractId, MultipartFile file){
+        // verify
+        // Sinh giá trị hash từ file tải lên
+        String uploadedHash = SignatureService.generateHashFromMultipartFile(file);
+        String storedHash = userService.getDigitalSignature();
+        // So sánh hash
+        Boolean isMatch = SignatureService.compareHashes(uploadedHash, storedHash);
+
+        if(!isMatch)
+            throw new AppException(ErrorCode.BAD_VERIFY);
+
+        Long userId = Long.valueOf(SecurityUtils.getCurrentUserLogin().orElseThrow());
+
         ContractSignatureEntity contractSignatureEntity = new ContractSignatureEntity();
         contractSignatureEntity.setContractId(contractId);
         contractSignatureEntity.setUserId(userId);
+        contractSignatureEntity.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
         int index = contractSignatureRepository.countStep();
         contractSignatureEntity.setStep(index+1);
         contractSignatureRepository.save(contractSignatureEntity);
