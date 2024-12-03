@@ -22,6 +22,9 @@ public class Request extends AbstractAuditingEntity<Long> {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
+    @Column(name = "manager_id")
+    private Long managerId;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "request_office",
