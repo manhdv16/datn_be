@@ -6,8 +6,10 @@ import com.ptit.datn.domain.BuildingImage;
 import com.ptit.datn.domain.Image;
 import com.ptit.datn.domain.key.BuildingImageId;
 import com.ptit.datn.dto.request.BuildingCreateRequest;
+import com.ptit.datn.dto.request.BuildingUpdateRequest;
 import com.ptit.datn.repository.*;
 import com.ptit.datn.service.dto.BuildingDTO;
+import com.ptit.datn.service.dto.ImageDTO;
 import com.ptit.datn.service.dto.OfficeDTO;
 import jakarta.persistence.RollbackException;
 import jakarta.persistence.criteria.Join;
@@ -111,8 +113,9 @@ public class BuildingService {
         Page<Building> buildings = buildingRepository.findAll(spec, pageable);
         Page<BuildingDTO> buildingDTOS = buildings.map(BuildingDTO::new);
         buildingDTOS.forEach(buildingDTO -> {
-            buildingDTO.setImageUrls(buildingImageRepository.findAllByIdBuildingId(buildingDTO.getId()).stream()
-                    .map(buildingImage -> imageRepository.findById(buildingImage.getId().getImageId()).orElseThrow().getUrl())
+            buildingDTO.setImages(buildingImageRepository.findAllByIdBuildingId(buildingDTO.getId()).stream()
+                    .map(buildingImage -> imageRepository.findById(buildingImage.getId().getImageId()).orElseThrow())
+                    .map(ImageDTO::new)
                     .collect(Collectors.toList()));
         });
         return buildingDTOS;
@@ -128,8 +131,9 @@ public class BuildingService {
         }
         BuildingDTO buildingDTO = new BuildingDTO(buildingOptional.orElseThrow());
         buildingDTO.setOfficeDTOS(officeRepository.findAllByBuildingId(id).stream().map(OfficeDTO::new).collect(Collectors.toList()));
-        buildingDTO.setImageUrls(buildingImageRepository.findAllByIdBuildingId(id).stream()
-                .map(buildingImage -> imageRepository.findById(buildingImage.getId().getImageId()).orElseThrow().getUrl())
+        buildingDTO.setImages(buildingImageRepository.findAllByIdBuildingId(id).stream()
+                .map(buildingImage -> imageRepository.findById(buildingImage.getId().getImageId()).orElseThrow())
+                .map(ImageDTO::new)
                 .collect(Collectors.toList()));
         return buildingDTO;
     }
@@ -154,7 +158,7 @@ public class BuildingService {
 
         Building buildingResult = buildingRepository.save(building);
 
-        List<String> imageUrls = new ArrayList<>();
+        List<ImageDTO> imageDTOs = new ArrayList<>();
         List<Image> addedImages = new ArrayList<>();
         try {
             Arrays.stream(images).toList().forEach(image -> {
@@ -162,9 +166,10 @@ public class BuildingService {
                 Image img = new Image();
                 img.setUrl((String) imageMap.get("url"));
                 img.setPublicId((String) imageMap.get("public_id"));
-                addedImages.add(imageRepository.save(img));
+                Image addedImage = imageRepository.save(img);
+                addedImages.add(addedImage);
 
-                imageUrls.add(img.getUrl());
+                imageDTOs.add(new ImageDTO(addedImage));
 
                 BuildingImage buildingImage = new BuildingImage();
                 buildingImage.setId(new BuildingImageId(buildingResult.getId(), img.getId()));
@@ -181,27 +186,68 @@ public class BuildingService {
         }
 
         BuildingDTO buildingDTO = new BuildingDTO(buildingResult);
-        buildingDTO.setImageUrls(imageUrls);
+
+        buildingDTO.setImages(imageDTOs);
         return buildingDTO;
     }
 
-    public BuildingDTO updateBuilding(BuildingDTO buildingDTO) {
+    public BuildingDTO updateBuilding(BuildingUpdateRequest buildingUpdateRequest, MultipartFile[] newImages) {
         log.info("Update building");
-        Building building = buildingRepository.findById(buildingDTO.getId()).orElseThrow();
-        building.setName(buildingDTO.getName());
-        building.setAddress(buildingDTO.getAddress());
-        building.setWard(wardRepository.findById(buildingDTO.getWardId()).orElseThrow());
-        building.setNumberOfFloor(buildingDTO.getNumberOfFloor());
-        building.setNumberOfBasement(buildingDTO.getNumberOfBasement());
-        building.setPricePerM2(buildingDTO.getPricePerM2());
-        building.setFloorHeight(buildingDTO.getFloorHeight());
-        building.setFloorArea(buildingDTO.getFloorArea());
-        building.setFacilities(buildingDTO.getFacilities());
-        building.setCarParkingFee(buildingDTO.getCarParkingFee());
-        building.setMotorbikeParkingFee(buildingDTO.getMotorbikeParkingFee());
-        building.setSecurityFee(buildingDTO.getSecurityFee());
-        building.setCleaningFee(buildingDTO.getCleaningFee());
-        building.setNote(buildingDTO.getNote());
+        Building building = buildingRepository.findById(buildingUpdateRequest.getId()).orElseThrow();
+        building.setName(buildingUpdateRequest.getName());
+        building.setAddress(buildingUpdateRequest.getAddress());
+        building.setWard(wardRepository.findById(buildingUpdateRequest.getWardId()).orElseThrow());
+        building.setNumberOfFloor(buildingUpdateRequest.getNumberOfFloor());
+        building.setNumberOfBasement(buildingUpdateRequest.getNumberOfBasement());
+        building.setPricePerM2(buildingUpdateRequest.getPricePerM2());
+        building.setFloorHeight(buildingUpdateRequest.getFloorHeight());
+        building.setFloorArea(buildingUpdateRequest.getFloorArea());
+        building.setFacilities(buildingUpdateRequest.getFacilities());
+        building.setCarParkingFee(buildingUpdateRequest.getCarParkingFee());
+        building.setMotorbikeParkingFee(buildingUpdateRequest.getMotorbikeParkingFee());
+        building.setSecurityFee(buildingUpdateRequest.getSecurityFee());
+        building.setCleaningFee(buildingUpdateRequest.getCleaningFee());
+        building.setNote(buildingUpdateRequest.getNote());
+
+        // Delete images
+        if (buildingUpdateRequest.getDeletedImages() != null && !buildingUpdateRequest.getDeletedImages().isEmpty()) {
+            buildingUpdateRequest.getDeletedImages().forEach(imageId -> {
+                Image image = imageRepository.findById(imageId).orElseThrow();
+                cloudinaryService.deleteFile(image.getPublicId());
+                imageRepository.delete(image);
+                buildingImageRepository.deleteById(new BuildingImageId(building.getId(), imageId));
+            });
+        }
+
+        // Add new images
+        if (newImages != null && newImages.length > 0) {
+            List<ImageDTO> imageDTOs = new ArrayList<>();
+            List<Image> addedImages = new ArrayList<>();
+            try {
+                Arrays.stream(newImages).toList().forEach(image -> {
+                    Map imageMap = cloudinaryService.uploadFile(image);
+                    Image img = new Image();
+                    img.setUrl((String) imageMap.get("url"));
+                    img.setPublicId((String) imageMap.get("public_id"));
+                    Image addedImage = imageRepository.save(img);
+                    addedImages.add(addedImage);
+
+                    imageDTOs.add(new ImageDTO(addedImage));
+
+                    BuildingImage buildingImage = new BuildingImage();
+                    buildingImage.setId(new BuildingImageId(building.getId(), img.getId()));
+                    buildingImageRepository.save(buildingImage);
+                });
+            } catch (Exception e) {
+                log.error("Error when upload image: " + e.getMessage());
+                addedImages.forEach(image -> {
+                    cloudinaryService.deleteFile(image.getPublicId());
+                    imageRepository.delete(image);
+                });
+                throw new RollbackException("Error when upload image");
+            }
+        }
+
         return new BuildingDTO(buildingRepository.save(building));
     }
 

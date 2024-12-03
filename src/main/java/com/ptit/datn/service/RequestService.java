@@ -9,6 +9,8 @@ import com.ptit.datn.repository.BuildingRepository;
 import com.ptit.datn.repository.OfficeRepository;
 import com.ptit.datn.repository.RequestRepository;
 import com.ptit.datn.repository.UserRepository;
+import com.ptit.datn.security.AuthoritiesConstants;
+import com.ptit.datn.security.SecurityUtils;
 import com.ptit.datn.service.dto.BuildingDTO;
 import com.ptit.datn.service.dto.OfficeDTO;
 import com.ptit.datn.service.dto.RequestDTO;
@@ -51,32 +53,42 @@ public class RequestService {
      */
     public RequestDTO createRequest(RequestDTO requestDTO) {
         Request request = new Request();
-        request.setUserId(requestDTO.getUserId());
         request.setBuildingId(requestDTO.getBuildingId());
         request.setDate(requestDTO.getDate());
         request.setTime(requestDTO.getTime());
         request.setNote(requestDTO.getNote());
         request.setStatus(RequestStatus.PENDING); // When user create a request, the status is PENDING
 
-        // If admin create a request, the status is ACCEPTED and the offices are set
-        if (requestDTO.getOfficeIds() != null && !requestDTO.getOfficeIds().isEmpty()) {
-            List<Office> officeList = officeRepository.findAllByIds(requestDTO.getOfficeIds());
-            if (officeList.size() != requestDTO.getOfficeIds().size()) {
-                throw new RollbackException("Some offices are not found");
-            }
-            officeList.forEach(office -> {
-                if (office.getStatus() != 0)
-                    throw new RollbackException("Office is not available");
+        List<Office> officeList = officeRepository.findAllByIds(requestDTO.getOfficeIds());
+        if (officeList.size() != requestDTO.getOfficeIds().size()) {
+            throw new RollbackException("Văn phòng không tồn tại");
+        }
 
-                request.getOffices().add(office);
-            });
+        officeList.forEach(office -> {
+            if (office.getStatus() != 0)
+                throw new RollbackException("Tồn tại văn phòng không thể thuê");
+
+            request.getOffices().add(office);
+        });
+
+        User author = userRepository.findById(
+            Long.valueOf(SecurityUtils.getCurrentUserLogin()
+                .orElseThrow(() -> new RuntimeException("Thông tin người gửi không hợp lệ"))))
+                .orElseThrow(() -> new RuntimeException("Người gửi không tồn tại"));
+
+        // If the author is a manager or an admin
+        if(author.getAuthorities()
+            .stream()
+            .anyMatch(authority -> authority.getName().equals(AuthoritiesConstants.ADMIN)
+                || authority.getName().equals(AuthoritiesConstants.MANAGER))) {
+            request.setManagerId(author.getId());
             request.setStatus(RequestStatus.ACCEPTED);
         }
-        // If user create a request, the status is PENDING and the offices are not set
+        // If the author is a user
         else {
+            request.setUserId(author.getId());
             request.setStatus(RequestStatus.PENDING);
         }
-
         RequestDTO requestDTO_result = new RequestDTO(requestRepository.save(request));
         requestDTO_result.setOfficeIds(requestDTO.getOfficeIds());
 
