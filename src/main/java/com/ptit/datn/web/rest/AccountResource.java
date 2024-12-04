@@ -107,7 +107,7 @@ public class AccountResource {
     }
 
     @PutMapping("/account/update")
-    public ApiResponse<AdminUserDTO> saveAccount(@Valid @RequestBody AdminUserDTO userDTO) throws Exception {
+    public ApiResponse<AdminUserDTO> saveAccount(@Valid @ModelAttribute AdminUserDTO userDTO) throws Exception {
         Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail());
         if (existingUser.isPresent() && (!existingUser.orElseThrow().getId().equals(userDTO.getId()))) {
             throw new AppException(ErrorCode.EMAIL_EXISTED);
