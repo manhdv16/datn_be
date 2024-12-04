@@ -352,7 +352,7 @@ public class UserService {
         } catch (BadCredentialsException e) {
             return null;
         }
-    }./b
+    }
 
     public String assignResponsible(Long buildingId, UserListRequest request) {
         if (DataUtils.isNullOrEmpty(request)) {
