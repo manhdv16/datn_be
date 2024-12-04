@@ -92,14 +92,35 @@ public class ContractService {
         return result;
     }
 
+    private String generateContractCode(String fullname){
+        LocalDate currentDate = LocalDate.now();
+        int year = currentDate.getYear();
+        int month = currentDate.getMonthValue();
+        // lay so hop dong da tao trong ngay
+        int index = contractRepository.countContractPerDay();
+        // chuan hoa ten khach hang
+        String convertedName = "";
+        if(StringUtils.hasText(fullname)){
+            convertedName += Arrays.stream(fullname.trim().split("\\s+"))
+                .map(word -> word.substring(0, 1).toUpperCase())
+                .collect(Collectors.joining(""));
+        }
+        return "MHD" + convertedName + String.format("%02d%02d%04d", year % 100, month, index+1);
+    }
+
     @Transactional
     public Long saveContract(ContractDTO contractDTO){
         log.info("save contract by {}", SecurityUtils.getCurrentUserLogin());
         ContractEntity contractSave = contractMapper.toEntity(contractDTO);
         contractSave.setStatus(Constants.ContractStatus.DRAFT);
+
+        UserNameDTO tenant = null;
         if(contractDTO.getRequest() != null) {
             contractSave.setTenantId(contractDTO.getRequest().getTenantId());
+            tenant = userService.getUserName(contractDTO.getRequest().getTenantId());
         }
+        String contractCode = generateContractCode(tenant != null ? tenant.getFullName() : "");
+        contractSave.setCode(contractCode);
         contractSave = contractRepository.save(contractSave);
 
         List<ContractOfficeEntity> contractOfficeEntitiesSave = new ArrayList<>();
@@ -161,6 +182,9 @@ public class ContractService {
             )
         );
 
+        UserNameDTO representative = userService.getUserName(Long.parseLong(contractDTO.getCreatedBy()));
+        context.setVariable("representative", representative);
+
         context.setVariable("offices", contractDTO.getOffices());
 
         long totalPrice = contractDTO.getOffices().stream().mapToLong(office -> office.getPrice().longValue()*office.getArea().longValue()).sum();
@@ -211,6 +235,12 @@ public class ContractService {
 
         Long userId = Long.valueOf(SecurityUtils.getCurrentUserLogin().orElseThrow());
 
+        ContractDTO contract = getDetail(contractId);
+
+        if (!Objects.equals(userId, Long.parseLong(contract.getCreatedBy())) && !Objects.equals(userId, contract.getTenant().getId())){
+            throw new AppException(ErrorCode.NOT_REPRESENTATIVE);
+        }
+
         ContractSignatureEntity contractSignatureEntity = new ContractSignatureEntity();
         contractSignatureEntity.setContractId(contractId);
         contractSignatureEntity.setUserId(userId);
@@ -218,5 +248,15 @@ public class ContractService {
         int index = contractSignatureRepository.countStep();
         contractSignatureEntity.setStep(index+1);
         contractSignatureRepository.save(contractSignatureEntity);
+        updateContractStatus(contractId, index+1);
+    }
+
+    private void updateContractStatus(Long contractId, int index){
+        ContractEntity contract = contractRepository.findByIdAndIsActiveTrue(contractId).orElseThrow(
+            () -> new AppException(ErrorCode.RECORD_NOT_FOUND)
+        );
+        if(index == 1) contract.setStatus(Constants.ContractStatus.PENDING);
+        else if(index == 2) contract.setStatus(Constants.ContractStatus.ACTIVE);
+        contractRepository.save(contract);
     }
 }

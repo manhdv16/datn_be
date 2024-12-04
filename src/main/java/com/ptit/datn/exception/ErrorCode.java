@@ -36,7 +36,8 @@ public enum ErrorCode {
     TOTAL_NUMBER_MANAGER_OF_BUILDING(1016, "TOTAL_NUMBER_MANAGER_OF_BUILDING", HttpStatus.BAD_REQUEST),
 
     RECORD_NOT_FOUND(1017, "record.notfound", HttpStatus.NOT_FOUND),
-    BAD_VERIFY(400, "verify.fail", HttpStatus.BAD_REQUEST);
+    BAD_VERIFY(400, "verify.fail", HttpStatus.BAD_REQUEST),
+    NOT_REPRESENTATIVE(400, "not.representative", HttpStatus.BAD_REQUEST);
 
     ErrorCode(int code, String message, HttpStatus statusCode) {
         this.code = code;

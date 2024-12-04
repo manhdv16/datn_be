@@ -31,6 +31,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
     """)
     List<UserNameDTO> getUserWithSignImageByContractId(@Param("contractId") Long contractId);
 
+    @Query("""
+        select new com.ptit.datn.service.dto.UserNameDTO(u.id, u.login, u.fullName, u.address, u.phoneNumber, u.cccd) from User u
+        join UserBuilding ub on ub.userId = u.id where ub.buildingId = :buildingId and u.activated = true
+    """)
+    List<UserNameDTO> findUserByBuildingId(@Param("buildingId") Long buildingId);
+
     @Query("select u.id from User u where u.login = :login and u.activated = :activated")
     Long getIdByLoginAndActivated(@Param("login") String login, @Param("activated") Boolean activated);
 

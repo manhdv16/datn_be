@@ -124,19 +124,19 @@
     <strong>&#xa0;&#xa0;&#xa0;&#xa0; </strong><strong>………………………………………………………………………..</strong>
   </p>
   <p style="text-align:justify; line-height:150%; font-size:13pt">
-    Địa chỉ<span style="width:4.1pt; display:inline-block">&#xa0;</span><span style="width:21pt; display:inline-block">&#xa0;</span>: ………………………………….
+    Địa chỉ<span style="width:4.1pt; display:inline-block">&#xa0;</span><span style="width:21pt; display:inline-block">&#xa0;</span>: <span th:text="${representative.getAddress()}"></span>
   </p>
   <p style="text-align:justify; line-height:150%; font-size:13pt">
-    Điện thoại<span style="width:8.49pt; display:inline-block">&#xa0;</span>: ……………………………………………..<span style="width:17.64pt; display:inline-block">&#xa0;</span><span style="width:21pt; display:inline-block">&#xa0;</span><span style="width:21pt; display:inline-block">&#xa0;</span>
+    Điện thoại<span style="width:8.49pt; display:inline-block">&#xa0;</span>: <span th:text="${representative.getPhoneNumber()}"></span><span style="width:17.64pt; display:inline-block">&#xa0;</span><span style="width:21pt; display:inline-block">&#xa0;</span><span style="width:21pt; display:inline-block">&#xa0;</span>
   </p>
+<!--  <p style="text-align:justify; line-height:150%; font-size:13pt">-->
+<!--    Mã số thuế : ……………………………………………………..-->
+<!--  </p>-->
   <p style="text-align:justify; line-height:150%; font-size:13pt">
-    Mã số thuế : ……………………………………………………..
-  </p>
-  <p style="text-align:justify; line-height:150%; font-size:13pt">
-    Tài khoản<span style="width:10.66pt; display:inline-block">&#xa0;</span>………………………………………………..
+    Căn cước công dân <span style="width:10.66pt; display:inline-block">&#xa0;</span>: <span th:text="${representative.getCccd()}"></span>
   </p>
   <p style="line-height:150%; font-size:13pt">
-    Đại diện<span style="width:18.6pt; display:inline-block">&#xa0;</span>: ……………………………………………………………………………
+    Đại diện<span style="width:18.6pt; display:inline-block">&#xa0;</span>: <span th:text="${representative.getFullName()}"></span>
   </p>
   <p style="text-align:justify; line-height:150%; font-size:13pt">
     &#xa0;
@@ -148,14 +148,14 @@
     <strong>&#xa0;&#xa0;&#xa0;&#xa0; </strong><strong>………………………………………………………………………………………</strong>
   </p>
   <p style="line-height:150%; font-size:13pt">
-    Địa chỉ <span style="width:0.85pt; display:inline-block">&#xa0;</span>: &#xa0; ………………………………………………………………………………
+    Địa chỉ <span style="width:0.85pt; display:inline-block">&#xa0;</span>: &#xa0; <span th:text="${contract.getTenant().getAddress()}"></span>
   </p>
   <p style="line-height:150%; widows:2; orphans:2; font-size:13pt">
-    Điện Thoại : &#xa0; ………………
+    Điện Thoại : &#xa0; <span th:text="${contract.getTenant().getPhoneNumber()}"></span>
   </p>
-  <p style="line-height:150%; widows:2; orphans:2; font-size:13pt">
-    Mã Số Thuế : &#xa0;………………
-  </p>
+<!--  <p style="line-height:150%; widows:2; orphans:2; font-size:13pt">-->
+<!--    Mã Số Thuế : &#xa0;………………-->
+<!--  </p>-->
   <p style="line-height:150%; font-size:13pt">
     Đại diện : <span style="width:18.6pt; display:inline-block" th:text="${contract.getTenant().getFullName()}">&#xa0;</span><span style="width:19.89pt; display:inline-block">&#xa0;</span><span style="width:21pt; display:inline-block">&#xa0;</span>
   </p>
@@ -327,10 +327,10 @@
     - Tiền nước sử dụng tại khu vực cho thuê bao gồm trong giá thuê.
   </p>
   <p style="text-align:justify; line-height:150%; font-size:13pt">
-    <span style="background-color:#ffff00">- Tiền điện trả theo công tơ riêng do Bên A lắp đặt tại diện tích thuê, với mức giá: ........đ/Kw (Chưa bao gồm VAT) – Giá này sẽ được điều chỉnh tăng giảm phù hợp với quy định chung của Tòa Nhà.</span>
+    <span>- Tiền điện trả theo công tơ riêng do Bên A lắp đặt tại diện tích thuê, với mức giá: 4,587 vnđ/Kw (Chưa bao gồm VAT) – Giá này sẽ được điều chỉnh tăng giảm phù hợp với quy định chung của Tòa Nhà.</span>
   </p>
   <p class="BodyText3" style="text-align:justify; line-height:150%; font-size:13pt">
-    <span style="background-color:#ffff00">Phí xe máy:</span><span style="background-color:#ffff00">&#xa0; </span><span style="background-color:#ffff00">............ vnđ/tháng , Phí xe ô tô:</span><span style="background-color:#ffff00">&#xa0; </span><span style="background-color:#ffff00">: .......... vnđ/tháng</span><span style="background-color:#ffff00">&#xa0; </span><span style="background-color:#ffff00">( Chưa bao gồm VAT).</span>
+    <span>Phí xe máy:</span><span>&#xa0; </span><span> 80,000 vnđ/tháng , Phí xe ô tô:</span><span>&#xa0; </span><span>: 650,000 vnđ/tháng</span><span>&#xa0; </span><span>( Chưa bao gồm VAT).</span>
   </p>
   <p style="text-align:justify; line-height:150%; font-size:13pt">
     Khoản thanh toán của Bên B sẽ trả cho Bên A trong vòng năm (05) ngày sau khi Bên B nhận được phiêu yêu cầu thanh toán đó từ Bên A.

@@ -162,7 +162,9 @@ public class UserService {
             user.getId(),
             user.getLogin(),
             user.getFullName(),
-            user.getSignImage()
+            user.getAddress(),
+            user.getPhoneNumber(),
+            user.getCccd()
         );
     }
 
