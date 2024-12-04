@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigInteger;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/offices")
@@ -27,7 +28,7 @@ public class OfficeResource {
 
     @GetMapping
     public ResponseEntity<Page<OfficeDTO>> getOffices(@RequestParam(defaultValue = "0") Integer page,
-                                                      @RequestParam(defaultValue = "20") Integer size,
+                                                      @RequestParam(defaultValue = "10") Integer size,
                                                       @RequestParam(required = false) String search,
                                                       @RequestParam(required = false) Long buildingId,
                                                       @RequestParam(required = false) Long wardId,
@@ -40,7 +41,13 @@ public class OfficeResource {
                                                       @RequestParam(required = false) Integer status
                                                       ) {
         log.info("REST request to get a page of offices");
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate"));
+        Sort sort = Sort.by(List.of(
+            Sort.Order.asc("status"),
+            Sort.Order.asc("building.name"),
+            Sort.Order.asc("floor"),
+            Sort.Order.asc("name")
+        ));
+        Pageable pageable = PageRequest.of(page, size, sort);
         Page<OfficeDTO> list = officeService.getOffices(pageable, search, buildingId, wardId, districtId, provinceId,
             minPrice, maxPrice, minArea, maxArea, status);
         return ResponseEntity.ok().body(list);

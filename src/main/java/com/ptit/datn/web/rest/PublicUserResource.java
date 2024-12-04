@@ -50,6 +50,11 @@ public class PublicUserResource {
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
+    @GetMapping("/role-users")
+    public ResponseEntity<List<UserDTO>> getAllRoleUsers() {
+        return ResponseEntity.ok().body(userService.getAllByRoleUser());
+    }
+
     private boolean onlyContainsAllowedProperties(Pageable pageable) {
         return pageable.getSort().stream().map(Sort.Order::getProperty).allMatch(ALLOWED_ORDERED_PROPERTIES::contains);
     }

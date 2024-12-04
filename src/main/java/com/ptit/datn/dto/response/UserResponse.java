@@ -16,18 +16,20 @@ import java.util.stream.Collectors;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserResponse {
+    Long id;
     String login;
-     String fullName;
-     String phoneNumber;
-     String email;
-     String signImage;
-     String langKey;
-     String cccd;
-     String address;
-     LocalDate dob;
-     Set<String> authorities;
+    String fullName;
+    String phoneNumber;
+    String email;
+    String signImage;
+    String langKey;
+    String cccd;
+    String address;
+    LocalDate dob;
+    Set<String> authorities;
 
     public UserResponse(User user) {
+        this.id = user.getId();
         this.login = user.getLogin();
         this.fullName = user.getFullName();
         this.email = user.getEmail();

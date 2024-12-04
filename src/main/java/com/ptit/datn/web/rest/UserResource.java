@@ -100,7 +100,7 @@ public class UserResource {
 
     @PostMapping("/assign-users-responsible-by-building-id/{id}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ApiResponse<String> assignUserResponsibilityBuilding(@PathVariable("id") Long buildingId, @RequestBody UserListRequest request) {
+    public ApiResponse<String> assignUserResponsibilityBuilding(@PathVariable("id") Long buildingId, @RequestBody @Valid UserListRequest request) {
         return ApiResponse.<String>builder()
             .result(userService.assignResponsible(buildingId, request))
             .build();
@@ -108,12 +108,9 @@ public class UserResource {
 
     @GetMapping("/managers")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<List<AdminUserDTO>> getAllManagers(Pageable pageable) {
+    public Page<AdminUserDTO> getAllManagers(Pageable pageable) {
         log.debug("REST request to get all managers for an admin");
-
-        final Page<AdminUserDTO> page = userService.getAllManagers(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+        return userService.getAllManagers(pageable);
     }
 
     @GetMapping("/manager/by-building/{id}")

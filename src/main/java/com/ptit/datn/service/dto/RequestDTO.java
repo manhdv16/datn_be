@@ -16,6 +16,10 @@ public class RequestDTO {
     public Long userId;
     public UserDTO userDTO;
 
+    private Long managerId;
+    private UserDTO managerDTO;
+
+
     public Set<Long> officeIds;
     public Set<OfficeDTO> officeDTOs;
 
@@ -35,6 +39,7 @@ public class RequestDTO {
     public RequestDTO(Request request) {
         this.id = request.getId();
         this.userId = request.getUserId();
+        this.managerId = request.getManagerId();
         this.buildingId = request.getBuildingId();
         this.date = request.getDate();
         this.time = request.getTime();

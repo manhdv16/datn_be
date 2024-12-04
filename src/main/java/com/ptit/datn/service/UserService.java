@@ -176,8 +176,10 @@ public class UserService {
         if (userDTO.getEmail() != null) {
             user.setEmail(userDTO.getEmail().toLowerCase());
         }
-        user.setDigitalSignature(SignatureService.generateHashFromMultipartFile(userDTO.getImageDigitalSignature()));
-        user.setSignImage((String)cloudinaryService.uploadFile(userDTO.getImageDigitalSignature()).get("url"));
+        if(!DataUtils.isNullOrEmpty(userDTO.getImageDigitalSignature())) {
+            user.setDigitalSignature(SignatureService.generateHashFromMultipartFile(userDTO.getImageDigitalSignature()));
+            user.setSignImage((String) cloudinaryService.uploadFile(userDTO.getImageDigitalSignature()).get("url"));
+        }
         if (userDTO.getLangKey() == null) {
             user.setLangKey(Constants.DEFAULT_LANGUAGE); // default language
         } else {
@@ -232,25 +234,29 @@ public class UserService {
                 user.setFullName(userDTO.getFullName());
                 user.setPhoneNumber(userDTO.getPhoneNumber());
                 user.setEmail(userDTO.getEmail().toLowerCase());
-                try {
-                    user.setDigitalSignature(SignatureService
-                        .generateHashFromMultipartFile(userDTO.getImageDigitalSignature()));
-                    user.setSignImage((String)cloudinaryService
-                        .uploadFile(userDTO.getImageDigitalSignature()).get("url"));
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
+                if(!DataUtils.isNullOrEmpty(userDTO.getImageDigitalSignature())) {
+                    try {
+                        user.setDigitalSignature(SignatureService
+                            .generateHashFromMultipartFile(userDTO.getImageDigitalSignature()));
+                        user.setSignImage((String) cloudinaryService
+                            .uploadFile(userDTO.getImageDigitalSignature()).get("url"));
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                 }
 //                user.setActivated(userDTO.isActivated());
 //                user.setLangKey(userDTO.getLangKey());
-                Set<Authority> managedAuthorities = user.getAuthorities();
-                managedAuthorities.clear();
-                userDTO
-                    .getAuthorities()
-                    .stream()
-                    .map(authorityRepository::findById)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .forEach(managedAuthorities::add);
+                if (SecurityUtils.getAuthorities().stream().anyMatch(AuthoritiesConstants.ADMIN::equals)) {
+                    Set<Authority> managedAuthorities = user.getAuthorities();
+                    managedAuthorities.clear();
+                    userDTO
+                        .getAuthorities()
+                        .stream()
+                        .map(authorityRepository::findById)
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .forEach(managedAuthorities::add);
+                }
                 userRepository.save(user);
                 log.debug("Changed Information for User: {}", user);
                 return user;
@@ -390,5 +396,9 @@ public class UserService {
             throw new AppException(ErrorCode.USER_NOT_EXISTED);
         }
         userBuildingRepository.deleteByBuildingIdAndUserId(buildingId, userId);
+    }
+
+    public List<UserDTO> getAllByRoleUser() {
+        return userRepository.findAllByAuthoritiesName(AuthoritiesConstants.USER).stream().map(UserDTO::new).toList();
     }
 }

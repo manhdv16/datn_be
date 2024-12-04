@@ -1,6 +1,7 @@
 package com.ptit.datn.service;
 
 import com.ptit.datn.constants.OfficeStatus;
+import com.ptit.datn.domain.Building;
 import com.ptit.datn.domain.Office;
 import com.ptit.datn.domain.Request;
 import com.ptit.datn.repository.BuildingRepository;
@@ -81,7 +82,12 @@ public class OfficeService {
         office.setArea(officeDTO.getArea());
         office.setFloor(officeDTO.getFloor());
         office.setPrice(officeDTO.getPrice());
-        office.setBuilding(buildingRepository.findById(officeDTO.getBuildingId()).orElseThrow());
+        Building building = buildingRepository.findById(officeDTO.getBuildingId()).orElseThrow(() ->
+            new EntityNotFoundException("Building not found with id " + officeDTO.getBuildingId()));
+        if (building.getNumberOfFloor() < office.getFloor()) {
+            throw new IllegalArgumentException("Floor number is greater than number of floors in building");
+        }
+        office.setBuilding(building);
         office.setStatus(OfficeStatus.AVAILABLE);
         office.setNote(officeDTO.getNote());
         return new OfficeDTO(officeRepository.save(office));

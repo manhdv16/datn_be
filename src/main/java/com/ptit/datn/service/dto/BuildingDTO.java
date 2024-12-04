@@ -31,7 +31,7 @@ public class BuildingDTO {
     private BigInteger securityFee;
     private BigInteger cleaningFee;
     private List<OfficeDTO> officeDTOS;
-    private List<String> imageUrls;
+    private List<ImageDTO> images;
 
     public BuildingDTO() {
 
