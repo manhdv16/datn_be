@@ -100,7 +100,7 @@ public class UserResource {
 
     @PostMapping("/assign-users-responsible-by-building-id/{id}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ApiResponse<String> assignUserResponsibilityBuilding(@PathVariable("id") Long buildingId, @RequestBody UserListRequest request) {
+    public ApiResponse<String> assignUserResponsibilityBuilding(@PathVariable("id") Long buildingId, @RequestBody @Valid UserListRequest request) {
         return ApiResponse.<String>builder()
             .result(userService.assignResponsible(buildingId, request))
             .build();
