@@ -232,25 +232,29 @@ public class UserService {
                 user.setFullName(userDTO.getFullName());
                 user.setPhoneNumber(userDTO.getPhoneNumber());
                 user.setEmail(userDTO.getEmail().toLowerCase());
-                try {
-                    user.setDigitalSignature(SignatureService
-                        .generateHashFromMultipartFile(userDTO.getImageDigitalSignature()));
-                    user.setSignImage((String)cloudinaryService
-                        .uploadFile(userDTO.getImageDigitalSignature()).get("url"));
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
+                if(!DataUtils.isNullOrEmpty(userDTO.getImageDigitalSignature())) {
+                    try {
+                        user.setDigitalSignature(SignatureService
+                            .generateHashFromMultipartFile(userDTO.getImageDigitalSignature()));
+                        user.setSignImage((String) cloudinaryService
+                            .uploadFile(userDTO.getImageDigitalSignature()).get("url"));
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                 }
 //                user.setActivated(userDTO.isActivated());
 //                user.setLangKey(userDTO.getLangKey());
-                Set<Authority> managedAuthorities = user.getAuthorities();
-                managedAuthorities.clear();
-                userDTO
-                    .getAuthorities()
-                    .stream()
-                    .map(authorityRepository::findById)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .forEach(managedAuthorities::add);
+                if (SecurityUtils.getAuthorities().stream().anyMatch(AuthoritiesConstants.ADMIN::equals)) {
+                    Set<Authority> managedAuthorities = user.getAuthorities();
+                    managedAuthorities.clear();
+                    userDTO
+                        .getAuthorities()
+                        .stream()
+                        .map(authorityRepository::findById)
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .forEach(managedAuthorities::add);
+                }
                 userRepository.save(user);
                 log.debug("Changed Information for User: {}", user);
                 return user;
