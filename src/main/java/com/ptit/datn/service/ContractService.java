@@ -7,6 +7,7 @@ import com.ptit.datn.domain.*;
 import com.ptit.datn.exception.AppException;
 import com.ptit.datn.exception.ErrorCode;
 import com.ptit.datn.repository.*;
+import com.ptit.datn.security.AuthoritiesConstants;
 import com.ptit.datn.security.SecurityUtils;
 import com.ptit.datn.service.dto.*;
 import com.ptit.datn.service.dto.model.PageFilterInput;
@@ -120,11 +121,16 @@ public class ContractService {
             contractSave.setTenantId(contractDTO.getRequest().getTenantId());
             tenant = userService.getUserName(contractDTO.getRequest().getTenantId());
 
-            // thong bao cho nguoi thue
-            User user = userRepository.findOneById(contractDTO.getRequest().getTenantId()).orElseThrow(
-                () -> new AppException(ErrorCode.RECORD_NOT_FOUND)
+            Boolean isRole = SecurityUtils.getAuthorities().stream().anyMatch(r ->
+                AuthoritiesConstants.ADMIN.equals(r) || AuthoritiesConstants.MANAGER.equals(r)
             );
-            mailService.sendMailToNotification(user);
+            if (isRole) {
+                // thong bao cho nguoi thue
+                User user = userRepository.findOneById(contractDTO.getRequest().getTenantId()).orElseThrow(
+                    () -> new AppException(ErrorCode.RECORD_NOT_FOUND)
+                );
+                mailService.sendMailToNotification(user);
+            }
         }
         String contractCode = generateContractCode(tenant != null ? tenant.getFullName() : "");
         contractSave.setCode(contractCode);
