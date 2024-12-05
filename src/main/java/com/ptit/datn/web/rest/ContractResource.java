@@ -1,11 +1,12 @@
 package com.ptit.datn.web.rest;
 
-import com.ptit.datn.constants.Constants;
 import com.ptit.datn.dto.response.CommonResponse;
 import com.ptit.datn.service.ContractService;
 import com.ptit.datn.service.dto.ContractDTO;
 import com.ptit.datn.service.dto.FilterDTO;
 import com.ptit.datn.service.dto.model.PageFilterInput;
+//import com.ptit.datn.utils.Constants;
+import com.ptit.datn.constants.Constants;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
@@ -25,12 +26,23 @@ public class ContractResource {
 
     @PostMapping("")
     public CommonResponse<List<ContractDTO>> getAll(@RequestBody PageFilterInput<List<FilterDTO>> input){
-        Page<ContractDTO> result = contractService.getAll(input);
+        Page<ContractDTO> result = contractService.getAll(input, Constants.FilterOperator.AND);
         return new CommonResponse<List<ContractDTO>>()
             .success()
             .data(result.getContent())
             .totalElements(result.getTotalElements());
     }
+
+    @PostMapping("/filter-user")
+    public CommonResponse<List<ContractDTO>> getAllByUser(@RequestBody PageFilterInput<List<FilterDTO>> input){
+        Page<ContractDTO> result = contractService.getAll(input, Constants.FilterOperator.OR);
+        return new CommonResponse<List<ContractDTO>>()
+            .success()
+            .data(result.getContent())
+            .totalElements(result.getTotalElements());
+    }
+
+
 
     @GetMapping("/{id}")
     public CommonResponse<ContractDTO> getDetail(@PathVariable Long id){

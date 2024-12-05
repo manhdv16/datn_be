@@ -42,4 +42,9 @@ public class Constants {
         int LONG_TERM = 1;
         int SHORT_TERM = 2;
     }
+
+    public interface FilterOperator {
+        int AND = 1;
+        int OR = 2;
+    }
 }

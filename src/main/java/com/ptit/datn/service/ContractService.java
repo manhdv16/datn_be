@@ -63,12 +63,12 @@ public class ContractService {
     private final ContractOfficeRepository contractOfficeRepository;
     private final ContractSignatureRepository contractSignatureRepository;
     private CloudinaryService cloudinaryService;
-    public Page<ContractDTO> getAll(PageFilterInput<List<FilterDTO>> input){
+    public Page<ContractDTO> getAll(PageFilterInput<List<FilterDTO>> input, int operator){
         Pageable pageable = Utils.getPageable(input);
         Map<String, ColumnPropertyEntity> columnMap = columnPropertyRepository.findByEntityTypeAndIsActiveTrueMap(
             Constants.EntityType.CONTRACT
         );
-        Condition condition = Utils.getFilter(input.getFilter(), columnMap);
+        Condition condition = Utils.getFilter(input.getFilter(), columnMap, operator);
         Page<ContractEntity> contractPage = contractRepository.getAll(input, condition, pageable);
         List<ContractEntity> contracts = contractPage.getContent();
         List<ContractDTO> result = contracts.stream()
@@ -241,11 +241,17 @@ public class ContractService {
             throw new AppException(ErrorCode.NOT_REPRESENTATIVE);
         }
 
+        List<ContractSignatureEntity> signatures = contractSignatureRepository.findByContractId(contractId);
+
+        if (signatures.stream().anyMatch(s -> Objects.equals(s.getUserId(), userId))) {
+            throw new AppException(ErrorCode.ALREADY_SIGNED);
+        }
+
         ContractSignatureEntity contractSignatureEntity = new ContractSignatureEntity();
         contractSignatureEntity.setContractId(contractId);
         contractSignatureEntity.setUserId(userId);
         contractSignatureEntity.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
-        int index = contractSignatureRepository.countStep();
+        int index = contractSignatureRepository.countStep(contractId);
         contractSignatureEntity.setStep(index+1);
         contractSignatureRepository.save(contractSignatureEntity);
         updateContractStatus(contractId, index+1);

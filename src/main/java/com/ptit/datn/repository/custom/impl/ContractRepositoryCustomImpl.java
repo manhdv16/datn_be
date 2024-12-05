@@ -35,14 +35,14 @@ public class ContractRepositoryCustomImpl implements ContractRepositoryCustom {
             .select(
                 CONTRACT.as("contract")
             ).from(CONTRACT)
-            .join(CONTRACT_OFFICE)
-            .on(CONTRACT_OFFICE.CONTRACT_ID.eq(CONTRACT.ID))
-            .join(OFFICE)
-            .on(OFFICE.ID.eq(CONTRACT_OFFICE.OFFICE_ID))
-            .join(JHI_USER)
-            .on(JHI_USER.ID.eq(CONTRACT.TENANT_ID))
-            .join(BUILDING)
-            .on(BUILDING.ID.eq(OFFICE.BUILDING_ID))
+//            .join(CONTRACT_OFFICE)
+//            .on(CONTRACT_OFFICE.CONTRACT_ID.eq(CONTRACT.ID))
+//            .join(OFFICE)
+//            .on(OFFICE.ID.eq(CONTRACT_OFFICE.OFFICE_ID))
+//            .join(JHI_USER)
+//            .on(JHI_USER.ID.eq(CONTRACT.TENANT_ID))
+//            .join(BUILDING)
+//            .on(BUILDING.ID.eq(OFFICE.BUILDING_ID))
             .getQuery();
 
         if(!CollectionUtils.isEmpty(input.getBuildingIds())){

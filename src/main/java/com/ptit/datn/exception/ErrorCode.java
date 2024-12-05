@@ -37,7 +37,8 @@ public enum ErrorCode {
 
     RECORD_NOT_FOUND(1017, "record.notfound", HttpStatus.NOT_FOUND),
     BAD_VERIFY(400, "verify.fail", HttpStatus.BAD_REQUEST),
-    NOT_REPRESENTATIVE(400, "not.representative", HttpStatus.BAD_REQUEST);
+    NOT_REPRESENTATIVE(400, "not.representative", HttpStatus.BAD_REQUEST),
+    ALREADY_SIGNED(400, "already.signed", HttpStatus.BAD_REQUEST);
 
     ErrorCode(int code, String message, HttpStatus statusCode) {
         this.code = code;

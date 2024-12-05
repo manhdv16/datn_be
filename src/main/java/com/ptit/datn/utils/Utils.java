@@ -1,5 +1,6 @@
 package com.ptit.datn.utils;
 
+import com.ptit.datn.constants.Constants;
 import com.ptit.datn.domain.ColumnPropertyEntity;
 import com.ptit.datn.service.dto.FilterDTO;
 import com.ptit.datn.service.dto.model.PageFilterInput;
@@ -8,8 +9,7 @@ import org.jooq.impl.DSL;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
+
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -34,13 +34,21 @@ public class Utils {
         return PageRequest.of(input.getPageNumber(), input.getPageSize());
     }
 
-    public static Condition getFilter(List<FilterDTO> filters, Map<String, ColumnPropertyEntity> columnMap){
+    public static Condition getFilter(List<FilterDTO> filters, Map<String, ColumnPropertyEntity> columnMap, int operator){
         Condition condition = DSL.noCondition();
-        for (FilterDTO filter : filters) {
-            condition = condition.and(filter.getCondition(columnMap));
+        if(operator == Constants.FilterOperator.AND){
+            for (FilterDTO filter : filters) {
+                condition = condition.and(filter.getCondition(columnMap));
+            }
+        }else if(operator == Constants.FilterOperator.OR){
+            for (FilterDTO filter : filters) {
+                condition = condition.or(filter.getCondition(columnMap));
+            }
         }
         return condition;
     }
+
+
 
     public static String convertToCustomFormat(Object date) {
         if (date instanceof Date) {

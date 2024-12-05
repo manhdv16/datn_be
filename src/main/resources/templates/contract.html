@@ -153,9 +153,9 @@
   <p style="line-height:150%; widows:2; orphans:2; font-size:13pt">
     Điện Thoại : &#xa0; <span th:text="${contract.getTenant().getPhoneNumber()}"></span>
   </p>
-<!--  <p style="line-height:150%; widows:2; orphans:2; font-size:13pt">-->
-<!--    Mã Số Thuế : &#xa0;………………-->
-<!--  </p>-->
+  <p style="line-height:150%; widows:2; orphans:2; font-size:13pt">
+    Căn cước công dân : &#xa0;<span th:text="${contract.getTenant().getCccd()}"></span>
+  </p>
   <p style="line-height:150%; font-size:13pt">
     Đại diện : <span style="width:18.6pt; display:inline-block" th:text="${contract.getTenant().getFullName()}">&#xa0;</span><span style="width:19.89pt; display:inline-block">&#xa0;</span><span style="width:21pt; display:inline-block">&#xa0;</span>
   </p>

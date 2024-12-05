@@ -56,4 +56,11 @@ public final class Constants {
         public static final int INTERNAL_SERVER_ERROR = 500;
         public static final int OTHER_SERVER_ERROR = -1;
     }
+
+    public static final class FilterOperator {
+
+        private FilterOperator(){}
+        public static final int AND = 1;
+        public static final int OR = 2;
+    }
 }
