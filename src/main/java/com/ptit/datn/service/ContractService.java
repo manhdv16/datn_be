@@ -62,6 +62,7 @@ public class ContractService {
     private final TemplateEngine templateEngine;
     private final ContractOfficeRepository contractOfficeRepository;
     private final ContractSignatureRepository contractSignatureRepository;
+    private final MailService mailService;
     private CloudinaryService cloudinaryService;
     public Page<ContractDTO> getAll(PageFilterInput<List<FilterDTO>> input, int operator){
         Pageable pageable = Utils.getPageable(input);
@@ -118,6 +119,12 @@ public class ContractService {
         if(contractDTO.getRequest() != null) {
             contractSave.setTenantId(contractDTO.getRequest().getTenantId());
             tenant = userService.getUserName(contractDTO.getRequest().getTenantId());
+
+            // thong bao cho nguoi thue
+            User user = userRepository.findOneById(contractDTO.getRequest().getTenantId()).orElseThrow(
+                () -> new AppException(ErrorCode.RECORD_NOT_FOUND)
+            );
+            mailService.sendMailToNotification(user);
         }
         String contractCode = generateContractCode(tenant != null ? tenant.getFullName() : "");
         contractSave.setCode(contractCode);

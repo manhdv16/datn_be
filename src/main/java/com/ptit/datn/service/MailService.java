@@ -42,12 +42,7 @@ public class MailService {
 
     private final SpringTemplateEngine templateEngine;
 
-    public MailService(
-        JHipsterProperties jHipsterProperties,
-        JavaMailSender javaMailSender,
-        MessageSource messageSource,
-        SpringTemplateEngine templateEngine
-    ) {
+    public MailService(JHipsterProperties jHipsterProperties, JavaMailSender javaMailSender, MessageSource messageSource, SpringTemplateEngine templateEngine) {
         this.jHipsterProperties = jHipsterProperties;
         this.javaMailSender = javaMailSender;
         this.messageSource = messageSource;
