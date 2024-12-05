@@ -104,18 +104,18 @@ public class MailService {
     }
 
     @Async
-    public void sendActivationEmail(User user) {
-        log.debug("Sending activation email to '{}'", user.getEmail());
-        this.sendEmailFromTemplateSync(user, "mail/activationEmail", "email.activation.title");
+    public void sendMailToNotification(User user) {
+        log.debug("Sending Notification Sign Contract to '{}'", user.getEmail());
+        this.sendEmailFromTemplateSync(user, "mail/notificationSignContract", "email.notification.title");
     }
 
-//    @Async
+    @Async
     public void sendCreationEmail(User user) {
         log.debug("Sending creation email to '{}'", user.getEmail());
         this.sendEmailFromTemplateSync(user, "mail/creationEmail", "email.activation.title");
     }
 
-//    @Async
+    @Async
     public void sendPasswordResetMail(User user) {
         log.debug("Sending password reset email to '{}'", user.getEmail());
         this.sendEmailFromTemplateSync(user, "mail/passwordResetEmail", "email.reset.title");
