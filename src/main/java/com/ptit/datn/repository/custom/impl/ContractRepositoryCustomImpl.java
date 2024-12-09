@@ -4,6 +4,7 @@ import static com.ptit.datn.database.domain.Tables.*;
 
 import com.ptit.datn.domain.ContractEntity;
 import com.ptit.datn.repository.custom.ContractRepositoryCustom;
+import com.ptit.datn.service.dto.BuildingContractStatDTO;
 import com.ptit.datn.service.dto.ContractDTO;
 import com.ptit.datn.service.dto.FilterDTO;
 import com.ptit.datn.service.dto.model.PageFilterInput;
@@ -14,6 +15,7 @@ import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
 import org.jooq.SelectQuery;
+import org.jooq.impl.DSL;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -75,5 +77,34 @@ public class ContractRepositoryCustomImpl implements ContractRepositoryCustom {
         }
 
         return new PageImpl<>(result, pageable, totalElements);
+    }
+
+    @Override
+    public List<BuildingContractStatDTO> getStatBuildingContract(BuildingContractStatDTO input) {
+        SelectQuery query = dslContext.select(
+            BUILDING.ID.as("buildingId"),
+            BUILDING.NAME.as("buildingName"),
+            DSL.countDistinct(CONTRACT.ID).as("numberOfContracts")
+        ).from(BUILDING)
+            .leftJoin(OFFICE)
+            .on(OFFICE.BUILDING_ID.eq(BUILDING.ID))
+            .leftJoin(CONTRACT_OFFICE)
+            .on(CONTRACT_OFFICE.OFFICE_ID.eq(OFFICE.ID))
+            .leftJoin(CONTRACT)
+            .on(CONTRACT.ID.eq(CONTRACT_OFFICE.CONTRACT_ID))
+            .and(CONTRACT.START_DATE.greaterOrEqual(input.getStartDate()))
+            .and(CONTRACT.END_DATE.lessOrEqual(input.getEndDate()))
+            .and(CONTRACT.IS_ACTIVE.eq((byte)1))
+            .getQuery();
+
+        Condition condition = DSL.noCondition();
+
+        if(input.getBuildingId() != null){
+            condition.and(BUILDING.ID.eq(input.getBuildingId()));
+        }
+
+        query.addConditions(condition);
+        query.addGroupBy(BUILDING.ID, BUILDING.NAME);
+        return query.fetchInto(BuildingContractStatDTO.class);
     }
 }

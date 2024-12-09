@@ -1,6 +1,7 @@
 package com.ptit.datn.repository.custom;
 
 import com.ptit.datn.domain.ContractEntity;
+import com.ptit.datn.service.dto.BuildingContractStatDTO;
 import com.ptit.datn.service.dto.ContractDTO;
 import com.ptit.datn.service.dto.FilterDTO;
 import com.ptit.datn.service.dto.model.PageFilterInput;
@@ -15,4 +16,6 @@ public interface ContractRepositoryCustom {
         PageFilterInput<List<FilterDTO>> input,
         Condition condition,
         Pageable pageable);
+
+    List<BuildingContractStatDTO> getStatBuildingContract(BuildingContractStatDTO input);
 }

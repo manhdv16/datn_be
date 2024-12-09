@@ -278,4 +278,15 @@ public class ContractService {
         else if(index == 2) contract.setStatus(Constants.ContractStatus.ACTIVE);
         contractRepository.save(contract);
     }
+
+    public List<BuildingContractStatDTO> getStatBuildingContract(BuildingContractStatDTO input){
+        if(input.getStartDate() == null){
+            input.setStartDate(contractRepository.getMinStartDate());
+        }
+        if(input.getEndDate() == null){
+            input.setEndDate(contractRepository.getMaxEndDate());
+        }
+
+        return contractRepository.getStatBuildingContract(input);
+    }
 }

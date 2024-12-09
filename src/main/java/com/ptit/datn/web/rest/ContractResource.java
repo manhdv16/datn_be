@@ -2,6 +2,7 @@ package com.ptit.datn.web.rest;
 
 import com.ptit.datn.dto.response.CommonResponse;
 import com.ptit.datn.service.ContractService;
+import com.ptit.datn.service.dto.BuildingContractStatDTO;
 import com.ptit.datn.service.dto.ContractDTO;
 import com.ptit.datn.service.dto.FilterDTO;
 import com.ptit.datn.service.dto.model.PageFilterInput;
@@ -89,6 +90,12 @@ public class ContractResource {
         String headerValue = "inline; filename=contract.pdf";
         response.setHeader(headerKey, headerValue);
         contractService.exportPdf(response.getOutputStream() ,id);
+    }
+
+    @PostMapping("/stat-building-contracts")
+    public CommonResponse<?> getStatBuildingContract(@RequestBody BuildingContractStatDTO input){
+        List<BuildingContractStatDTO> result = contractService.getStatBuildingContract(input);
+        return new CommonResponse<>().success().data(result);
     }
 
 
