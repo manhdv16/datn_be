@@ -100,7 +100,7 @@ public class ContractRepositoryCustomImpl implements ContractRepositoryCustom {
         Condition condition = DSL.noCondition();
 
         if(input.getBuildingId() != null){
-            condition.and(BUILDING.ID.eq(input.getBuildingId()));
+            condition = condition.and(BUILDING.ID.eq(input.getBuildingId()));
         }
 
         query.addConditions(condition);
