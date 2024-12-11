@@ -7,6 +7,7 @@ import jakarta.persistence.criteria.Root;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigInteger;
+import java.util.Set;
 
 public class OfficeSpecification {
 
@@ -25,6 +26,12 @@ public class OfficeSpecification {
     public static Specification<Office> hasBuildingId(Long buildingId) {
         return (Root<Office> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) -> {
             return criteriaBuilder.equal(root.get("building").get("id"), buildingId);
+        };
+    }
+
+    public static Specification<Office> hasBuildingIdIn(Set<Long> buildingIds) {
+        return (Root<Office> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) -> {
+            return criteriaBuilder.and(root.get("building").get("id").in(buildingIds));
         };
     }
 
@@ -75,5 +82,4 @@ public class OfficeSpecification {
             return criteriaBuilder.equal(root.get("status"), status);
         };
     }
-
 }

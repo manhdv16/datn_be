@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigInteger;
@@ -49,6 +50,33 @@ public class OfficeResource {
         ));
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<OfficeDTO> list = officeService.getOffices(pageable, search, buildingId, wardId, districtId, provinceId,
+            minPrice, maxPrice, minArea, maxArea, status);
+        return ResponseEntity.ok().body(list);
+    }
+
+    @GetMapping("/manage-list")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
+    public ResponseEntity<Page<OfficeDTO>> getOfficesForManage(@RequestParam(defaultValue = "0") Integer page,
+                                                               @RequestParam(defaultValue = "10") Integer size,
+                                                               @RequestParam(required = false) String search,
+                                                               @RequestParam(required = false) Long buildingId,
+                                                               @RequestParam(required = false) Long wardId,
+                                                               @RequestParam(required = false) Long districtId,
+                                                               @RequestParam(required = false) Long provinceId,
+                                                               @RequestParam(required = false) BigInteger minPrice,
+                                                               @RequestParam(required = false) BigInteger maxPrice,
+                                                               @RequestParam(required = false) Double minArea,
+                                                               @RequestParam(required = false) Double maxArea,
+                                                               @RequestParam(required = false) Integer status) {
+        log.info("REST request to get a list of offices for manage");
+        Sort sort = Sort.by(List.of(
+            Sort.Order.asc("status"),
+            Sort.Order.asc("building.name"),
+            Sort.Order.asc("floor"),
+            Sort.Order.asc("name")
+        ));
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<OfficeDTO> list = officeService.getOfficesForManage(pageable, search, buildingId, wardId, districtId, provinceId,
             minPrice, maxPrice, minArea, maxArea, status);
         return ResponseEntity.ok().body(list);
     }

@@ -22,19 +22,44 @@ public class RequestController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<RequestDTO>> getAllRequests(@RequestParam(value = "page", defaultValue = "0") int page,
-                                                           @RequestParam(value = "size", defaultValue = "10") int size) {
+    public ResponseEntity<Page<RequestDTO>> getAllRequests(@RequestParam(value = "page", defaultValue = "0") Integer page,
+                                                           @RequestParam(value = "size", defaultValue = "10") Integer size,
+                                                           @RequestParam(value = "status", required = false) Integer status,
+                                                           @RequestParam(value = "userId", required = false) Long userId) {
         Sort sort = Sort.by(List.of(Sort.Order.asc("status"),
             Sort.Order.desc("date"),
             Sort.Order.desc("time")));
         Pageable pageable = PageRequest.of(page, size, sort);
-        return ResponseEntity.ok().body(requestService.getAllRequests(pageable));
+        return ResponseEntity.ok().body(requestService.getAllRequests(pageable, status, userId));
+    }
+
+    @GetMapping("/manage-list")
+    public ResponseEntity<Page<RequestDTO>> getAllRequestsForManage(@RequestParam(value = "page", defaultValue = "0") Integer page,
+                                                                    @RequestParam(value = "size", defaultValue = "10") Integer size,
+                                                                    @RequestParam(value = "status", required = false) Integer status) {
+        Sort sort = Sort.by(List.of(Sort.Order.asc("status"),
+            Sort.Order.desc("date"),
+            Sort.Order.desc("time")));
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return ResponseEntity.ok().body(requestService.getAllRequestsForManage(pageable, status));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<RequestDTO> getRequest(@PathVariable Long id) {
         return ResponseEntity.ok().body(requestService.getRequestById(id));
     }
+
+    @GetMapping("/user")
+    public ResponseEntity<Page<RequestDTO>> getAllRequestsByUser(@RequestParam(value = "page", defaultValue = "0") Integer page,
+                                                                 @RequestParam(value = "size", defaultValue = "10") Integer size,
+                                                                 @RequestParam(value = "status", required = false) Integer status) {
+        Sort sort = Sort.by(List.of(Sort.Order.asc("status"),
+            Sort.Order.desc("date"),
+            Sort.Order.desc("time")));
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return ResponseEntity.ok().body(requestService.getAllRequestsByUser(pageable, status));
+    }
+
 
     @PostMapping
     public ResponseEntity<RequestDTO> createRequest(@RequestBody RequestDTO requestDTO) {

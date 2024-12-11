@@ -5,10 +5,7 @@ import com.ptit.datn.domain.Building;
 import com.ptit.datn.domain.Office;
 import com.ptit.datn.domain.Request;
 import com.ptit.datn.domain.User;
-import com.ptit.datn.repository.BuildingRepository;
-import com.ptit.datn.repository.OfficeRepository;
-import com.ptit.datn.repository.RequestRepository;
-import com.ptit.datn.repository.UserRepository;
+import com.ptit.datn.repository.*;
 import com.ptit.datn.security.AuthoritiesConstants;
 import com.ptit.datn.security.SecurityUtils;
 import com.ptit.datn.service.dto.BuildingDTO;
@@ -17,6 +14,7 @@ import com.ptit.datn.service.dto.RequestDTO;
 import com.ptit.datn.service.dto.UserDTO;
 import jakarta.persistence.RollbackException;
 import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -26,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -35,15 +34,18 @@ public class RequestService {
     private final OfficeRepository officeRepository;
     private final BuildingRepository buildingRepository;
     private final UserRepository userRepository;
+    private final UserBuildingRepository userBuildingRepository;
 
     public RequestService(RequestRepository requestRepository,
                           OfficeRepository officeRepository,
                           UserRepository userRepository,
-                          BuildingRepository buildingRepository) {
+                          BuildingRepository buildingRepository,
+                          UserBuildingRepository userBuildingRepository) {
         this.requestRepository = requestRepository;
         this.officeRepository = officeRepository;
         this.userRepository = userRepository;
         this.buildingRepository = buildingRepository;
+        this.userBuildingRepository = userBuildingRepository;
     }
 
     /**
@@ -96,9 +98,20 @@ public class RequestService {
     }
 
     @Transactional(readOnly = true)
-    public Page<RequestDTO> getAllRequests(Pageable pageable) {
+    public Page<RequestDTO> getAllRequests(Pageable pageable, Integer status, Long userId) {
 
-        Page<Request> requests = requestRepository.findAll(pageable);
+        Specification<Request> spec = (root, query, criteriaBuilder) -> {
+            Predicate predicate = criteriaBuilder.conjunction();
+            if (status != null) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("status"), status));
+            }
+            if (userId != null) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("userId"), userId));
+            }
+            return predicate;
+        };
+
+        Page<Request> requests = requestRepository.findAll(spec, pageable);
         Page<RequestDTO> requestDTOS = requests.map(RequestDTO::new);
 
         // Get userDTOs
@@ -108,6 +121,85 @@ public class RequestService {
             }
             if (requestDTO.getBuildingId() != null) {
                 buildingRepository.findById(requestDTO.getBuildingId()).ifPresent(building -> requestDTO.setBuildingDTO(new BuildingDTO(building)));
+            }
+        });
+
+        return requestDTOS;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<RequestDTO> getAllRequestsForManage(Pageable pageable, Integer status) {
+
+        // Get current user
+        User user = userRepository.findById(Long.valueOf(SecurityUtils.getCurrentUserLogin()
+            .orElseThrow(() -> new RuntimeException("Thông tin người dùng không hợp lệ")))
+        ).orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+
+        // Check if user is manager or admin
+        boolean isManager = user.getAuthorities().stream().anyMatch(role -> role.getName().equals(AuthoritiesConstants.MANAGER));
+        boolean isAdmin = user.getAuthorities().stream().anyMatch(role -> role.getName().equals(AuthoritiesConstants.ADMIN));
+        if (!isManager && !isAdmin) {
+            throw new RuntimeException("Bạn không có quyền truy cập");
+        }
+
+        // Get all building ids that the user is manager
+        Set<Long> buildingIds = userBuildingRepository.findByUserId(user.getId()).stream()
+            .map(userBuilding -> userBuilding.getBuildingId())
+            .collect(Collectors.toSet());
+        if (buildingIds.isEmpty() && !isAdmin) {
+            return Page.empty();
+        }
+
+        Specification<Request> spec = (root, query, criteriaBuilder) -> {
+            Predicate predicate = criteriaBuilder.conjunction();
+            if (status != null) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("status"), status));
+            }
+            if (!isAdmin) {
+                predicate = criteriaBuilder.and(predicate, root.get("buildingId").in(buildingIds));
+            }
+            return predicate;
+        };
+
+        Page<Request> requests = requestRepository.findAll(spec, pageable);
+        Page<RequestDTO> requestDTOS = requests.map(RequestDTO::new);
+
+        // Get userDTOs
+        requestDTOS.forEach(requestDTO -> {
+            if (requestDTO.getUserId() != null) {
+                userRepository.findById(requestDTO.getUserId())
+                    .ifPresent(u -> requestDTO.setUserDTO(new UserDTO(u)));
+            }
+            if (requestDTO.getBuildingId() != null) {
+                buildingRepository.findById(requestDTO.getBuildingId())
+                    .ifPresent(b -> requestDTO.setBuildingDTO(new BuildingDTO(b)));
+            }
+        });
+
+        return requestDTOS;
+    }
+
+    public Page<RequestDTO> getAllRequestsByUser(Pageable pageable, Integer status) {
+        User user = userRepository.findById(Long.valueOf(SecurityUtils.getCurrentUserLogin()
+            .orElseThrow(() -> new RuntimeException("Thông tin người dùng không hợp lệ")))
+        ).orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+
+        Specification<Request> spec = (root, query, criteriaBuilder) -> {
+            Predicate predicate = criteriaBuilder.conjunction();
+            if (status != null) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("status"), status));
+            }
+            predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("userId"), user.getId()));
+            return predicate;
+        };
+
+        Page<Request> requests = requestRepository.findAll(spec, pageable);
+        Page<RequestDTO> requestDTOS = requests.map(RequestDTO::new);
+
+        requestDTOS.forEach(requestDTO -> {
+            if (requestDTO.getBuildingId() != null) {
+                buildingRepository.findById(requestDTO.getBuildingId())
+                    .ifPresent(b -> requestDTO.setBuildingDTO(new BuildingDTO(b)));
             }
         });
 

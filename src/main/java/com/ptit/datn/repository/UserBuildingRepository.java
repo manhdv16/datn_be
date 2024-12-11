@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface UserBuildingRepository extends JpaRepository<UserBuilding, Long> {
     @Query("SELECT COUNT(ub) FROM UserBuilding ub WHERE ub.buildingId = :buildingId")
@@ -18,4 +20,6 @@ public interface UserBuildingRepository extends JpaRepository<UserBuilding, Long
     @Modifying
     @Query("DELETE FROM UserBuilding ub WHERE ub.userId = :userId AND ub.buildingId = :buildingId")
     void deleteByBuildingIdAndUserId(Long buildingId, Long userId);
+
+    List<UserBuilding> findByUserId(Long userId);
 }

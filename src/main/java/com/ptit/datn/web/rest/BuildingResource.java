@@ -12,7 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,8 +41,7 @@ public class BuildingResource {
                                                        @RequestParam(required = false) BigInteger minPrice,
                                                        @RequestParam(required = false) BigInteger maxPrice,
                                                        @RequestParam(required = false) Double minArea,
-                                                       @RequestParam(required = false) Double maxArea,
-                                                       @RequestParam(required = false) Long userId) {
+                                                       @RequestParam(required = false) Double maxArea) {
         log.info("GET buildings START");
         Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
         try {
@@ -64,8 +63,41 @@ public class BuildingResource {
         }
     }
 
+    @GetMapping("/manage-list")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
+    public ApiResponse<Page<BuildingDTO>> getManageBuildings(@RequestParam(defaultValue = "0") Integer page,
+                                                             @RequestParam(defaultValue = "10") Integer size,
+                                                             @RequestParam(required = false) String keyword,
+                                                             @RequestParam(required = false) Long wardId,
+                                                             @RequestParam(required = false) Long districtId,
+                                                             @RequestParam(required = false) Long provinceId,
+                                                             @RequestParam(required = false) BigInteger minPrice,
+                                                             @RequestParam(required = false) BigInteger maxPrice,
+                                                             @RequestParam(required = false) Double minArea,
+                                                             @RequestParam(required = false) Double maxArea) {
+        log.info("GET buildings for manager START");
+        Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
+        try {
+            ApiResponse<Page<BuildingDTO>> response = ApiResponse.<Page<BuildingDTO>>builder()
+                .code(200)
+                .message("Lấy danh sách tòa nhà thành công")
+                .result(buildingService.getBuildingsForManage(pageable, keyword, wardId, districtId,
+                    provinceId, minPrice, maxPrice, minArea, maxArea))
+                .build();
+            log.info("GET buildings for manager SUCCESS");
+            return response;
+        } catch (Exception e) {
+            log.error("GET buildings for manager ERROR: ", e);
+            return ApiResponse.<Page<BuildingDTO>>builder()
+                .code(400)
+                .message("Lấy danh sách tòa nhà thất bại")
+                .result(null)
+                .build();
+        }
+    }
+
     @GetMapping("/all")
-    public ApiResponse<List<BuildingDTO>> getAllBuildings(@RequestParam(required = false) Long userId) {
+    public ApiResponse<List<BuildingDTO>> getAllBuildings() {
         log.info("GET all buildings START");
         try {
             ApiResponse<List<BuildingDTO>> response = ApiResponse.<List<BuildingDTO>>builder()
