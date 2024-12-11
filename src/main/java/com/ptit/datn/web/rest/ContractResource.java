@@ -1,6 +1,7 @@
 package com.ptit.datn.web.rest;
 
 import com.ptit.datn.dto.response.CommonResponse;
+import com.ptit.datn.dto.response.StatisticsContractResponse;
 import com.ptit.datn.service.ContractService;
 import com.ptit.datn.service.dto.BuildingContractStatDTO;
 import com.ptit.datn.service.dto.ContractDTO;
@@ -95,6 +96,12 @@ public class ContractResource {
     @PostMapping("/stat-building-contracts")
     public CommonResponse<?> getStatBuildingContract(@RequestBody BuildingContractStatDTO input){
         List<BuildingContractStatDTO> result = contractService.getStatBuildingContract(input);
+        return new CommonResponse<>().success().data(result);
+    }
+
+    @PostMapping("/stat/building-contracts")
+    public CommonResponse<?> getStatisticsContract(@RequestBody BuildingContractStatDTO input){
+        List<StatisticsContractResponse> result = contractService.getStatisticsContract(input);
         return new CommonResponse<>().success().data(result);
     }
 
