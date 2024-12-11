@@ -107,7 +107,7 @@ public class UserResource {
     }
 
     @GetMapping("/managers")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
+//    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public Page<AdminUserDTO> getAllManagers(Pageable pageable) {
         log.debug("REST request to get all managers for an admin");
         return userService.getAllManagers(pageable);
