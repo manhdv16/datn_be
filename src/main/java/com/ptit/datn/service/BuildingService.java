@@ -4,10 +4,12 @@ import com.ptit.datn.cloudinary.CloudinaryService;
 import com.ptit.datn.domain.Building;
 import com.ptit.datn.domain.BuildingImage;
 import com.ptit.datn.domain.Image;
+import com.ptit.datn.domain.User;
 import com.ptit.datn.domain.key.BuildingImageId;
 import com.ptit.datn.dto.request.BuildingCreateRequest;
 import com.ptit.datn.dto.request.BuildingUpdateRequest;
 import com.ptit.datn.repository.*;
+import com.ptit.datn.security.SecurityUtils;
 import com.ptit.datn.service.dto.BuildingDTO;
 import com.ptit.datn.service.dto.ImageDTO;
 import com.ptit.datn.service.dto.OfficeDTO;
@@ -20,6 +22,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,14 +44,18 @@ public class BuildingService {
     private final WardRepository wardRepository;
     private final ImageRepository imageRepository;
     private final BuildingImageRepository buildingImageRepository;
+    private final UserRepository userRepository;
+    private final UserBuildingRepository userBuildingRepository;
 
     private final CloudinaryService cloudinaryService;
 
     public BuildingService(BuildingRepository buildingRepository,
                            WardRepository wardRepository,
                            OfficeRepository officeRepository,
-                            ImageRepository imageRepository,
+                           ImageRepository imageRepository,
                            BuildingImageRepository buildingImageRepository,
+                           UserRepository userRepository,
+                            UserBuildingRepository userBuildingRepository,
                            CloudinaryService cloudinaryService) {
         this.buildingRepository = buildingRepository;
         this.wardRepository = wardRepository;
@@ -54,12 +63,36 @@ public class BuildingService {
         this.cloudinaryService = cloudinaryService;
         this.imageRepository = imageRepository;
         this.buildingImageRepository = buildingImageRepository;
+        this.userBuildingRepository = userBuildingRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional(readOnly = true)
     public List<BuildingDTO> getAllBuildingsUnpaged() {
         log.info("Get all buildings");
-        return buildingRepository.findAll().stream().map(BuildingDTO::new).collect(Collectors.toList());
+        User user = userRepository.findById(Long.valueOf(SecurityUtils.getCurrentUserLogin()
+                .orElseThrow(() -> new AuthorizationDeniedException("Không tìm thấy người dùng hiện tại",
+                    new AuthorizationDecision(false)))))
+            .orElseThrow(() -> new AuthorizationDeniedException("Không tìm thấy người dùng hiện tại",
+                new AuthorizationDecision(false)));
+
+        boolean isManager = user.getAuthorities().stream().anyMatch(role -> role.getName().equals("ROLE_MANAGER"));
+        boolean isAdmin = user.getAuthorities().stream().anyMatch(role -> role.getName().equals("ROLE_ADMIN"));
+        if (!isManager && !isAdmin) {
+            throw new AuthorizationDeniedException("Bạn không có quyền truy cập", new AuthorizationDecision(false));
+        }
+
+        Specification spec = (root, query, cb) -> {
+            if (isManager && !isAdmin) {
+                Set<Long> buildingIds = userBuildingRepository.findByUserId(user.getId()).stream()
+                    .map(userBuilding -> userBuilding.getBuildingId())
+                    .collect(Collectors.toSet());
+                return cb.and(root.get("id").in(buildingIds));
+            }
+            return cb.conjunction();
+        };
+        List<Building> buildings = buildingRepository.findAll(spec);
+        return buildings.stream().map(BuildingDTO::new).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -119,7 +152,92 @@ public class BuildingService {
                     .collect(Collectors.toList()));
         });
         return buildingDTOS;
+    }
 
+    @Transactional(readOnly = true)
+    public Page<BuildingDTO> getBuildingsForManage(Pageable pageable,
+                                                    String keyword,
+                                                    Long wardId,
+                                                    Long districtId,
+                                                    Long provinceId,
+                                                    BigInteger minPrice,
+                                                    BigInteger maxPrice,
+                                                    Double minArea,
+                                                    Double maxArea) {
+        log.info("Get buildings for manager");
+
+        // Get current user
+        User user = userRepository.findById(Long.valueOf(SecurityUtils.getCurrentUserLogin()
+                .orElseThrow(() -> new AuthorizationDeniedException("Không tìm thấy người dùng hiện tại",
+                    new AuthorizationDecision(false)))))
+            .orElseThrow(() -> new AuthorizationDeniedException("Không tìm thấy người dùng hiện tại",
+                new AuthorizationDecision(false)));
+
+        // Check if user is manager or admin
+        boolean isManager = user.getAuthorities().stream().anyMatch(role -> role.getName().equals("ROLE_MANAGER"));
+        boolean isAdmin = user.getAuthorities().stream().anyMatch(role -> role.getName().equals("ROLE_ADMIN"));
+        if (!isManager && !isAdmin) {
+            throw new AuthorizationDeniedException("Bạn không có quyền truy cập", new AuthorizationDecision(false));
+        }
+
+        // Get all building ids that the user is manager
+        Set<Long> buildingIds = userBuildingRepository.findByUserId(user.getId()).stream()
+                .map(userBuilding -> userBuilding.getBuildingId())
+                .collect(Collectors.toSet());
+        if (buildingIds.isEmpty() && !isAdmin) {
+            return Page.empty();
+        }
+
+        Specification<Building> spec = (root, query, cb) -> {
+            // Join with the offices table to filter by price/area
+            Join<Object, Object> officeJoin = root.join("offices", JoinType.LEFT);
+            query.distinct(true);
+            Predicate predicate = cb.conjunction(); // Base condition
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                String pattern = "%" + keyword.trim().toLowerCase() + "%";
+                Predicate namePredicate = cb.like(cb.lower(root.get("name")), pattern);
+                Predicate addressPredicate = cb.like(cb.lower(root.get("address")), pattern);
+                predicate = cb.and(predicate, cb.or(namePredicate, addressPredicate));
+            }
+
+            if (wardId != null) {
+                predicate = cb.and(predicate, cb.equal(root.get("ward").get("id"), wardId));
+            } else if (districtId != null) {
+                predicate = cb.and(predicate, cb.equal(root.get("ward").get("district").get("id"), districtId));
+            } else if (provinceId != null) {
+                predicate = cb.and(predicate, cb.equal(root.get("ward").get("district").get("province").get("id"), provinceId));
+            }
+
+            if (minPrice != null) {
+                predicate = cb.and(predicate, cb.greaterThanOrEqualTo(officeJoin.get("price"), minPrice));
+            }
+            if (maxPrice != null) {
+                predicate = cb.and(predicate, cb.lessThanOrEqualTo(officeJoin.get("price"), maxPrice));
+            }
+            if (minArea != null) {
+                predicate = cb.and(predicate, cb.greaterThanOrEqualTo(officeJoin.get("area"), minArea));
+            }
+            if (maxArea != null) {
+                predicate = cb.and(predicate, cb.lessThanOrEqualTo(officeJoin.get("area"), maxArea));
+            }
+
+            if (isManager && !isAdmin) {
+                predicate = cb.and(predicate, root.get("id").in(buildingIds));
+            }
+
+            return predicate;
+        };
+
+        Page<Building> buildings = buildingRepository.findAll(spec, pageable);
+        Page<BuildingDTO> buildingDTOS = buildings.map(BuildingDTO::new);
+        buildingDTOS.forEach(buildingDTO -> {
+            buildingDTO.setImages(buildingImageRepository.findAllByIdBuildingId(buildingDTO.getId()).stream()
+                    .map(buildingImage -> imageRepository.findById(buildingImage.getId().getImageId()).orElseThrow())
+                    .map(ImageDTO::new)
+                    .collect(Collectors.toList()));
+        });
+        return buildingDTOS;
     }
 
     @Transactional(readOnly = true)
