@@ -4,6 +4,7 @@ import com.cloudinary.http44.api.Response;
 import com.lowagie.text.pdf.BaseFont;
 import com.ptit.datn.cloudinary.CloudinaryService;
 import com.ptit.datn.domain.*;
+import com.ptit.datn.dto.response.StatisticsContractResponse;
 import com.ptit.datn.exception.AppException;
 import com.ptit.datn.exception.ErrorCode;
 import com.ptit.datn.repository.*;
@@ -288,5 +289,22 @@ public class ContractService {
         }
 
         return contractRepository.getStatBuildingContract(input);
+    }
+
+    public List<StatisticsContractResponse> getStatisticsContract(BuildingContractStatDTO input){
+        if(input.getStartDate() == null){
+            input.setStartDate(contractRepository.getMinStartDate());
+        }
+        if(input.getEndDate() == null){
+            input.setEndDate(contractRepository.getMaxEndDate());
+        }
+
+        List<Object[]> results = contractRepository.findContractStatistics(input.getStartDate(), input.getEndDate());
+        return results.stream()
+            .map(row -> new StatisticsContractResponse(
+                ((java.sql.Date) row[0]).toLocalDate(),
+                ((Number) row[1]).longValue()
+            ))
+            .collect(Collectors.toList());
     }
 }

@@ -1,20 +1,14 @@
 package com.ptit.datn.repository.custom.impl;
 
-import static com.ptit.datn.database.domain.Tables.*;
-
 import com.ptit.datn.domain.ContractEntity;
 import com.ptit.datn.repository.custom.ContractRepositoryCustom;
 import com.ptit.datn.service.dto.BuildingContractStatDTO;
-import com.ptit.datn.service.dto.ContractDTO;
 import com.ptit.datn.service.dto.FilterDTO;
 import com.ptit.datn.service.dto.model.PageFilterInput;
 import com.ptit.datn.service.mapper.ContractMapper;
 import lombok.RequiredArgsConstructor;
-import org.jooq.Condition;
-import org.jooq.DSLContext;
 import org.jooq.Record;
-import org.jooq.Result;
-import org.jooq.SelectQuery;
+import org.jooq.*;
 import org.jooq.impl.DSL;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -24,6 +18,8 @@ import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.ptit.datn.database.domain.Tables.*;
 
 @RequiredArgsConstructor
 public class ContractRepositoryCustomImpl implements ContractRepositoryCustom {
