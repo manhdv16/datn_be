@@ -398,6 +398,10 @@ public class UserService {
         userBuildingRepository.deleteByBuildingIdAndUserId(buildingId, userId);
     }
 
+    public List<UserDTO> getAllManagersByBuilding(Long id) {
+        return userRepository.findAllManagerByBuildingId(id).stream().map(UserDTO::new).toList();
+    }
+
     public List<UserDTO> getAllByRoleUser() {
         return userRepository.findAllByAuthoritiesName(AuthoritiesConstants.USER).stream().map(UserDTO::new).toList();
     }
