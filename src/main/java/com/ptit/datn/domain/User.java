@@ -73,6 +73,10 @@ public class User extends AbstractAuditingEntity<Long> implements Serializable {
     @Column(name = "sign_image", length = 256)
     private String signImage;
 
+    @Size(max = 256)
+    @Column(name = "avatar", length = 256)
+    private String imageAvatar;
+
     @Size(max = 20)
     @Column(name = "activation_key", length = 20)
     @JsonIgnore

@@ -22,6 +22,7 @@ public class UserResponse {
     String phoneNumber;
     String email;
     String signImage;
+    String imageAvatar;
     String langKey;
     String cccd;
     String address;
@@ -38,6 +39,7 @@ public class UserResponse {
         this.address = user.getAddress();
         this.dob = user.getDob();
         this.signImage = user.getSignImage();
+        this.imageAvatar = user.getImageAvatar();
         this.authorities = user.getAuthorities().stream().map(Authority::getName).collect(Collectors.toSet());
     }
 }

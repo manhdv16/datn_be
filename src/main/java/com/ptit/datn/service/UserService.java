@@ -127,7 +127,13 @@ public class UserService {
         if (userDTO.getEmail() != null) {
             newUser.setEmail(userDTO.getEmail().toLowerCase());
         }
-        newUser.setDigitalSignature(SignatureService.generateHashFromMultipartFile(userDTO.getImageDigitalSignature()));
+        if (!DataUtils.isNullOrEmpty(userDTO.getImageDigitalSignature())) {
+            newUser.setDigitalSignature(SignatureService.generateHashFromMultipartFile(userDTO.getImageDigitalSignature()));
+        }
+
+        if (!DataUtils.isNullOrEmpty(userDTO.getImageAvatar())) {
+            newUser.setImageAvatar((String) cloudinaryService.uploadFile(userDTO.getImageAvatar()).get("url"));
+        }
         newUser.setLangKey(userDTO.getLangKey());
         newUser.setFullName(userDTO.getFullName());
         newUser.setCccd(userDTO.getCccd());

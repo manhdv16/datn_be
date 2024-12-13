@@ -45,6 +45,8 @@ public class AdminUserDTO implements Serializable {
 
     private MultipartFile imageDigitalSignature;
 
+    private MultipartFile imageAvatar;
+
     private boolean activated = false;
 
 //    @Size(min = 2, max = 10)
@@ -81,6 +83,7 @@ public class AdminUserDTO implements Serializable {
         this.dob = user.getDob();
         this.activated = user.isActivated();
         this.imageDigitalSignature = null;
+        this.imageAvatar = null;
         this.langKey = user.getLangKey();
         this.createdBy = user.getCreatedBy();
         this.createdDate = user.getCreatedDate();
