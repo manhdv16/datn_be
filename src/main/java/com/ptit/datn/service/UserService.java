@@ -6,6 +6,7 @@ import com.ptit.datn.domain.Authority;
 import com.ptit.datn.domain.User;
 import com.ptit.datn.domain.UserBuilding;
 import com.ptit.datn.dto.request.UserListRequest;
+import com.ptit.datn.dto.response.UserResponse;
 import com.ptit.datn.exception.AppException;
 import com.ptit.datn.exception.ErrorCode;
 import com.ptit.datn.repository.AuthorityRepository;
@@ -221,7 +222,7 @@ public class UserService {
      * @param userDTO user to update.
      * @return updated user.
      */
-    public Optional<AdminUserDTO> updateUser(AdminUserDTO userDTO) throws Exception {
+    public Optional<UserResponse> updateUser(AdminUserDTO userDTO) throws Exception {
         Long id;
         if (DataUtils.isNullOrEmpty(userDTO.getId())){
             String strId = SecurityUtils.getCurrentUserLogin().orElse(null);
@@ -267,7 +268,7 @@ public class UserService {
                 log.debug("Changed Information for User: {}", user);
                 return user;
             })
-            .map(AdminUserDTO::new);
+            .map(UserResponse::new);
     }
 
     public void deleteUser(Long id) {
@@ -295,24 +296,24 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<AdminUserDTO> getAllManagedUsers(Pageable pageable) {
-        return userRepository.findAll(pageable).map(AdminUserDTO::new);
+    public Page<UserResponse> getAllManagedUsers(Pageable pageable) {
+        return userRepository.findAll(pageable).map(UserResponse::new);
     }
 
     @Transactional(readOnly = true)
-    public Page<AdminUserDTO> getAllManagers(Pageable pageable) {
-        return userRepository.findAllByRole(pageable).map(AdminUserDTO::new);
+    public Page<UserResponse> getAllManagers(Pageable pageable) {
+        return userRepository.findAllByRole(pageable).map(UserResponse::new);
     }
 
     @Transactional(readOnly = true)
-    public Page<AdminUserDTO> getAllManagerNotAssignedBuildingId(Pageable pageable, Long buildingId) {
-        return userRepository.findAllManagerNotAssignedBuildingId(pageable, buildingId).map(AdminUserDTO::new);
+    public Page<UserResponse> getAllManagerNotAssignedBuildingId(Pageable pageable, Long buildingId) {
+        return userRepository.findAllManagerNotAssignedBuildingId(pageable, buildingId).map(UserResponse::new);
     }
 
 
     @Transactional(readOnly = true)
-    public List<AdminUserDTO> getManagerByBuilding(Long id) {
-        return userRepository.getManagerByBuilding(id).stream().map(AdminUserDTO::new).toList();
+    public List<UserResponse> getManagerByBuilding(Long id) {
+        return userRepository.getManagerByBuilding(id).stream().map(UserResponse::new).toList();
     }
 
     @Transactional(readOnly = true)
