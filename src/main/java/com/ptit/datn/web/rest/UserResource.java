@@ -83,7 +83,7 @@ public class UserResource {
 
     @PutMapping({ "/users/{id}" })
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ApiResponse<AdminUserDTO> updateUser(@PathVariable("id") Long id, @ModelAttribute @Valid AdminUserDTO userDTO) throws Exception {
+    public ApiResponse<UserResponse> updateUser(@PathVariable("id") Long id, @ModelAttribute @Valid AdminUserDTO userDTO) throws Exception {
         log.debug("REST request to update User : {}", userDTO);
         Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail());
         if (existingUser.isPresent() && (!existingUser.orElseThrow().getId().equals(id))) {
@@ -94,8 +94,8 @@ public class UserResource {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
         userDTO.setId(id);
-        Optional<AdminUserDTO> updatedUser = userService.updateUser(userDTO);
-        return ApiResponse.<AdminUserDTO>builder().message("User updated").result(updatedUser.orElse(null)).build();
+        Optional<UserResponse> updatedUser = userService.updateUser(userDTO);
+        return ApiResponse.<UserResponse>builder().message("User updated").result(updatedUser.orElse(null)).build();
     }
 
     @PostMapping("/assign-users-responsible-by-building-id/{id}")
@@ -108,15 +108,15 @@ public class UserResource {
 
     @GetMapping("/managers")
 //    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public Page<AdminUserDTO> getAllManagers(Pageable pageable) {
+    public Page<UserResponse> getAllManagers(Pageable pageable) {
         log.debug("REST request to get all managers for an admin");
         return userService.getAllManagers(pageable);
     }
 
     @GetMapping("/manager/by-building/{id}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<List<AdminUserDTO>> getManagerByBuilding(@PathVariable("id") Long id) {
-        List<AdminUserDTO> list = userService.getManagerByBuilding(id);
+    public ResponseEntity<List<UserResponse>> getManagerByBuilding(@PathVariable("id") Long id) {
+        List<UserResponse> list = userService.getManagerByBuilding(id);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
@@ -130,10 +130,10 @@ public class UserResource {
 
     @GetMapping("/get-all-managers-not-assigned/{buildingId}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<List<AdminUserDTO>> getAllManagerNotAssignedBuildingId(Pageable pageable, @PathVariable("buildingId") Long buildingId) {
+    public ResponseEntity<List<UserResponse>> getAllManagerNotAssignedBuildingId(Pageable pageable, @PathVariable("buildingId") Long buildingId) {
         log.debug("REST request to get all managers not assigned building by {} for an admin", buildingId);
 
-        final Page<AdminUserDTO> page = userService.getAllManagerNotAssignedBuildingId(pageable, buildingId);
+        final Page<UserResponse> page = userService.getAllManagerNotAssignedBuildingId(pageable, buildingId);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -142,13 +142,13 @@ public class UserResource {
 
     @GetMapping("/users")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<List<AdminUserDTO>> getAllUsers(@org.springdoc.core.annotations.ParameterObject Pageable pageable) {
+    public ResponseEntity<List<UserResponse>> getAllUsers(@org.springdoc.core.annotations.ParameterObject Pageable pageable) {
         log.debug("REST request to get all User for an admin");
         if (!onlyContainsAllowedProperties(pageable)) {
             return ResponseEntity.badRequest().build();
         }
 
-        final Page<AdminUserDTO> page = userService.getAllManagedUsers(pageable);
+        final Page<UserResponse> page = userService.getAllManagedUsers(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
