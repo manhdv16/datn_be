@@ -22,6 +22,7 @@ spring:
       on-profile: '!api-docs'
 springdoc:
   api-docs:
+  api-docs:
     enabled: false
 ---
 management:
