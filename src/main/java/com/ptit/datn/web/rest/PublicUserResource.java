@@ -55,6 +55,12 @@ public class PublicUserResource {
         return ResponseEntity.ok().body(userService.getAllByRoleUser());
     }
 
+    @GetMapping("/users/building/{id}")
+    public ResponseEntity<List<UserDTO>> getAllManagersByBuilding(@PathVariable Long id) {
+        return ResponseEntity.ok().body(userService.getAllManagersByBuilding(id));
+    }
+
+
     private boolean onlyContainsAllowedProperties(Pageable pageable) {
         return pageable.getSort().stream().map(Sort.Order::getProperty).allMatch(ALLOWED_ORDERED_PROPERTIES::contains);
     }

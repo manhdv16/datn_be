@@ -2,6 +2,7 @@ package com.ptit.datn.repository;
 
 import com.ptit.datn.domain.User;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,4 +66,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u INNER JOIN UserAuthority ua ON u.id = ua.userId WHERE ua.authorityName = :roleName")
     List<User> findAllByAuthoritiesName(@Param("roleName") String roleName);
+
+    @Query("SELECT u FROM User u INNER JOIN UserBuilding ub ON u.id = ub.userId WHERE ub.buildingId = :id")
+    List<User> findAllManagerByBuildingId(Long id);
 }
