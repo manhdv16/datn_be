@@ -61,6 +61,15 @@ public class RequestService {
         request.setNote(requestDTO.getNote());
         request.setStatus(RequestStatus.PENDING); // When user create a request, the status is PENDING
 
+        // Get the author of the request
+        User author = userRepository.findById(
+                Long.valueOf(SecurityUtils.getCurrentUserLogin()
+                    .orElseThrow(() -> new RuntimeException("Thông tin người gửi không hợp lệ"))))
+            .orElseThrow(() -> new RuntimeException("Người gửi không tồn tại"));
+
+        boolean isManager = author.getAuthorities().stream().anyMatch(role -> role.getName().equals(AuthoritiesConstants.MANAGER))
+            || author.getAuthorities().stream().anyMatch(role -> role.getName().equals(AuthoritiesConstants.ADMIN));
+
         List<Office> officeList = officeRepository.findAllByIds(requestDTO.getOfficeIds());
         if (officeList.size() != requestDTO.getOfficeIds().size()) {
             throw new RollbackException("Văn phòng không tồn tại");
@@ -73,16 +82,8 @@ public class RequestService {
             request.getOffices().add(office);
         });
 
-        User author = userRepository.findById(
-            Long.valueOf(SecurityUtils.getCurrentUserLogin()
-                .orElseThrow(() -> new RuntimeException("Thông tin người gửi không hợp lệ"))))
-                .orElseThrow(() -> new RuntimeException("Người gửi không tồn tại"));
-
         // If the author is a manager or an admin
-        if(author.getAuthorities()
-            .stream()
-            .anyMatch(authority -> authority.getName().equals(AuthoritiesConstants.ADMIN)
-                || authority.getName().equals(AuthoritiesConstants.MANAGER))) {
+        if(isManager) {
             request.setManagerId(author.getId());
             request.setStatus(RequestStatus.ACCEPTED);
         }
@@ -94,7 +95,7 @@ public class RequestService {
                 request.setManagerId(requestDTO.getManagerId());
             }
         }
-        
+
         RequestDTO requestDTO_result = new RequestDTO(requestRepository.save(request));
         requestDTO_result.setOfficeIds(requestDTO.getOfficeIds());
 
