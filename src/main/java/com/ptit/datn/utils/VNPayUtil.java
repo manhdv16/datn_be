@@ -69,22 +69,16 @@ public class VNPayUtil {
                 .collect(Collectors.joining("&"));
     }
 
-
     public static String buildQueryString(Map<String, String> params, boolean urlEncode) {
         // Sắp xếp tham số theo thứ tự bảng chữ cái
         return params.entrySet()
                 .stream()
                 .sorted(Map.Entry.comparingByKey())
                 .map(entry -> {
-                    try {
                         String key = entry.getKey();
-                        String value = urlEncode ? URLEncoder.encode(entry.getValue(), "UTF-8") : entry.getValue();
+                        String value = urlEncode ? URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8) : entry.getValue();
                         return key + "=" + value;
-                    } catch (UnsupportedEncodingException e) {
-                        throw new RuntimeException("Error encoding URL", e);
-                    }
                 })
                 .collect(Collectors.joining("&"));
     }
-
 }

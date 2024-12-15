@@ -164,6 +164,13 @@ public class UserResource {
         return ResponseUtil.wrapOrNotFound(userService.getUserWithAuthoritiesById(id).map(UserResponse::new));
     }
 
+    @GetMapping("/customer/{id}")
+    @PreAuthorize("hasAnyAuthority(\"" + AuthoritiesConstants.ADMIN + "\", \"" + AuthoritiesConstants.MANAGER + "\")")
+    public ResponseEntity<UserResponse> getCustomer(@PathVariable("id") Long id) {
+        log.debug("REST request to get User : {}", id);
+        return ResponseUtil.wrapOrNotFound(userService.getCustomerById(id).map(UserResponse::new));
+    }
+
     @DeleteMapping("/users/{id}")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ApiResponse<Void> deleteUser(@PathVariable("id") Long id) {
