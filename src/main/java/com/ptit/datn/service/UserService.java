@@ -327,6 +327,18 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    public Optional<User> getCustomerById(Long id) {
+        Optional<User> user = userRepository.findOneById(id);
+        if (user.isEmpty()) {
+            throw new RuntimeException("Không tìm thấy người dùng");
+        }
+        if (user.get().getAuthorities().stream().noneMatch(authority -> authority.getName().equals(AuthoritiesConstants.USER))) {
+            throw new RuntimeException("Người dùng không hợp lệ");
+        }
+        return user;
+    }
+
+    @Transactional(readOnly = true)
     public Optional<User> getUserWithAuthorities() {
         Long id = Long.parseLong(Objects.requireNonNull(SecurityUtils.getCurrentUserLogin().orElse(null)));
         return userRepository.findOneWithAuthoritiesById(id);
@@ -403,6 +415,10 @@ public class UserService {
             throw new AppException(ErrorCode.USER_NOT_EXISTED);
         }
         userBuildingRepository.deleteByBuildingIdAndUserId(buildingId, userId);
+    }
+
+    public List<UserDTO> getAllManagersByBuilding(Long id) {
+        return userRepository.findAllManagerByBuildingId(id).stream().map(UserDTO::new).toList();
     }
 
     public List<UserDTO> getAllByRoleUser() {

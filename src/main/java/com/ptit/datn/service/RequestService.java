@@ -90,7 +90,11 @@ public class RequestService {
         else {
             request.setUserId(author.getId());
             request.setStatus(RequestStatus.PENDING);
+            if(requestDTO.getManagerId() != null) {
+                request.setManagerId(requestDTO.getManagerId());
+            }
         }
+        
         RequestDTO requestDTO_result = new RequestDTO(requestRepository.save(request));
         requestDTO_result.setOfficeIds(requestDTO.getOfficeIds());
 
