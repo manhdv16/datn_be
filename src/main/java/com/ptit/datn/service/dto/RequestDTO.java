@@ -10,7 +10,7 @@ import java.util.Set;
 
 @Getter
 @Setter
-public class RequestDTO {
+public class RequestDTO extends AbstractAuditingDTO {
     public Long id;
 
     public Long userId;
@@ -37,6 +37,7 @@ public class RequestDTO {
     }
 
     public RequestDTO(Request request) {
+        super(request.getCreatedBy(), request.getCreatedDate(), request.getLastModifiedBy(), request.getLastModifiedDate());
         this.id = request.getId();
         this.userId = request.getUserId();
         this.managerId = request.getManagerId();

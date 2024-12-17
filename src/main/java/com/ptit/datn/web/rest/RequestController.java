@@ -1,5 +1,6 @@
 package com.ptit.datn.web.rest;
 
+import com.ptit.datn.dto.request.StatusAcceptRequest;
 import com.ptit.datn.service.RequestService;
 import com.ptit.datn.service.dto.RequestDTO;
 import org.springframework.data.domain.Page;
@@ -27,8 +28,7 @@ public class RequestController {
                                                            @RequestParam(value = "status", required = false) Integer status,
                                                            @RequestParam(value = "userId", required = false) Long userId) {
         Sort sort = Sort.by(List.of(Sort.Order.asc("status"),
-            Sort.Order.desc("date"),
-            Sort.Order.desc("time")));
+            Sort.Order.desc("createdDate")));
         Pageable pageable = PageRequest.of(page, size, sort);
         return ResponseEntity.ok().body(requestService.getAllRequests(pageable, status, userId));
     }
@@ -38,8 +38,7 @@ public class RequestController {
                                                                     @RequestParam(value = "size", defaultValue = "10") Integer size,
                                                                     @RequestParam(value = "status", required = false) Integer status) {
         Sort sort = Sort.by(List.of(Sort.Order.asc("status"),
-            Sort.Order.desc("date"),
-            Sort.Order.desc("time")));
+            Sort.Order.desc("createdDate")));
         Pageable pageable = PageRequest.of(page, size, sort);
         return ResponseEntity.ok().body(requestService.getAllRequestsForManage(pageable, status));
     }
@@ -54,8 +53,7 @@ public class RequestController {
                                                                  @RequestParam(value = "size", defaultValue = "10") Integer size,
                                                                  @RequestParam(value = "status", required = false) Integer status) {
         Sort sort = Sort.by(List.of(Sort.Order.asc("status"),
-            Sort.Order.desc("date"),
-            Sort.Order.desc("time")));
+            Sort.Order.desc("createdDate")));
         Pageable pageable = PageRequest.of(page, size, sort);
         return ResponseEntity.ok().body(requestService.getAllRequestsByUser(pageable, status));
     }
@@ -70,4 +68,31 @@ public class RequestController {
     public ResponseEntity<RequestDTO> updateRequest(@RequestBody RequestDTO requestDTO) {
         return ResponseEntity.ok().body(requestService.updateRequest(requestDTO));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteRequest(@PathVariable Long id) {
+        return ResponseEntity.ok().body(requestService.deleteRequest(id));
+    }
+
+    //region handle status changed
+    @PostMapping("/handle-accept/{id}")
+    public ResponseEntity<RequestDTO> handleAccept(@PathVariable Long id, @RequestBody StatusAcceptRequest req) {
+        return ResponseEntity.ok().body(requestService.handleAccept(id, req));
+    }
+
+    @PostMapping("/handle-reject/{id}")
+    public ResponseEntity<RequestDTO> handleReject(@PathVariable Long id) {
+        return ResponseEntity.ok().body(requestService.handleReject(id));
+    }
+
+    @PostMapping("/handle-cancel/{id}")
+    public ResponseEntity<RequestDTO> handleCancel(@PathVariable Long id) {
+        return ResponseEntity.ok().body(requestService.handleCancel(id));
+    }
+
+    @PostMapping("/handle-complete/{id}")
+    public ResponseEntity<RequestDTO> handleComplete(@PathVariable Long id) {
+        return ResponseEntity.ok().body(requestService.handleComplete(id));
+    }
+    //endregion
 }

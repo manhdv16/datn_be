@@ -5,6 +5,7 @@ import com.ptit.datn.domain.Building;
 import com.ptit.datn.domain.Office;
 import com.ptit.datn.domain.Request;
 import com.ptit.datn.domain.User;
+import com.ptit.datn.dto.request.StatusAcceptRequest;
 import com.ptit.datn.repository.*;
 import com.ptit.datn.security.AuthoritiesConstants;
 import com.ptit.datn.security.SecurityUtils;
@@ -61,6 +62,15 @@ public class RequestService {
         request.setNote(requestDTO.getNote());
         request.setStatus(RequestStatus.PENDING); // When user create a request, the status is PENDING
 
+        // Get the author of the request
+        User author = userRepository.findById(
+                Long.valueOf(SecurityUtils.getCurrentUserLogin()
+                    .orElseThrow(() -> new RuntimeException("Thông tin người gửi không hợp lệ"))))
+            .orElseThrow(() -> new RuntimeException("Người gửi không tồn tại"));
+
+        boolean isManager = author.getAuthorities().stream().anyMatch(role -> role.getName().equals(AuthoritiesConstants.MANAGER))
+            || author.getAuthorities().stream().anyMatch(role -> role.getName().equals(AuthoritiesConstants.ADMIN));
+
         List<Office> officeList = officeRepository.findAllByIds(requestDTO.getOfficeIds());
         if (officeList.size() != requestDTO.getOfficeIds().size()) {
             throw new RollbackException("Văn phòng không tồn tại");
@@ -73,16 +83,8 @@ public class RequestService {
             request.getOffices().add(office);
         });
 
-        User author = userRepository.findById(
-            Long.valueOf(SecurityUtils.getCurrentUserLogin()
-                .orElseThrow(() -> new RuntimeException("Thông tin người gửi không hợp lệ"))))
-                .orElseThrow(() -> new RuntimeException("Người gửi không tồn tại"));
-
         // If the author is a manager or an admin
-        if(author.getAuthorities()
-            .stream()
-            .anyMatch(authority -> authority.getName().equals(AuthoritiesConstants.ADMIN)
-                || authority.getName().equals(AuthoritiesConstants.MANAGER))) {
+        if(isManager) {
             request.setManagerId(author.getId());
             request.setStatus(RequestStatus.ACCEPTED);
         }
@@ -94,7 +96,7 @@ public class RequestService {
                 request.setManagerId(requestDTO.getManagerId());
             }
         }
-        
+
         RequestDTO requestDTO_result = new RequestDTO(requestRepository.save(request));
         requestDTO_result.setOfficeIds(requestDTO.getOfficeIds());
 
@@ -245,4 +247,43 @@ public class RequestService {
         request.setStatus(requestDTO.getStatus());
         return new RequestDTO(requestRepository.save(request));
     }
+
+    //region Handle request
+    public RequestDTO handleAccept(Long id, StatusAcceptRequest req) {
+        Request request = requestRepository.findById(id).orElseThrow();
+        request.setDate(req.getDate());
+        request.setTime(req.getTime());
+        request.setStatus(RequestStatus.ACCEPTED);
+        request.setManagerId(Long.valueOf(SecurityUtils.getCurrentUserLogin().orElseThrow()));
+        return new RequestDTO(requestRepository.save(request));
+    }
+
+    public RequestDTO handleReject(Long id) {
+        Request request = requestRepository.findById(id).orElseThrow();
+        request.setStatus(RequestStatus.REJECTED);
+        return new RequestDTO(requestRepository.save(request));
+    }
+
+    public RequestDTO handleCancel(Long id) {
+        Request request = requestRepository.findById(id).orElseThrow();
+        request.setStatus(RequestStatus.CANCELED);
+        return new RequestDTO(requestRepository.save(request));
+    }
+
+    public RequestDTO handleComplete(Long id) {
+        Request request = requestRepository.findById(id).orElseThrow();
+        request.setStatus(RequestStatus.COMPLETED);
+        return new RequestDTO(requestRepository.save(request));
+    }
+
+    public Void deleteRequest(Long id) {
+        try {
+            requestRepository.deleteById(id);
+            return null;
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Xóa yêu cầu không thành công");
+        }
+    }
+    //endregion
 }

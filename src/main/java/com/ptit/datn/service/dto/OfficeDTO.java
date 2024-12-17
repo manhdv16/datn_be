@@ -8,7 +8,7 @@ import java.math.BigInteger;
 
 @Getter
 @Setter
-public class OfficeDTO {
+public class OfficeDTO extends AbstractAuditingDTO {
 
     private Long id;
     private String name;
@@ -27,6 +27,7 @@ public class OfficeDTO {
     }
 
     public OfficeDTO(Office office) {
+        super(office.getCreatedBy(), office.getCreatedDate(), office.getLastModifiedBy(), office.getLastModifiedDate());
         this.id = office.getId();
         this.name = office.getName();
         this.area = office.getArea();
