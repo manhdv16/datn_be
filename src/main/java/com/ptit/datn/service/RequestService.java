@@ -5,6 +5,7 @@ import com.ptit.datn.domain.Building;
 import com.ptit.datn.domain.Office;
 import com.ptit.datn.domain.Request;
 import com.ptit.datn.domain.User;
+import com.ptit.datn.dto.request.StatusAcceptRequest;
 import com.ptit.datn.repository.*;
 import com.ptit.datn.security.AuthoritiesConstants;
 import com.ptit.datn.security.SecurityUtils;
@@ -246,4 +247,43 @@ public class RequestService {
         request.setStatus(requestDTO.getStatus());
         return new RequestDTO(requestRepository.save(request));
     }
+
+    //region Handle request
+    public RequestDTO handleAccept(Long id, StatusAcceptRequest req) {
+        Request request = requestRepository.findById(id).orElseThrow();
+        request.setDate(req.getDate());
+        request.setTime(req.getTime());
+        request.setStatus(RequestStatus.ACCEPTED);
+        request.setManagerId(Long.valueOf(SecurityUtils.getCurrentUserLogin().orElseThrow()));
+        return new RequestDTO(requestRepository.save(request));
+    }
+
+    public RequestDTO handleReject(Long id) {
+        Request request = requestRepository.findById(id).orElseThrow();
+        request.setStatus(RequestStatus.REJECTED);
+        return new RequestDTO(requestRepository.save(request));
+    }
+
+    public RequestDTO handleCancel(Long id) {
+        Request request = requestRepository.findById(id).orElseThrow();
+        request.setStatus(RequestStatus.CANCELED);
+        return new RequestDTO(requestRepository.save(request));
+    }
+
+    public RequestDTO handleComplete(Long id) {
+        Request request = requestRepository.findById(id).orElseThrow();
+        request.setStatus(RequestStatus.COMPLETED);
+        return new RequestDTO(requestRepository.save(request));
+    }
+
+    public Void deleteRequest(Long id) {
+        try {
+            requestRepository.deleteById(id);
+            return null;
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Xóa yêu cầu không thành công");
+        }
+    }
+    //endregion
 }
