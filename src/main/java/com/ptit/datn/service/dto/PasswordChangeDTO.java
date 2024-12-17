@@ -1,5 +1,7 @@
 package com.ptit.datn.service.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 import java.io.Serializable;
 
 /**
@@ -10,6 +12,7 @@ public class PasswordChangeDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String currentPassword;
+    @NotBlank(message = "PASSWORD_REQUIRED")
     private String newPassword;
 
     public PasswordChangeDTO() {

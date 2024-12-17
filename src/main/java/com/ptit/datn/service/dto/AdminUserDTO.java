@@ -34,13 +34,16 @@ public class AdminUserDTO implements Serializable {
     private String login;
 
     @Size(max = 100)
+    @NotBlank(message = "INVALID_FULLNAME")
     private String fullName;
 
     @Size(max = 15)
+    @NotBlank(message = "INVALID_PHONE_NUMBER")
     private String phoneNumber;
 
     @Email
     @Size(min = 5, max = 254)
+    @NotBlank(message = "INVALID_EMAIL")
     private String email;
 
     private MultipartFile imageDigitalSignature;
@@ -52,6 +55,7 @@ public class AdminUserDTO implements Serializable {
 //    @Size(min = 2, max = 10)
     private String langKey;
 
+    @NotBlank(message = "INVALID_CCCD")
     private String cccd;
 
     private String address;
