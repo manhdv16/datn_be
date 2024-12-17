@@ -122,14 +122,15 @@ public class ContractService {
             contractSave.setTenantId(contractDTO.getRequest().getTenantId());
             tenant = userService.getUserName(contractDTO.getRequest().getTenantId());
 
-            Boolean isRole = SecurityUtils.getAuthorities().stream().anyMatch(r ->
-                AuthoritiesConstants.ADMIN.equals(r) || AuthoritiesConstants.MANAGER.equals(r)
-            );
+            boolean isRole = SecurityUtils.getAuthorities().stream()
+                .anyMatch(r -> Set.of(AuthoritiesConstants.ADMIN, AuthoritiesConstants.MANAGER).contains(r));
+
             if (isRole) {
-                // thong bao cho nguoi thue
-                User user = userRepository.findOneById(contractDTO.getRequest().getTenantId()).orElseThrow(
-                    () -> new AppException(ErrorCode.RECORD_NOT_FOUND)
-                );
+                // Lấy thông tin người thuê
+                User user = userRepository.findOneById(contractDTO.getRequest().getTenantId())
+                    .orElseThrow(() -> new AppException(ErrorCode.RECORD_NOT_FOUND));
+
+                // Gửi email thông báo
                 mailService.sendMailToNotification(user);
             }
         }
