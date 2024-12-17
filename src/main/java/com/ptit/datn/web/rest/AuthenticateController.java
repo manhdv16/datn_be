@@ -74,6 +74,12 @@ public class AuthenticateController {
         return request.getRemoteUser();
     }
 
+    @GetMapping("/logout")
+    public ApiResponse<?> logout() {
+        log.debug("REST request to logout current user");
+        userService.logout();
+        return ApiResponse.builder().message("Logout successfully").build();
+    }
     // not use
     public String createToken(Authentication authentication, boolean rememberMe) {
         String authorities = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(" "));

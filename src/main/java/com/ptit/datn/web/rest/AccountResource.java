@@ -60,7 +60,9 @@ public class AccountResource {
         }
         User user = userService.registerUser(managedUserVM, managedUserVM.getPassword());
         //        mailService.sendActivationEmail(user);
-        return ApiResponse.builder().message("User registered").build();
+        return ApiResponse.builder()
+            .result(user)
+            .message("User registered").build();
     }
 
     @GetMapping("/account")
@@ -78,7 +80,7 @@ public class AccountResource {
     }
 
     @PostMapping(path = "/account/change-password")
-    public ApiResponse changePassword(@RequestBody PasswordChangeDTO passwordChangeDto) {
+    public ApiResponse changePassword(@RequestBody @Valid PasswordChangeDTO passwordChangeDto) {
         if (isPasswordLengthInvalid(passwordChangeDto.getNewPassword())) {
             throw new InvalidPasswordException();
         }
