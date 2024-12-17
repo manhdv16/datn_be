@@ -123,7 +123,7 @@ public class ContractService {
             tenant = userService.getUserName(contractDTO.getRequest().getTenantId());
 
             boolean isRole = SecurityUtils.getAuthorities().stream()
-                .anyMatch(r -> Set.of(AuthoritiesConstants.ADMIN, AuthoritiesConstants.MANAGER).contains(r));
+                .anyMatch(r -> Set.of(AuthoritiesConstants.ADMIN, AuthoritiesConstants.MANAGER).contains(r.toString()));
 
             if (isRole) {
                 // Lấy thông tin người thuê
