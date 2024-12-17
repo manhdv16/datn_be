@@ -65,6 +65,12 @@ spring:
     cache-duration: PT1S # 1 second, see the ISO 8601 standard
   thymeleaf:
     cache: false
+  #config redis
+  data:
+    redis:
+      host: db-caching-sgp1-30316-do-user-17991215-0.m.db.ondigitalocean.com
+      port: 25061
+      password: AVNS_A0WFfr53NH6tQzqMPw3
 
 server:
   port: 9999

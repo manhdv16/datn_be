@@ -5,6 +5,8 @@ import static com.ptit.datn.security.SecurityUtils.AUTHORITIES_KEY;
 import com.ptit.datn.exception.AppException;
 import com.ptit.datn.exception.ErrorCode;
 import com.ptit.datn.management.SecurityMetersService;
+import com.ptit.datn.service.RedisService;
+import com.ptit.datn.utils.DataUtils;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -40,7 +42,9 @@ public class TokenProvider {
 
     private final SecurityMetersService securityMetersService;
 
-    public TokenProvider(JHipsterProperties jHipsterProperties, SecurityMetersService securityMetersService) {
+    private final RedisService redisService;
+
+    public TokenProvider(JHipsterProperties jHipsterProperties, SecurityMetersService securityMetersService, RedisService redisService) {
         byte[] keyBytes;
         String secret = jHipsterProperties.getSecurity().getAuthentication().getJwt().getBase64Secret();
         if (!ObjectUtils.isEmpty(secret)) {
@@ -58,6 +62,7 @@ public class TokenProvider {
         jwtParser = Jwts.parserBuilder().setSigningKey(key).build();
         this.tokenValidityInMilliseconds = 1000 * jHipsterProperties.getSecurity().getAuthentication().getJwt().getTokenValidityInSeconds();
         this.securityMetersService = securityMetersService;
+        this.redisService = redisService;
     }
 
     public String createToken(Long id, Authentication authentication) {
@@ -87,6 +92,10 @@ public class TokenProvider {
     }
 
     public boolean validateToken(String authToken) {
+        String id = redisService.findByKey(authToken);
+        if (DataUtils.isNullOrEmpty(id)) {
+            throw new ExpiredJwtException(null, null, "Token is expired");
+        }
         try {
             jwtParser.parseClaimsJws(authToken);
             return true;
