@@ -61,6 +61,7 @@ public class UserService {
     UserBuildingRepository userBuildingRepository;
     CloudinaryService cloudinaryService;
     BuildingService buildingService;
+    RedisService redisService;
 
     public Optional<User> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
@@ -373,7 +374,9 @@ public class UserService {
             Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
             Long id = userRepository.getIdByLoginAndActivated(request.getUsername(), true);
-            return tokenProvider.createToken(id, authentication);
+            String token = tokenProvider.createToken(id, authentication);
+            redisService.save(token, id.toString(), Constants.REDIS_EXPIRE_TIME);
+            return token;
         } catch (BadCredentialsException e) {
             return null;
         }
@@ -423,5 +426,10 @@ public class UserService {
 
     public List<UserDTO> getAllByRoleUser() {
         return userRepository.findAllByAuthoritiesName(AuthoritiesConstants.USER).stream().map(UserDTO::new).toList();
+    }
+
+    public void logout() {
+        String token = SecurityUtils.getCurrentUserLogin().orElseThrow();
+        redisService.delete(token);
     }
 }
