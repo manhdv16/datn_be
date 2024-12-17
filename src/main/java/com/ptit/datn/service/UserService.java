@@ -330,10 +330,8 @@ public class UserService {
     @Transactional(readOnly = true)
     public Optional<User> getCustomerById(Long id) {
         Optional<User> user = userRepository.findOneById(id);
-        if (user.isEmpty()) {
-            throw new RuntimeException("Không tìm thấy người dùng");
-        }
-        if (user.get().getAuthorities().stream().noneMatch(authority -> authority.getName().equals(AuthoritiesConstants.USER))) {
+        if (user.orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"))
+            .getAuthorities().stream().noneMatch(authority -> authority.getName().equals(AuthoritiesConstants.USER))) {
             throw new RuntimeException("Người dùng không hợp lệ");
         }
         return user;
