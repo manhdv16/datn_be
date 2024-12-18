@@ -307,6 +307,11 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    public Page<UserResponse> getManagerByBuildIdAndPageable(Long buildingId, Pageable pageable) {
+        return userRepository.findAllManagerByBuildingId(pageable, buildingId).map(UserResponse::new);
+    }
+
+    @Transactional(readOnly = true)
     public Page<UserResponse> getAllManagerNotAssignedBuildingId(Pageable pageable, Long buildingId) {
         return userRepository.findAllManagerNotAssignedBuildingId(pageable, buildingId).map(UserResponse::new);
     }

@@ -11,6 +11,6 @@ public final class Constants {
     public static final String SYSTEM = "system";
     public static final String DEFAULT_LANGUAGE = "en";
     public static final Integer MAX_MANAGER = 5;
-    public static final Integer REDIS_EXPIRE_TIME = 1800000;
+    public static final Integer REDIS_EXPIRE_TIME = 3600000;
     private Constants() {}
 }

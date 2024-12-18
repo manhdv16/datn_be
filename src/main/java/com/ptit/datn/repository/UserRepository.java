@@ -69,4 +69,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u INNER JOIN UserBuilding ub ON u.id = ub.userId WHERE ub.buildingId = :id")
     List<User> findAllManagerByBuildingId(Long id);
+
+    @Query("SELECT u FROM User u INNER JOIN UserBuilding ub ON u.id = ub.userId WHERE ub.buildingId = :id")
+    Page<User> findAllManagerByBuildingId(Pageable pageable, Long id);
 }
