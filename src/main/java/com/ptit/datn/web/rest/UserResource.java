@@ -82,10 +82,14 @@ public class UserResource {
     }
 
     @GetMapping("/managers")
-//    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public Page<UserResponse> getAllManagers(Pageable pageable) {
         log.debug("REST request to get all managers for an admin");
         return userService.getAllManagers(pageable);
+    }
+    @GetMapping("/managers/by-building/{id}")
+    public Page<UserResponse> getManagerByBuildId(@PathVariable("id") Long id, Pageable pageable) {
+        return userService.getManagerByBuildIdAndPageable(id, pageable);
     }
 
     @GetMapping("/manager/by-building/{id}")
