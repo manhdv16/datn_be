@@ -33,13 +33,15 @@ public interface ContractRepository extends JpaRepository<ContractEntity, Long>,
         LEFT JOIN office o ON o.building_id = b.id
         LEFT JOIN contract_office co ON co.office_id = o.id
         LEFT JOIN contract c ON c.id = co.contract_id
-        WHERE c.start_date >= :startTime
-          AND c.end_date <= :endTime
-          AND c.is_active = true
+        WHERE
+            b.id = :buildingId
+            AND c.created_date >= :startTime
+            AND c.created_date <= :endTime
+            AND c.is_active = true
         GROUP BY DATE(c.created_date)
         ORDER BY DATE(c.created_date) ASC
         """, nativeQuery = true)
-    List<Object[]> findContractStatistics(
+    List<Object[]> findContractStatistics(@Param("buildingId") Long buildingId,
         @Param("startTime") LocalDate startTime, @Param("endTime") LocalDate endTime);
 }
 
