@@ -300,7 +300,7 @@ public class ContractService {
             input.setEndDate(contractRepository.getMaxEndDate());
         }
 
-        List<Object[]> results = contractRepository.findContractStatistics(input.getStartDate(), input.getEndDate());
+        List<Object[]> results = contractRepository.findContractStatistics(input.getBuildingId(), input.getStartDate(), input.getEndDate());
         return results.stream()
             .map(row -> new StatisticsContractResponse(
                 ((java.sql.Date) row[0]).toLocalDate(),
