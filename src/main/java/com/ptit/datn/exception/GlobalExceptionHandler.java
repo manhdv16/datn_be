@@ -16,7 +16,7 @@ public class GlobalExceptionHandler {
     ResponseEntity<ApiResponse<Void>> handlingRuntimeException() {
         ApiResponse<Void> apiResponse = ApiResponse.<Void>builder()
             .code(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode())
-            .message(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage())
+            .message(ErrorCode.UNCATEGORIZED_EXCEPTION.getFormattedMessage())
             .build();
         return ResponseEntity.badRequest().body(apiResponse);
     }
@@ -35,13 +35,13 @@ public class GlobalExceptionHandler {
         ErrorCode errorCode = ErrorCode.findByDisplayName(errorMessage);
 
         return ResponseEntity.badRequest()
-            .body(ApiResponse.<Void>builder().code(errorCode.getCode()).message(errorCode.getMessage()).build());
+            .body(ApiResponse.<Void>builder().code(errorCode.getCode()).message(errorCode.getFormattedMessage()).build());
     }
 
     @ExceptionHandler(value = AuthorizationDeniedException.class)
     ResponseEntity<ApiResponse<Void>> handlingAuthorizationDeniedException(AuthorizationDeniedException exception) {
         ErrorCode errorCode = ErrorCode.ACCESS_DENIED;
-        ApiResponse<Void> apiResponse = ApiResponse.<Void>builder().code(errorCode.getCode()).message(errorCode.getMessage()).build();
+        ApiResponse<Void> apiResponse = ApiResponse.<Void>builder().code(errorCode.getCode()).message(errorCode.getFormattedMessage()).build();
         return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
     }
 }

@@ -1,5 +1,6 @@
 package com.ptit.datn.exception;
 
+import com.ptit.datn.utils.Translator;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
@@ -35,20 +36,27 @@ public enum ErrorCode {
     MAX_MANAGER(1016, "MAX_MANAGER", HttpStatus.BAD_REQUEST),
     NUMBER_MANAGER_OF_BUILDING(1016, "NUMBER_MANAGER_OF_BUILDING", HttpStatus.BAD_REQUEST),
     TOTAL_NUMBER_MANAGER_OF_BUILDING(1016, "TOTAL_NUMBER_MANAGER_OF_BUILDING", HttpStatus.BAD_REQUEST),
-
+    INVALID_PHONE_NUMBER(400, "INVALID_PHONE_NUMBER", HttpStatus.BAD_REQUEST),
+    INVALID_CCCD(400, "INVALID_CCCD", HttpStatus.BAD_REQUEST),
+    INVALID_EMAIL(400, "INVALID_EMAIL", HttpStatus.BAD_REQUEST),
+    INVALID_FULLNAME(400, "INVALID_FULLNAME", HttpStatus.BAD_REQUEST),
+    PASSWORD_REQUIRED(400, "PASSWORD_REQUIRED", HttpStatus.BAD_REQUEST),
     RECORD_NOT_FOUND(1017, "record.notfound", HttpStatus.NOT_FOUND),
     BAD_VERIFY(400, "verify.fail", HttpStatus.BAD_REQUEST),
     NOT_REPRESENTATIVE(400, "not.representative", HttpStatus.BAD_REQUEST),
+
     ALREADY_SIGNED(400, "already.signed", HttpStatus.BAD_REQUEST);
 
     ErrorCode(int code, String message, HttpStatus statusCode) {
         this.code = code;
         this.message = message;
         this.statusCode = statusCode;
+        formattedMessage = Translator.getMessage(message);
     }
 
     private final int code;
     private final String message;
+    private final String formattedMessage;
     private final HttpStatus statusCode;
 
     public static ErrorCode findByDisplayName(String errorMessage) {
