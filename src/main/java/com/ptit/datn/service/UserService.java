@@ -109,7 +109,7 @@ public class UserService {
             .ifPresent(existingUser -> {
                 boolean removed = removeNonActivatedUser(existingUser);
                 if (!removed) {
-                    throw new UsernameAlreadyUsedException();
+                    throw new AppException(ErrorCode.USER_EXISTED);
                 }
             });
         userRepository
@@ -117,7 +117,7 @@ public class UserService {
             .ifPresent(existingUser -> {
                 boolean removed = removeNonActivatedUser(existingUser);
                 if (!removed) {
-                    throw new EmailAlreadyUsedException();
+                    throw new AppException(ErrorCode.EMAIL_EXISTED);
                 }
             });
         User newUser = new User();
