@@ -63,4 +63,10 @@ public final class Constants {
         public static final int AND = 1;
         public static final int OR = 2;
     }
+    public static final class TOPIC {
+        private TOPIC() {}
+        public static final String REQUEST = "/topic/request/";
+        public static final String ASSIGN = "/topic/assign/";
+
+    }
 }
