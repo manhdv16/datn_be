@@ -33,6 +33,7 @@ public class ContractDTO {
     private Date handoverDate;
     private String rentalPurpose;
     private Integer status;
+    private Integer paymentStatus;
     private Integer contractType;
     private String terminationClause;
     private String contractDetails;
