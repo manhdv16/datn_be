@@ -127,4 +127,14 @@ public class TokenProvider {
 
         return false;
     }
+
+    public String parseToken(String token) {
+        try {
+            Claims claims = jwtParser.parseClaimsJws(token).getBody();
+            return claims.getSubject();
+        } catch (Exception e) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
+        }
+
+    }
 }
