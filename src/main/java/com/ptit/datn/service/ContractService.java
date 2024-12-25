@@ -3,6 +3,7 @@ package com.ptit.datn.service;
 import com.cloudinary.http44.api.Response;
 import com.lowagie.text.pdf.BaseFont;
 import com.ptit.datn.cloudinary.CloudinaryService;
+import com.ptit.datn.constants.OfficeStatus;
 import com.ptit.datn.domain.*;
 import com.ptit.datn.dto.response.StatisticsContractResponse;
 import com.ptit.datn.exception.AppException;
@@ -277,8 +278,32 @@ public class ContractService {
             () -> new AppException(ErrorCode.RECORD_NOT_FOUND)
         );
         if(index == 1) contract.setStatus(Constants.ContractStatus.PENDING);
-        else if(index == 2) contract.setStatus(Constants.ContractStatus.ACTIVE);
+        else if(index == 2) {
+            contract.setStatus(Constants.ContractStatus.ACTIVE);
+            List<ContractOfficeEntity> contractOfficeEntities = contractOfficeRepository.findByContractId(contractId);
+            Set<Long> officeIds = contractOfficeEntities.stream()
+                .map(ContractOfficeEntity::getOfficeId).collect(Collectors.toSet());
+            List<Office> offices = officeRepository.findAllByIds(officeIds);
+            offices.forEach(
+                office -> office.setStatus(OfficeStatus.RENTED)
+            );
+            officeRepository.saveAll(offices);
+        }
         contractRepository.save(contract);
+    }
+
+    public void changeContractStatus(Long contractId, int status){
+        ContractEntity contract = contractRepository.findByIdAndIsActiveTrue(contractId).orElseThrow(
+            () -> new AppException(ErrorCode.RECORD_NOT_FOUND)
+        );
+        if(Objects.equals(status, Constants.PaymentStatus.PAID) &&
+        Objects.equals(contract.getStatus(), Constants.ContractStatus.ACTIVE)
+        && Objects.equals(contract.getPaymentStatus(), Constants.PaymentStatus.UN_PAID)){
+            contract.setPaymentStatus(status);
+            contractRepository.save(contract);
+        }else{
+            throw new AppException(ErrorCode.VALIDATE_STATUS);
+        }
     }
 
     public List<BuildingContractStatDTO> getStatBuildingContract(BuildingContractStatDTO input){

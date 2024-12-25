@@ -1,5 +1,6 @@
 package com.ptit.datn.domain;
 
+import com.ptit.datn.utils.Constants;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -58,6 +59,9 @@ public class ContractEntity extends AbstractAuditingEntity<Long>{
     @Basic
     @Column(name = "is_active")
     private Boolean isActive = true;
+    @Basic
+    @Column(name = "payment_status")
+    private Integer paymentStatus = Constants.PaymentStatus.UN_PAID;
 
     public Long getId() {
         return id;
@@ -207,6 +211,7 @@ public class ContractEntity extends AbstractAuditingEntity<Long>{
             return false;
         if (renewalTerms != null ? !renewalTerms.equals(that.renewalTerms) : that.renewalTerms != null) return false;
         if (isActive != null ? !isActive.equals(that.isActive) : that.isActive != null) return false;
+        if (paymentStatus != null ? !paymentStatus.equals(that.paymentStatus) : that.paymentStatus != null) return false;
 
         return true;
     }
@@ -229,6 +234,7 @@ public class ContractEntity extends AbstractAuditingEntity<Long>{
         result = 31 * result + (contractDetails != null ? contractDetails.hashCode() : 0);
         result = 31 * result + (renewalTerms != null ? renewalTerms.hashCode() : 0);
         result = 31 * result + (isActive != null ? isActive.hashCode() : 0);
+        result = 31 * result + (paymentStatus != null ? paymentStatus.hashCode() : 0);
         return result;
     }
 
@@ -238,5 +244,13 @@ public class ContractEntity extends AbstractAuditingEntity<Long>{
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public Integer getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(Integer paymentStatus) {
+        this.paymentStatus = paymentStatus;
     }
 }

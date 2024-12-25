@@ -1,9 +1,12 @@
 package com.ptit.datn.web.rest;
 
 
+import com.ptit.datn.domain.ContractEntity;
 import com.ptit.datn.dto.response.ApiResponse;
 import com.ptit.datn.dto.response.PaymentDTO;
+import com.ptit.datn.service.ContractService;
 import com.ptit.datn.service.PaymentService;
+import com.ptit.datn.utils.Constants;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +22,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class PaymentController {
     private final PaymentService paymentService;
+    private final ContractService contractService;
     @GetMapping("/vn-pay")
     public ApiResponse<PaymentDTO.VNPayResponse> pay(HttpServletRequest request) {
         return ApiResponse.<PaymentDTO.VNPayResponse>builder()
@@ -31,10 +35,12 @@ public class PaymentController {
         String status = request.getParameter("vnp_ResponseCode");
         String transactionNo = request.getParameter("vnp_TransactionNo");
         String amount = request.getParameter("vnp_Amount");
+        Long contractId = Long.valueOf(request.getParameter("contract_id"));
 
         // thêm dk check để update status cho thanh toán
+        contractService.changeContractStatus(contractId, Constants.PaymentStatus.PAID);
 
-        String redirectUrl = "http://localhost:3000/payment-result"
+        String redirectUrl = "https://office-nest-fe-83366.ondigitalocean.app/payment-result"
             + "?vnp_ResponseCode=" + status
             + "&vnp_TransactionNo=" + transactionNo
             + "&vnp_Amount=" + amount;

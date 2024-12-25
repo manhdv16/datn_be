@@ -32,10 +32,12 @@ public class Constants {
         int DRAFT = 1; // ban nháp
         int PENDING = 2; // đang chờ
         int ACTIVE = 3; // có hiệu lực
-        int EXPIRED = 4; // hết hạn
-        int TERMINATED = 5; // đã chấm dứt
-        int RENEWED = 6; // đã gia hạn
-        int CANCELLED = 7; // hủy bỏ
+        int CANCELLED = 4; // hủy bỏ
+    }
+
+    public interface PaymentStatus {
+        int UN_PAID = 1;
+        int PAID = 2;
     }
 
     public interface ContractType {
