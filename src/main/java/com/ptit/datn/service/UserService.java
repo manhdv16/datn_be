@@ -378,7 +378,7 @@ public class UserService {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             Long id = userRepository.getIdByLoginAndActivated(request.getUsername(), true);
             String token = tokenProvider.createToken(id, authentication);
-            redisService.save(token, id.toString(), Constants.REDIS_EXPIRE_TIME);
+            redisService.save(token, id.toString(), Constants.REDIS_EXPIRE.TOKEN);
             return token;
         } catch (BadCredentialsException e) {
             return null;
