@@ -252,6 +252,9 @@ public class UserService {
                         throw new RuntimeException(e);
                     }
                 }
+                if (!DataUtils.isNullOrEmpty(userDTO.getImageAvatar())) {
+                    user.setImageAvatar((String) cloudinaryService.uploadFile(userDTO.getImageAvatar()).get("url"));
+                }
 //                user.setActivated(userDTO.isActivated());
 //                user.setLangKey(userDTO.getLangKey());
                 if (SecurityUtils.getAuthorities().stream().anyMatch(AuthoritiesConstants.ADMIN::equals)) {
