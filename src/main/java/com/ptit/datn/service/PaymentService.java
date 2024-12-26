@@ -29,6 +29,7 @@ public class PaymentService {
         String bankCode = request.getParameter("bankCode");
 
         Map<String, String> vnpParamsMap = vnPayConfig.getVNPayConfig();
+        vnpParamsMap.put("vnp_TxnRef",  VNPayUtil.getRandomNumber(8)+ "_" + contractId);
         vnpParamsMap.put("vnp_Amount", String.valueOf(amount));
 
         if (bankCode != null && !bankCode.isEmpty()) {
