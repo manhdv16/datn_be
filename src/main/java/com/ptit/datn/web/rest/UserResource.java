@@ -83,9 +83,9 @@ public class UserResource {
 
     @GetMapping("/managers")
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public Page<UserResponse> getAllManagers(Pageable pageable) {
+    public Page<UserResponse> getAllManagers(Pageable pageable, @RequestParam(defaultValue = "", required = false) String search) {
         log.debug("REST request to get all managers for an admin");
-        return userService.getAllManagers(pageable);
+        return userService.getAllManagers(pageable, search);
     }
     @GetMapping("/managers/by-building/{id}")
     public Page<UserResponse> getManagerByBuildId(@PathVariable("id") Long id, Pageable pageable) {
