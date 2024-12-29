@@ -11,8 +11,10 @@ public class PasswordChangeDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private String currentPassword;
     @NotBlank(message = "PASSWORD_REQUIRED")
+    private String currentPassword;
+
+    @NotBlank(message = "NEW_PASSWORD_REQUIRED")
     private String newPassword;
 
     public PasswordChangeDTO() {
