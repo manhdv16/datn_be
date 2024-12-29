@@ -85,7 +85,7 @@ public class AccountResource {
             throw new InvalidPasswordException();
         }
         userService.changePassword(passwordChangeDto.getCurrentPassword(), passwordChangeDto.getNewPassword());
-        return ApiResponse.builder().message("Password changed").build();
+        return ApiResponse.builder().message("Đổi mật khẩu thành công").build();
     }
 
     @PostMapping(path = "/account/reset-password/init")

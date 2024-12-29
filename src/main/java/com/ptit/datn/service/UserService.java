@@ -286,17 +286,19 @@ public class UserService {
 
     @Transactional
     public void changePassword(String currentClearTextPassword, String newPassword) {
-        SecurityUtils.getCurrentUserLogin()
-            .flatMap(userRepository::findOneByLogin)
-            .ifPresent(user -> {
-                String currentEncryptedPassword = user.getPassword();
-                if (!passwordEncoder.matches(currentClearTextPassword, currentEncryptedPassword)) {
-                    throw new AppException(ErrorCode.OLD_PASSWORD_NOT_MATCH);
-                }
-                String encryptedPassword = passwordEncoder.encode(newPassword);
-                user.setPassword(encryptedPassword);
-                log.debug("Changed password for User: {}", user);
-            });
+        String userId = SecurityUtils.getCurrentUserLogin().get();
+        if (DataUtils.isNullOrEmpty(userId)) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
+        }
+        userRepository.findOneById(Long.parseLong(userId)).ifPresent(user -> {
+            String currentEncryptedPassword = user.getPassword();
+            if (!passwordEncoder.matches(currentClearTextPassword, currentEncryptedPassword)) {
+                throw new AppException(ErrorCode.OLD_PASSWORD_NOT_MATCH);
+            }
+            String encryptedPassword = passwordEncoder.encode(newPassword);
+            user.setPassword(encryptedPassword);
+            log.debug("Changed password for User: {}", user);
+        });
     }
 
     @Transactional(readOnly = true)
