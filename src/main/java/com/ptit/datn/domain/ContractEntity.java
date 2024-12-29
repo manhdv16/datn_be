@@ -61,7 +61,7 @@ public class ContractEntity extends AbstractAuditingEntity<Long>{
     private Boolean isActive = true;
     @Basic
     @Column(name = "payment_status")
-    private Integer paymentStatus = Constants.PaymentStatus.UN_PAID;
+    private Integer paymentStatus;
 
     public Long getId() {
         return id;

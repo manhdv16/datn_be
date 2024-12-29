@@ -117,6 +117,7 @@ public class ContractService {
         log.info("save contract by {}", SecurityUtils.getCurrentUserLogin());
         ContractEntity contractSave = contractMapper.toEntity(contractDTO);
         contractSave.setStatus(Constants.ContractStatus.DRAFT);
+        contractSave.setPaymentStatus(Constants.PaymentStatus.UN_PAID);
 
         UserNameDTO tenant = null;
         if(contractDTO.getRequest() != null) {
