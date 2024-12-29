@@ -252,6 +252,9 @@ public class UserService {
                         throw new RuntimeException(e);
                     }
                 }
+                if (!DataUtils.isNullOrEmpty(userDTO.getImageAvatar())) {
+                    user.setImageAvatar((String) cloudinaryService.uploadFile(userDTO.getImageAvatar()).get("url"));
+                }
 //                user.setActivated(userDTO.isActivated());
 //                user.setLangKey(userDTO.getLangKey());
                 if (SecurityUtils.getAuthorities().stream().anyMatch(AuthoritiesConstants.ADMIN::equals)) {
@@ -378,7 +381,7 @@ public class UserService {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             Long id = userRepository.getIdByLoginAndActivated(request.getUsername(), true);
             String token = tokenProvider.createToken(id, authentication);
-            redisService.save(token, id.toString(), Constants.REDIS_EXPIRE_TIME);
+            redisService.save(token, id.toString(), Constants.REDIS_EXPIRE.TOKEN);
             return token;
         } catch (BadCredentialsException e) {
             return null;

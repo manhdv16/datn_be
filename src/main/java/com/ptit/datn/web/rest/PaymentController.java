@@ -35,8 +35,10 @@ public class PaymentController {
         String status = request.getParameter("vnp_ResponseCode");
         String transactionNo = request.getParameter("vnp_TransactionNo");
         String amount = request.getParameter("vnp_Amount");
-        Long contractId = Long.valueOf(request.getParameter("contract_id"));
-
+//        Long contractId = Long.valueOf(request.getParameter("contract_id"));
+        String strContractId = request.getParameter("vnp_TxnRef").split("_")[1];
+        Long contractId = Long.valueOf(strContractId);
+        System.out.println("contractId: " + contractId);
         // thêm dk check để update status cho thanh toán
         contractService.changeContractStatus(contractId, Constants.PaymentStatus.PAID);
 
