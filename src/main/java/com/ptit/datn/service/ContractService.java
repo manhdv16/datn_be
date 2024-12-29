@@ -174,8 +174,14 @@ public class ContractService {
             );
         contract.setActive(false);
         contractRepository.save(contract);
+
+        // delete relevant contract_office
         List<ContractOfficeEntity> contractOfficeEntities = contractOfficeRepository.findByContractId(contract.getId());
         contractOfficeRepository.deleteAll(contractOfficeEntities);
+
+        // delete relevant contract_signature
+        List<ContractSignatureEntity> contractSignatureEntities = contractSignatureRepository.findByContractId(contract.getId());
+        contractSignatureRepository.deleteAll(contractSignatureEntities);
     }
 
     public void exportPdf(OutputStream outputStream, Long id) throws IOException {
