@@ -36,11 +36,12 @@ public class RequestController {
     @GetMapping("/manage-list")
     public ResponseEntity<Page<RequestDTO>> getAllRequestsForManage(@RequestParam(value = "page", defaultValue = "0") Integer page,
                                                                     @RequestParam(value = "size", defaultValue = "10") Integer size,
+                                                                    @RequestParam(value = "buildingId", required = false) Long buildingId,
                                                                     @RequestParam(value = "status", required = false) Integer status) {
         Sort sort = Sort.by(List.of(Sort.Order.asc("status"),
             Sort.Order.desc("createdDate")));
         Pageable pageable = PageRequest.of(page, size, sort);
-        return ResponseEntity.ok().body(requestService.getAllRequestsForManage(pageable, status));
+        return ResponseEntity.ok().body(requestService.getAllRequestsForManage(pageable, status, buildingId));
     }
 
     @GetMapping("/{id}")

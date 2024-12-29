@@ -134,12 +134,13 @@ public class RequestService {
     }
 
     @Transactional(readOnly = true)
-    public Page<RequestDTO> getAllRequestsForManage(Pageable pageable, Integer status) {
+    public Page<RequestDTO> getAllRequestsForManage(Pageable pageable, Integer status, Long buildingId) {
 
         // Get current user
-        User user = userRepository.findById(Long.valueOf(SecurityUtils.getCurrentUserLogin()
-            .orElseThrow(() -> new RuntimeException("Thông tin người dùng không hợp lệ")))
-        ).orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+        Long authorId = Long.valueOf(SecurityUtils.getCurrentUserLogin()
+            .orElseThrow(() -> new RuntimeException("Thông tin người dùng không hợp lệ")));
+        User user = userRepository.findById(authorId)
+            .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
 
         // Check if user is manager or admin
         boolean isManager = user.getAuthorities().stream().anyMatch(role -> role.getName().equals(AuthoritiesConstants.MANAGER));
@@ -163,6 +164,12 @@ public class RequestService {
             }
             if (!isAdmin) {
                 predicate = criteriaBuilder.and(predicate, root.get("buildingId").in(buildingIds));
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.or(
+                    criteriaBuilder.isNull(root.get("managerId")),
+                    criteriaBuilder.equal(root.get("managerId"), authorId)));
+            }
+            if (buildingId != null) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("buildingId"), buildingId));
             }
             return predicate;
         };
