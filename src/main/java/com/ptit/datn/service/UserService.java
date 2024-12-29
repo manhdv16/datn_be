@@ -305,8 +305,8 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<UserResponse> getAllManagers(Pageable pageable) {
-        return userRepository.findAllByRole(pageable).map(UserResponse::new);
+    public Page<UserResponse> getAllManagers(Pageable pageable, String search) {
+        return userRepository.findAllByRole(pageable, search).map(UserResponse::new);
     }
 
     @Transactional(readOnly = true)

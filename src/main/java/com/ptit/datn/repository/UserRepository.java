@@ -52,8 +52,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Page<User> findAllByIdNotNullAndActivatedIsTrue(Pageable pageable);
 
-    @Query("select u from User u inner join UserAuthority ua on u.id = ua.userId where ua.authorityName = 'ROLE_MANAGER' order by u.lastModifiedDate DESC ")
-    Page<User> findAllByRole(Pageable pageable);
+    @Query("select u from User u inner join UserAuthority ua on u.id = ua.userId where ua.authorityName = 'ROLE_MANAGER' and u.login like concat(:search, '%') order by u.lastModifiedDate DESC ")
+    Page<User> findAllByRole(Pageable pageable, @Param("search") String search);
 
     @Query("select u.digitalSignature from User u where u.id = :id")
     String getDigitalSignatureByUserId(@Param("id") Long id);
