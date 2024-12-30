@@ -78,6 +78,9 @@ public class UserService {
 
     public Optional<User> completePasswordReset(String newPassword, String key) {
         log.debug("Reset user password for reset key {}", key);
+        User u = userRepository.findOneByResetKey(key).orElseThrow(
+            () -> new AppException(ErrorCode.USER_NOT_EXISTED)
+        );
         return userRepository
             .findOneByResetKey(key)
             .filter(user -> user.getResetDate().isAfter(Instant.now().minus(1, ChronoUnit.DAYS)))
@@ -286,7 +289,7 @@ public class UserService {
 
     @Transactional
     public void changePassword(String currentClearTextPassword, String newPassword) {
-        String userId = SecurityUtils.getCurrentUserLogin().get();
+        String userId = SecurityUtils.getCurrentUserLogin().orElse(null);
         if (DataUtils.isNullOrEmpty(userId)) {
             throw new AppException(ErrorCode.INVALID_TOKEN);
         }
