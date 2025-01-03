@@ -107,22 +107,13 @@ public class UserService {
     }
 
     public User registerUser(AdminUserDTO userDTO, String password) throws Exception {
-        userRepository
-            .findOneByLogin(userDTO.getLogin().toLowerCase())
-            .ifPresent(existingUser -> {
-                boolean removed = removeNonActivatedUser(existingUser);
-                if (!removed) {
-                    throw new AppException(ErrorCode.USER_EXISTED);
-                }
-            });
-        userRepository
-            .findOneByEmailIgnoreCase(userDTO.getEmail())
-            .ifPresent(existingUser -> {
-                boolean removed = removeNonActivatedUser(existingUser);
-                if (!removed) {
-                    throw new AppException(ErrorCode.EMAIL_EXISTED);
-                }
-            });
+        User user;
+        user = userRepository.findOneByLogin(userDTO.getLogin().toLowerCase()).orElseThrow(
+            () -> new AppException(ErrorCode.USER_EXISTED)
+        );
+        user = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail()).orElseThrow(
+            () -> new AppException(ErrorCode.EMAIL_EXISTED)
+        );
         User newUser = new User();
         String encryptedPassword = passwordEncoder.encode(password);
         newUser.setLogin(userDTO.getLogin().toLowerCase());
@@ -144,6 +135,7 @@ public class UserService {
         newUser.setCccd(userDTO.getCccd());
         newUser.setAddress(userDTO.getAddress());
         newUser.setDob(userDTO.getDob());
+        newUser.setPhoneNumber(userDTO.getPhoneNumber());
         // new user is not active
         newUser.setActivated(true);
         // new user gets registration key
@@ -154,15 +146,6 @@ public class UserService {
         userRepository.save(newUser);
         log.debug("Created Information for User: {}", newUser);
         return newUser;
-    }
-
-    private boolean removeNonActivatedUser(User existingUser) {
-        if (existingUser.isActivated()) {
-            return false;
-        }
-        userRepository.delete(existingUser);
-        userRepository.flush();
-        return true;
     }
 
     public UserNameDTO getUserName(Long id){
