@@ -69,4 +69,9 @@ public final class Constants {
         public static final String ASSIGN = "/topic/assign/";
 
     }
+    public static final class NOTIFICATION_STATUS {
+        private NOTIFICATION_STATUS() {}
+        public static final Integer UNREAD = 0;
+        public static final Integer READ = 1;
+    }
 }
