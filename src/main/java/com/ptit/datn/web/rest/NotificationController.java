@@ -20,18 +20,18 @@ public class NotificationController {
         notificationService.notifyUser(userId,Constants.TOPIC.REQUEST ,"A new request has been created!");
         return "Notification sent!";
     }
-    @GetMapping("/read")
+    @GetMapping("/read/{userId}")
     public ApiResponse readNotification(@PathVariable("userId") Long userId) {
         notificationService.readNotification(userId);
         return ApiResponse.builder()
             .message("Notification read!")
             .build();
     }
-    @GetMapping("")
+    @GetMapping("/{userId}")
     public Page<Notification> getAll(@PathVariable("userId") Long userId, Pageable pageable) {
         return notificationService.getAll(userId, pageable);
     }
-    @GetMapping("/unread")
+    @GetMapping("/unread/{userId}")
     public Page<Notification> getAllNotiUnRead(@PathVariable("userId") Long userId, Pageable pageable) {
         return notificationService.getAllNotiUnRead(userId, pageable);
     }
