@@ -39,8 +39,11 @@ public class PaymentController {
         String strContractId = request.getParameter("vnp_TxnRef").split("_")[1];
         Long contractId = Long.valueOf(strContractId);
         System.out.println("contractId: " + contractId);
+
         // thêm dk check để update status cho thanh toán
-        contractService.changeContractStatus(contractId, Constants.PaymentStatus.PAID);
+        if(status.equals("00")){
+            contractService.changeContractStatus(contractId, Constants.PaymentStatus.PAID);
+        }
 
         String redirectUrl = "https://office-nest-fe-83366.ondigitalocean.app/payment-result"
             + "?vnp_ResponseCode=" + status
