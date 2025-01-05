@@ -109,12 +109,12 @@ public class UserService {
 
     public User registerUser(AdminUserDTO userDTO, String password) throws Exception {
         User user;
-        user = userRepository.findOneByLogin(userDTO.getLogin().toLowerCase()).orElseThrow(
-            () -> new AppException(ErrorCode.USER_EXISTED)
-        );
-        user = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail()).orElseThrow(
-            () -> new AppException(ErrorCode.EMAIL_EXISTED)
-        );
+        if (userRepository.findOneByEmailIgnoreCase(userDTO.getEmail()).isPresent()) {
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
+        }
+        if (userRepository.findOneByLogin(userDTO.getLogin().toLowerCase()).isPresent()) {
+            throw new AppException(ErrorCode.USER_EXISTED);
+        }
         User newUser = new User();
         String encryptedPassword = passwordEncoder.encode(password);
         newUser.setLogin(userDTO.getLogin().toLowerCase());
