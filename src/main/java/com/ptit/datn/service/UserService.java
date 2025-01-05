@@ -62,6 +62,7 @@ public class UserService {
     CloudinaryService cloudinaryService;
     BuildingService buildingService;
     RedisService redisService;
+    NotificationService notificationService;
 
     public Optional<User> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
@@ -78,6 +79,9 @@ public class UserService {
 
     public Optional<User> completePasswordReset(String newPassword, String key) {
         log.debug("Reset user password for reset key {}", key);
+        User u = userRepository.findOneByResetKey(key).orElseThrow(
+            () -> new AppException(ErrorCode.USER_NOT_EXISTED)
+        );
         return userRepository
             .findOneByResetKey(key)
             .filter(user -> user.getResetDate().isAfter(Instant.now().minus(1, ChronoUnit.DAYS)))
@@ -104,22 +108,13 @@ public class UserService {
     }
 
     public User registerUser(AdminUserDTO userDTO, String password) throws Exception {
-        userRepository
-            .findOneByLogin(userDTO.getLogin().toLowerCase())
-            .ifPresent(existingUser -> {
-                boolean removed = removeNonActivatedUser(existingUser);
-                if (!removed) {
-                    throw new AppException(ErrorCode.USER_EXISTED);
-                }
-            });
-        userRepository
-            .findOneByEmailIgnoreCase(userDTO.getEmail())
-            .ifPresent(existingUser -> {
-                boolean removed = removeNonActivatedUser(existingUser);
-                if (!removed) {
-                    throw new AppException(ErrorCode.EMAIL_EXISTED);
-                }
-            });
+        User user;
+        user = userRepository.findOneByLogin(userDTO.getLogin().toLowerCase()).orElseThrow(
+            () -> new AppException(ErrorCode.USER_EXISTED)
+        );
+        user = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail()).orElseThrow(
+            () -> new AppException(ErrorCode.EMAIL_EXISTED)
+        );
         User newUser = new User();
         String encryptedPassword = passwordEncoder.encode(password);
         newUser.setLogin(userDTO.getLogin().toLowerCase());
@@ -141,6 +136,7 @@ public class UserService {
         newUser.setCccd(userDTO.getCccd());
         newUser.setAddress(userDTO.getAddress());
         newUser.setDob(userDTO.getDob());
+        newUser.setPhoneNumber(userDTO.getPhoneNumber());
         // new user is not active
         newUser.setActivated(true);
         // new user gets registration key
@@ -151,15 +147,6 @@ public class UserService {
         userRepository.save(newUser);
         log.debug("Created Information for User: {}", newUser);
         return newUser;
-    }
-
-    private boolean removeNonActivatedUser(User existingUser) {
-        if (existingUser.isActivated()) {
-            return false;
-        }
-        userRepository.delete(existingUser);
-        userRepository.flush();
-        return true;
     }
 
     public UserNameDTO getUserName(Long id){
@@ -286,17 +273,19 @@ public class UserService {
 
     @Transactional
     public void changePassword(String currentClearTextPassword, String newPassword) {
-        SecurityUtils.getCurrentUserLogin()
-            .flatMap(userRepository::findOneByLogin)
-            .ifPresent(user -> {
-                String currentEncryptedPassword = user.getPassword();
-                if (!passwordEncoder.matches(currentClearTextPassword, currentEncryptedPassword)) {
-                    throw new AppException(ErrorCode.OLD_PASSWORD_NOT_MATCH);
-                }
-                String encryptedPassword = passwordEncoder.encode(newPassword);
-                user.setPassword(encryptedPassword);
-                log.debug("Changed password for User: {}", user);
-            });
+        String userId = SecurityUtils.getCurrentUserLogin().orElse(null);
+        if (DataUtils.isNullOrEmpty(userId)) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
+        }
+        userRepository.findOneById(Long.parseLong(userId)).ifPresent(user -> {
+            String currentEncryptedPassword = user.getPassword();
+            if (!passwordEncoder.matches(currentClearTextPassword, currentEncryptedPassword)) {
+                throw new AppException(ErrorCode.OLD_PASSWORD_NOT_MATCH);
+            }
+            String encryptedPassword = passwordEncoder.encode(newPassword);
+            user.setPassword(encryptedPassword);
+            log.debug("Changed password for User: {}", user);
+        });
     }
 
     @Transactional(readOnly = true)
@@ -409,6 +398,7 @@ public class UserService {
                 userBuilding.setBuildingId(buildingId);
                 userBuilding.setUserId(userId);
                 userBuildingRepository.save(userBuilding);
+                notificationService.notifyUser(userId, com.ptit.datn.constants.Constants.TOPIC.ASSIGN, "Bạn đã được phân công quản lý thêm 1 tòa nhà");
             });
         return "Assign responsible successfully";
     }
