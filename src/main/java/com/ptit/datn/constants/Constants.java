@@ -65,9 +65,10 @@ public final class Constants {
     }
     public static final class TOPIC {
         private TOPIC() {}
-        public static final String REQUEST = "/topic/request/";
+        public static final String REQUEST = "/topic/requests/";
         public static final String ASSIGN = "/topic/assign/";
         public static final String CONTRACT = "/topic/contract/";
+
 
     }
     public static final class NOTIFICATION_STATUS {

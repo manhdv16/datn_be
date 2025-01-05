@@ -1,5 +1,6 @@
 package com.ptit.datn.service;
 
+import com.ptit.datn.constants.Constants;
 import com.ptit.datn.constants.RequestStatus;
 import com.ptit.datn.domain.Building;
 import com.ptit.datn.domain.Office;
@@ -36,17 +37,20 @@ public class RequestService {
     private final BuildingRepository buildingRepository;
     private final UserRepository userRepository;
     private final UserBuildingRepository userBuildingRepository;
+    private final NotificationService notificationService;
 
     public RequestService(RequestRepository requestRepository,
                           OfficeRepository officeRepository,
                           UserRepository userRepository,
                           BuildingRepository buildingRepository,
-                          UserBuildingRepository userBuildingRepository) {
+                          UserBuildingRepository userBuildingRepository,
+                          NotificationService notificationService) {
         this.requestRepository = requestRepository;
         this.officeRepository = officeRepository;
         this.userRepository = userRepository;
         this.buildingRepository = buildingRepository;
         this.userBuildingRepository = userBuildingRepository;
+        this.notificationService = notificationService;
     }
 
     /**
@@ -100,6 +104,16 @@ public class RequestService {
         RequestDTO requestDTO_result = new RequestDTO(requestRepository.save(request));
         requestDTO_result.setOfficeIds(requestDTO.getOfficeIds());
 
+        // Send notification to manager
+        if (requestDTO.getManagerId() != null) {
+            notificationService.notifyUser(requestDTO.getManagerId(), Constants.TOPIC.REQUEST,
+                 "99|" + requestDTO_result.getId());
+        }
+
+        // Send notification to user
+        notificationService.notifyUser(requestDTO.getUserId(), Constants.TOPIC.REQUEST,
+            RequestStatus.PENDING + "|" + requestDTO_result.getId());
+
         return requestDTO_result;
     }
 
@@ -123,10 +137,12 @@ public class RequestService {
         // Get userDTOs
         requestDTOS.forEach(requestDTO -> {
             if (requestDTO.getUserId() != null) {
-                userRepository.findById(requestDTO.getUserId()).ifPresent(user -> requestDTO.setUserDTO(new UserDTO(user)));
+                userRepository.findById(requestDTO.getUserId())
+                    .ifPresent(user -> requestDTO.setUserDTO(new UserDTO(user)));
             }
             if (requestDTO.getBuildingId() != null) {
-                buildingRepository.findById(requestDTO.getBuildingId()).ifPresent(building -> requestDTO.setBuildingDTO(new BuildingDTO(building)));
+                buildingRepository.findById(requestDTO.getBuildingId())
+                    .ifPresent(building -> requestDTO.setBuildingDTO(new BuildingDTO(building)));
             }
         });
 
@@ -262,24 +278,45 @@ public class RequestService {
         request.setTime(req.getTime());
         request.setStatus(RequestStatus.ACCEPTED);
         request.setManagerId(Long.valueOf(SecurityUtils.getCurrentUserLogin().orElseThrow()));
+
+        // Send notification to user
+        notificationService.notifyUser(request.getUserId(), Constants.TOPIC.REQUEST,
+            RequestStatus.ACCEPTED + "|" + request.getId());
+
         return new RequestDTO(requestRepository.save(request));
     }
 
     public RequestDTO handleReject(Long id) {
         Request request = requestRepository.findById(id).orElseThrow();
         request.setStatus(RequestStatus.REJECTED);
+
+        // Send notification to user
+        notificationService.notifyUser(request.getUserId(), Constants.TOPIC.REQUEST,
+            RequestStatus.REJECTED +"|" + request.getId());
+
         return new RequestDTO(requestRepository.save(request));
     }
 
     public RequestDTO handleCancel(Long id) {
         Request request = requestRepository.findById(id).orElseThrow();
         request.setStatus(RequestStatus.CANCELED);
+
+        // Send notification to user
+        notificationService.notifyUser(request.getUserId(), Constants.TOPIC.REQUEST,
+            RequestStatus.CANCELED + "|" + request.getId());
+
         return new RequestDTO(requestRepository.save(request));
     }
 
     public RequestDTO handleComplete(Long id) {
         Request request = requestRepository.findById(id).orElseThrow();
         request.setStatus(RequestStatus.COMPLETED);
+
+        // Send notification to user
+        notificationService.notifyUser(request.getUserId(), Constants.TOPIC.REQUEST,
+            RequestStatus.COMPLETED + "|" + request.getId());
+
+
         return new RequestDTO(requestRepository.save(request));
     }
 
