@@ -66,6 +66,7 @@ public class ContractService {
     private final ContractOfficeRepository contractOfficeRepository;
     private final ContractSignatureRepository contractSignatureRepository;
     private final MailService mailService;
+    private final NotificationService notificationService;
     private CloudinaryService cloudinaryService;
     public Page<ContractDTO> getAll(PageFilterInput<List<FilterDTO>> input, int operator){
         Pageable pageable = Utils.getPageable(input);
@@ -153,6 +154,14 @@ public class ContractService {
             }
         }
         contractOfficeRepository.saveAll(contractOfficeEntitiesSave);
+
+        if(contractDTO.getRequest().getTenantId() != null){
+            notificationService.notifyUser(
+                contractDTO.getRequest().getTenantId(),
+                com.ptit.datn.constants.Constants.TOPIC.CONTRACT,
+                "Hợp đồng thuê của bạn đã được tạo");
+        }
+
         return contractSave.getId();
     }
 
