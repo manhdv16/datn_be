@@ -62,6 +62,7 @@ public class UserService {
     CloudinaryService cloudinaryService;
     BuildingService buildingService;
     RedisService redisService;
+    NotificationService notificationService;
 
     public Optional<User> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
@@ -397,6 +398,7 @@ public class UserService {
                 userBuilding.setBuildingId(buildingId);
                 userBuilding.setUserId(userId);
                 userBuildingRepository.save(userBuilding);
+                notificationService.notifyUser(userId, com.ptit.datn.constants.Constants.TOPIC.ASSIGN, "Bạn đã được phân công quản lý thêm 1 tòa nhà");
             });
         return "Assign responsible successfully";
     }
