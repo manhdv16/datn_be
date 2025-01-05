@@ -29,6 +29,7 @@ public class NotificationController {
     }
     @GetMapping("/{userId}")
     public Page<Notification> getAll(@PathVariable("userId") Long userId, Pageable pageable) {
+
         return notificationService.getAll(userId, pageable);
     }
     @GetMapping("/unread/{userId}")
