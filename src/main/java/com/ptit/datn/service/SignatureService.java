@@ -9,10 +9,36 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.*;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
 public class SignatureService {
+
+    public static String createSignature(String hash, String privateKeyBase64) throws Exception {
+        // Bước 1: Giải mã private key từ base64
+        byte[] privateKeyBytes = Base64.getDecoder().decode(privateKeyBase64);
+
+        // Bước 2: Chuyển đổi byte[] thành PrivateKey
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        PrivateKey privateKey = keyFactory.generatePrivate(keySpec);
+
+        // Bước 1: Khởi tạo Signature với thuật toán SHA256withRSA
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(privateKey);
+
+        // Bước 2: Cung cấp dữ liệu cần ký (hash) dưới dạng byte
+        byte[] hashBytes = hash.getBytes("UTF-8");
+        signature.update(hashBytes);
+
+        // Bước 3: Ký dữ liệu
+        byte[] signatureBytes = signature.sign();
+
+        // Bước 4: Chuyển chữ ký sang định dạng Base64
+        return Base64.getEncoder().encodeToString(signatureBytes);
+    }
+
 
     public static boolean verifySignature(String data, String signature, String publicKeyBase64) {
         try {

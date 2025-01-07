@@ -43,6 +43,7 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -293,9 +294,12 @@ public class ContractService {
         updateContractStatus(contractId, index+1);
     }
 
-    public void verifySignerV2(VerifySignatureDTO verifySignatureDTO){
-        Long contractId = verifySignatureDTO.getContractId();
-        String signature = verifySignatureDTO.getSignature();
+    public void verifySignerV2(Long contractId, MultipartFile file1,  MultipartFile file2) throws Exception {
+
+        String uploadHash = SignatureService.generateHashFromMultipartFile(file1);
+        String pemContent = new String(file2.getBytes(), StandardCharsets.UTF_8);
+
+        String signature = SignatureService.createSignature(uploadHash, pemContent);
 
         String storedHash = userService.getDigitalSignature();
         String publicKeyBase64 = userService.getPublicKey();
@@ -327,6 +331,19 @@ public class ContractService {
         contractSignatureEntity.setStep(index+1);
         contractSignatureRepository.save(contractSignatureEntity);
         updateContractStatus(contractId, index+1);
+    }
+
+    public boolean testVerify(MultipartFile file, String privateKey) throws Exception {
+        String imgHash = SignatureService.generateHashFromMultipartFile(file);
+        String stored = userService.getDigitalSignature();
+
+        String signature = SignatureService.createSignature(imgHash, privateKey);
+        log.info("Signature: " + signature);
+
+        String publicKey = userService.getPublicKey();
+
+        return SignatureService.verifySignature(stored, signature, publicKey);
+
     }
 
     private void updateContractStatus(Long contractId, int index){

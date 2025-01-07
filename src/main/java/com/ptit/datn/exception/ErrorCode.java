@@ -46,7 +46,7 @@ public enum ErrorCode {
     NOT_REPRESENTATIVE(400, "not.representative", HttpStatus.BAD_REQUEST),
     KEY_RESET_PASSWORD_NOT_TRUE(400, "KEY_RESET_PASSWORD_NOT_TRUE", HttpStatus.BAD_REQUEST),
     ALREADY_SIGNED(400, "already.signed", HttpStatus.BAD_REQUEST),
-    VALIDATE_STATUS(400, "Hơp đồng chưa hoàn thành", HttpStatus.BAD_REQUEST);
+    VALIDATE_STATUS(400, "contract.notend", HttpStatus.BAD_REQUEST);
 
     ErrorCode(int code, String message, HttpStatus statusCode) {
         this.code = code;

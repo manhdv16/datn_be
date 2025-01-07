@@ -106,9 +106,17 @@ public class ContractResource {
         return new CommonResponse<>().success().data(result);
     }
 
-    @PostMapping("/verify-signature-v2")
-    public CommonResponse<?> verifySignatureV2(@RequestBody VerifySignatureDTO verifySignatureDTO){
-        contractService.verifySignerV2(verifySignatureDTO);
+//    @PostMapping("/verify-signature-v2")
+//    public CommonResponse<?> verifySignatureV2(@RequestBody VerifySignatureDTO verifySignatureDTO){
+//        contractService.verifySignerV2(verifySignatureDTO);
+//        return new CommonResponse<>().success();
+//    }
+
+    @PostMapping("/{contractId}/verify-signature-v2")
+    public CommonResponse<?> verifySignatureV2(@RequestParam("file-img") MultipartFile file1,
+                                             @RequestParam("file-key") MultipartFile file2,
+                                               @PathVariable Long contractId) throws Exception {
+        contractService.verifySignerV2(contractId, file1, file2);
         return new CommonResponse<>().success();
     }
 }
