@@ -16,6 +16,7 @@ import com.ptit.datn.security.AuthoritiesConstants;
 import com.ptit.datn.security.SecurityUtils;
 import com.ptit.datn.security.jwt.TokenProvider;
 import com.ptit.datn.service.dto.AdminUserDTO;
+import com.ptit.datn.service.dto.RsaKeyDTO;
 import com.ptit.datn.service.dto.UserDTO;
 import com.ptit.datn.service.dto.UserNameDTO;
 import com.ptit.datn.utils.DataUtils;
@@ -144,6 +145,12 @@ public class UserService {
         Set<Authority> authorities = new HashSet<>();
         authorityRepository.findById(AuthoritiesConstants.USER).ifPresent(authorities::add);
         newUser.setAuthorities(authorities);
+
+        // generate rsa key pair
+        RsaKeyDTO rsaKeyDTO = SignatureService.generateRsaKeyPair();
+        newUser.setPublicKey(rsaKeyDTO.getPublicKey());
+        newUser.setPrivateKey(SignatureService.createPrivateKeyFile(rsaKeyDTO.getPrivateKey()));
+
         userRepository.save(newUser);
         log.debug("Created Information for User: {}", newUser);
         return newUser;
@@ -188,6 +195,11 @@ public class UserService {
         user.setCccd(userDTO.getCccd());
         user.setAddress(userDTO.getAddress());
         user.setDob(userDTO.getDob());
+
+        // generate rsa key pair
+        RsaKeyDTO rsaKeyDTO = SignatureService.generateRsaKeyPair();
+        user.setPublicKey(rsaKeyDTO.getPublicKey());
+        user.setPrivateKey(SignatureService.createPrivateKeyFile(rsaKeyDTO.getPrivateKey()));
 
         if (userDTO.getAuthorities() != null) {
             Set<Authority> authorities = userDTO
@@ -406,6 +418,11 @@ public class UserService {
     public String getDigitalSignature() {
         Long id = Long.valueOf(SecurityUtils.getCurrentUserLogin().orElseThrow());
         return userRepository.getDigitalSignatureByUserId(id);
+    }
+
+    public String getPublicKey() {
+        Long id = Long.valueOf(SecurityUtils.getCurrentUserLogin().orElseThrow());
+        return userRepository.getPublicKeyByUserId(id);
     }
 
     public void removeAssignedManager(Long buildingId, Long userId) {

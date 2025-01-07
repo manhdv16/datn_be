@@ -12,6 +12,7 @@ import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
 
 import java.io.Serializable;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -72,6 +73,12 @@ public class User extends AbstractAuditingEntity<Long> implements Serializable {
     @Size(max = 256)
     @Column(name = "sign_image", length = 256)
     private String signImage;
+
+    @Column(name = "public_key")
+    private String publicKey;
+
+    @Transient
+    private Path privateKey;
 
     @Size(max = 256)
     @Column(name = "avatar", length = 256)

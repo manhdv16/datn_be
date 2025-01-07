@@ -6,6 +6,7 @@ import com.ptit.datn.service.ContractService;
 import com.ptit.datn.service.dto.BuildingContractStatDTO;
 import com.ptit.datn.service.dto.ContractDTO;
 import com.ptit.datn.service.dto.FilterDTO;
+import com.ptit.datn.service.dto.VerifySignatureDTO;
 import com.ptit.datn.service.dto.model.PageFilterInput;
 //import com.ptit.datn.utils.Constants;
 import com.ptit.datn.constants.Constants;
@@ -105,5 +106,9 @@ public class ContractResource {
         return new CommonResponse<>().success().data(result);
     }
 
-
+    @PostMapping("/verify-signature-v2")
+    public CommonResponse<?> verifySignatureV2(@RequestBody VerifySignatureDTO verifySignatureDTO){
+        contractService.verifySignerV2(verifySignatureDTO);
+        return new CommonResponse<>().success();
+    }
 }

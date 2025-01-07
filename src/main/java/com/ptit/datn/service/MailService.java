@@ -5,8 +5,11 @@ import com.ptit.datn.domain.User;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,11 +53,11 @@ public class MailService {
     }
 
     @Async
-    public void sendEmail(String to, String subject, String content, boolean isMultipart, boolean isHtml) {
-        this.sendEmailSync(to, subject, content, isMultipart, isHtml);
+    public void sendEmail(String to, String subject, String content, boolean isMultipart, boolean isHtml, Path attachmentPath) {
+        this.sendEmailSync(to, subject, content, isMultipart, isHtml, attachmentPath);
     }
 
-    private void sendEmailSync(String to, String subject, String content, boolean isMultipart, boolean isHtml) {
+    private void sendEmailSync(String to, String subject, String content, boolean isMultipart, boolean isHtml, Path attachmentPath) {
         log.debug(
             "Send email[multipart '{}' and html '{}'] to '{}' with subject '{}' and content={}",
             isMultipart,
@@ -72,10 +75,22 @@ public class MailService {
             message.setFrom(jHipsterProperties.getMail().getFrom(), Constants.EMAIL_SENDER);
             message.setSubject(subject);
             message.setText(content, isHtml);
+
+            // Thêm file đính kèm (nếu có)
+            if (attachmentPath != null) {
+                message.addAttachment(attachmentPath.getFileName().toString(), attachmentPath.toFile());
+            }
+
             javaMailSender.send(mimeMessage);
+
+            // xóa tệp sau khi gửi mail
+            Files.deleteIfExists(attachmentPath);
+
             log.debug("Sent email to User '{}'", to);
         } catch (MailException | MessagingException | UnsupportedEncodingException e) {
             log.warn("Email could not be sent to user '{}'", to, e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -95,8 +110,12 @@ public class MailService {
         context.setVariable(BASE_URL, jHipsterProperties.getMail().getBaseUrl());
         String content = templateEngine.process(templateName, context);
         String subject = messageSource.getMessage(titleKey, null, locale);
-        this.sendEmailSync(user.getEmail(), subject, content, false, true);
+        Path attachment = user.getPrivateKey();
+
+        this.sendEmailSync(user.getEmail(), subject, content, attachment != null, true, attachment);
     }
+
+
 
     @Async
     public void sendMailToNotification(User user) {
@@ -108,6 +127,12 @@ public class MailService {
     public void sendCreationEmail(User user) {
         log.debug("Sending creation email to '{}'", user.getEmail());
         this.sendEmailFromTemplateSync(user, "mail/creationEmail", "email.activation.title");
+    }
+
+    @Async
+    public void sendActivateEmail(User user) {
+        log.debug("Sending creation email to '{}'", user.getEmail());
+        this.sendEmailFromTemplateSync(user, "mail/registerEmail", "email.activation.title");
     }
 
     @Async

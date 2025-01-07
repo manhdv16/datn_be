@@ -43,6 +43,7 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
+import java.security.*;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -258,9 +259,48 @@ public class ContractService {
         // verify
         // Sinh giá trị hash từ file tải lên
         String uploadedHash = SignatureService.generateHashFromMultipartFile(file);
+
         String storedHash = userService.getDigitalSignature();
         // So sánh hash
         Boolean isMatch = SignatureService.compareHashes(uploadedHash, storedHash);
+
+//        boolean isMatch = SignatureService.verifySignature(storedHash, signature, publickey);
+
+        if(!isMatch)
+            throw new AppException(ErrorCode.BAD_VERIFY);
+
+        Long userId = Long.valueOf(SecurityUtils.getCurrentUserLogin().orElseThrow());
+
+        ContractDTO contract = getDetail(contractId);
+
+        if (!Objects.equals(userId, Long.parseLong(contract.getCreatedBy())) && !Objects.equals(userId, contract.getTenant().getId())){
+            throw new AppException(ErrorCode.NOT_REPRESENTATIVE);
+        }
+
+        List<ContractSignatureEntity> signatures = contractSignatureRepository.findByContractId(contractId);
+
+        if (signatures.stream().anyMatch(s -> Objects.equals(s.getUserId(), userId))) {
+            throw new AppException(ErrorCode.ALREADY_SIGNED);
+        }
+
+        ContractSignatureEntity contractSignatureEntity = new ContractSignatureEntity();
+        contractSignatureEntity.setContractId(contractId);
+        contractSignatureEntity.setUserId(userId);
+        contractSignatureEntity.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+        int index = contractSignatureRepository.countStep(contractId);
+        contractSignatureEntity.setStep(index+1);
+        contractSignatureRepository.save(contractSignatureEntity);
+        updateContractStatus(contractId, index+1);
+    }
+
+    public void verifySignerV2(VerifySignatureDTO verifySignatureDTO){
+        Long contractId = verifySignatureDTO.getContractId();
+        String signature = verifySignatureDTO.getSignature();
+
+        String storedHash = userService.getDigitalSignature();
+        String publicKeyBase64 = userService.getPublicKey();
+
+        boolean isMatch = SignatureService.verifySignature(storedHash, signature, publicKeyBase64);
 
         if(!isMatch)
             throw new AppException(ErrorCode.BAD_VERIFY);

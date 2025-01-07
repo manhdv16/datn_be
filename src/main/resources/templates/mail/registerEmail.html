@@ -7,9 +7,7 @@
   </head>
   <body>
     <p th:text="#{email.activation.greeting(${user.fullName})}">Dear</p>
-    <p th:text="#{email.creation.text1}">Your account has been created:</p>
-    <p><strong>Username:</strong> <span th:text="${user.login}"></span></p>
-    <p><strong>Default Password:</strong> <span th:text="${user.resetKey}"></span></p>
+    <p th:text="#{email.creation.text1}">Your account has been created.</p>
     <p th:text="#{email.creation.private}"></p>
     <p><strong>Private Key:</strong>
 

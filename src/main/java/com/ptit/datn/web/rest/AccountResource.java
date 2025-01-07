@@ -59,7 +59,7 @@ public class AccountResource {
             throw new InvalidPasswordException();
         }
         User user = userService.registerUser(managedUserVM, managedUserVM.getPassword());
-        //        mailService.sendActivationEmail(user);
+        mailService.sendActivateEmail(user);
         return ApiResponse.builder()
             .result(user)
             .message("User registered").build();
