@@ -3,5 +3,5 @@ name: roms
 services:
   mysql:
     extends:
-      file: ./mysql.yml
+      file: mysql.yml
       service: mysql

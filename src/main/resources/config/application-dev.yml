@@ -42,14 +42,30 @@ spring:
           auth: true
           starttls:
             enable: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 18737496113-j7g0ufkbjm1qg9ksnponbtil4fvsbdll.apps.googleusercontent.com
+            client-secret: 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
+            scope: openid, profile, email
+            redirect-uri: "http://localhost:9999/oauth2/callback/google"
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-name-attribute: sub
 
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:mysql://office-nest-db-do-user-17991215-0.i.db.ondigitalocean.com:25060/defaultdb?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true
-    #    username: root
-    #    password: dvm123
-    username: manhdv
-    password: 12345678
+    url: jdbc:mysql://localhost:3306/defaultdb?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true
+    username: root
+    password: manhdv16
+#    url: jdbc:mysql://office-nest-db-do-user-17991215-0.i.db.ondigitalocean.com:25060/defaultdb?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true
+#    username: manhdv
+#    password: 12345678
     hikari:
       poolName: Hikari
       auto-commit: false
@@ -61,6 +77,8 @@ spring:
   liquibase:
     # Remove 'faker' if you do not want the sample data to be loaded automatically
     contexts: dev, faker
+#    change-log: classpath:config/liquibase/changelog/00000000000000_initial_schema.xml
+#    enabled: true
   messages:
     cache-duration: PT1S # 1 second, see the ISO 8601 standard
   thymeleaf:

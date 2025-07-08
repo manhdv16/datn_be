@@ -75,7 +75,6 @@ public class MailService {
             message.setFrom(jHipsterProperties.getMail().getFrom(), Constants.EMAIL_SENDER);
             message.setSubject(subject);
             message.setText(content, isHtml);
-
             // Thêm file đính kèm (nếu có)
             if (attachmentPath != null) {
                 message.addAttachment(attachmentPath.getFileName().toString(), attachmentPath.toFile());

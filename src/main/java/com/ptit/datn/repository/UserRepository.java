@@ -75,4 +75,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u INNER JOIN UserBuilding ub ON u.id = ub.userId WHERE ub.buildingId = :id")
     Page<User> findAllManagerByBuildingId(Pageable pageable, Long id);
+
+    @Query("select u from User u where u.email = :email")
+    Optional<User> findByEmail(@Param("email") String email);
 }

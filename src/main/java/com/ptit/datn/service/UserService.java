@@ -170,6 +170,10 @@ public class UserService {
         );
     }
 
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElse(null);
+    }
+
     public User createUser(AdminUserDTO userDTO) throws Exception {
         User user = new User();
         user.setLogin(userDTO.getLogin().toLowerCase());
@@ -444,5 +448,9 @@ public class UserService {
     public void logout() {
         String token = SecurityUtils.getCurrentUserLogin().orElseThrow();
         redisService.delete(token);
+    }
+
+    public User createUserForSSOLogin(User user) {
+        return userRepository.save(user);
     }
 }

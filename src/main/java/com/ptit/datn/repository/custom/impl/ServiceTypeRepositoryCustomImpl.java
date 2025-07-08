@@ -34,7 +34,7 @@ public class ServiceTypeRepositoryCustomImpl implements ServiceTypeRepositoryCus
             .from(SERVICE_TYPE)
             .getQuery();
 
-        condition = condition.and(SERVICE_TYPE.IS_ACTIVE.eq((byte)1));
+        condition = condition.and(SERVICE_TYPE.IS_ACTIVE.eq(true));
 
         if(input.getServiceCategory() != null){
             condition = condition.and(SERVICE_TYPE.CATEGORY.eq(input.getServiceCategory()));

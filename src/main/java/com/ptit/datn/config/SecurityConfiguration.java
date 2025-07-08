@@ -12,7 +12,12 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -28,6 +33,7 @@ public class SecurityConfiguration {
 
     private final TokenProvider tokenProvider;
     private final SecurityProblemSupport problemSupport;
+    private String apiPortalUrl = "http://localhost:3000";
 
     public SecurityConfiguration(TokenProvider tokenProvider, SecurityProblemSupport problemSupport) {
         this.tokenProvider = tokenProvider;
@@ -65,8 +71,32 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Allow OPTIONS requests for preflight CORS
                 .anyRequest().permitAll() // Require authentication for all other endpoints
             )
+            .oauth2Login(oauth2Login ->
+                oauth2Login
+                    .authorizationEndpoint(authEndpoint ->
+                        authEndpoint.baseUri("/oauth2/authorize") // Set the base URI for OAuth2 authorization
+                    ).redirectionEndpoint(
+                        redirection -> redirection.baseUri("/oauth2/callback/*") // Set the base URI for OAuth2 callbacks
+                    )
+                .userInfoEndpoint(userInfo ->
+                    userInfo.userService(oAuth2UserService()))
+                .successHandler(authenticationSuccessHandler())
+                .failureHandler((request, response, exception) -> {
+                    response.sendRedirect(apiPortalUrl + "/login"); // Redirect to login page on failure
+                }))
+
             .addFilterBefore(new JWTFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class); // Add JWT Filter
 
         return http.build();
+    }
+
+    @Bean
+    public OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService() {
+        return new DefaultOAuth2UserService();
+    }
+
+    @Bean
+    public AuthenticationSuccessHandler authenticationSuccessHandler() {
+        return new CustomAuthenticationSuccessHandler();
     }
 }

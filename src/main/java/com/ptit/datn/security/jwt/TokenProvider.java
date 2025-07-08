@@ -13,10 +13,7 @@ import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -84,7 +81,17 @@ public class TokenProvider {
             .setExpiration(new Date(new Date().getTime() + this.tokenValidityInMilliseconds))
             .compact();
     }
+    public String createToken(com.ptit.datn.domain.User user) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("sub", user.getEmail());
+        claims.put("uid", user.getId());
 
+        return Jwts.builder()
+            .setClaims(claims)
+            .setIssuedAt(new Date())
+            .setExpiration(new Date(new Date().getTime() + this.tokenValidityInMilliseconds))
+            .signWith(key, SignatureAlgorithm.HS512).compact();
+    }
     public Authentication getAuthentication(String token) {
         Claims claims = jwtParser.parseClaimsJws(token).getBody();
 

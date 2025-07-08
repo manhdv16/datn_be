@@ -47,7 +47,7 @@ public class ContractRepositoryCustomImpl implements ContractRepositoryCustom {
             condition = condition.and(BUILDING.ID.in(input.getBuildingIds()));
         }
 
-        condition = condition.and(CONTRACT.IS_ACTIVE.eq((byte) 1));
+        condition = condition.and(CONTRACT.IS_ACTIVE.eq(true));
 
         query.addConditions(condition);
 
@@ -90,7 +90,7 @@ public class ContractRepositoryCustomImpl implements ContractRepositoryCustom {
             .on(CONTRACT.ID.eq(CONTRACT_OFFICE.CONTRACT_ID))
             .and(CONTRACT.START_DATE.greaterOrEqual(input.getStartDate()))
             .and(CONTRACT.END_DATE.lessOrEqual(input.getEndDate()))
-            .and(CONTRACT.IS_ACTIVE.eq((byte)1))
+            .and(CONTRACT.IS_ACTIVE.eq(true))
             .getQuery();
 
         Condition condition = DSL.noCondition();

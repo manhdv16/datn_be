@@ -203,7 +203,6 @@ public class ContractService {
             String resizedImg = addResizeParameters(user.getImageSignature(), 170, 140, "c_scale");
             user.setImageSignature(resizedImg);
         });
-
         Context context = new Context();
         context.setVariable("contract", contractDTO);
         LocalDate currentDate = LocalDate.now();

@@ -25,7 +25,7 @@ public class SignatureService {
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(privateKey);
 
-        byte[] hashBytes = hash.getBytes("UTF-8");
+        byte[] hashBytes = hash.getBytes(StandardCharsets.UTF_8);
         signature.update(hashBytes);
 
         byte[] signatureBytes = signature.sign();

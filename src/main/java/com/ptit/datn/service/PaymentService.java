@@ -20,12 +20,13 @@ public class PaymentService {
     private final VNPAYConfig vnPayConfig;
     private final ContractRepository contractRepository;
     public PaymentDTO.VNPayResponse createVnPayPayment(HttpServletRequest request) {
-        Long contractId = Long.valueOf(request.getParameter("contract_id"));
-        ContractEntity contract = contractRepository.findByIdAndIsActiveTrue(contractId).orElseThrow(
-            () -> new AppException(ErrorCode.RECORD_NOT_FOUND)
-        );
-//        long amount = Integer.parseInt(request.getParameter("amount")) * 100L;
-        long amount = contract.getDepositAmount().longValue() * 100L;
+//        Long contractId = Long.valueOf(request.getParameter("contract_id"));
+//        ContractEntity contract = contractRepository.findByIdAndIsActiveTrue(contractId).orElseThrow(
+//            () -> new AppException(ErrorCode.RECORD_NOT_FOUND)
+//        );
+//        long amount = contract.getDepositAmount().longValue() * 100L;
+        long contractId = 1;
+        long amount = Integer.parseInt(request.getParameter("amount")) * 100L;
         String bankCode = request.getParameter("bankCode");
 
         Map<String, String> vnpParamsMap = vnPayConfig.getVNPayConfig();

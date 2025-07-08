@@ -19,9 +19,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws")
-            .setAllowedOrigins("http://localhost:3000", "https://office-nest-fe-83366.ondigitalocean.app")
-            .withSockJS();
+        registry.addEndpoint("/ws") // Đường dẫn endpoint STOMP
+            .setAllowedOrigins("http://localhost:3000", "https://office-nest-fe-83366.ondigitalocean.app") // Cho phép các nguồn gốc này kết nối
+            .withSockJS(); // Sử dụng SockJS để hỗ trợ các trình duyệt không hỗ trợ WebSocket
     }
 
 }
